@@ -8,10 +8,10 @@ let filterType = "all";
 let searchQ    = "";
 
 // PBKDF2-SHA256 hash of the password (set yours with the helper tool)
-const PW_HASH_B64 = "PLACEHOLDER"; // replace with output of hashPassword()
-const PW_SALT_B64 = "PLACEHOLDER"; // replace with output of hashPassword()
+const PW_HASH_B64 = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965"; // replace with output of hashPassword()
+const PW_SALT_B64 = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965"; // replace with output of hashPassword()
 // Fallback: plain SHA-256 for backward compat if salt is placeholder
-const PW_HASH_SHA256 = "ebc5fcca14a0cd1e62e741d1a413a2e9eb97f0322a09c2d8eb2b73768006d8bd";
+const PW_HASH_SHA256 = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965";
 
 let unlocked = sessionStorage.getItem("lz_ok") === "1";
 
