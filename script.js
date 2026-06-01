@@ -11,7 +11,7 @@ let searchQ    = "";
 const PW_HASH_SHA256    = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965";
 
 // Admin-Passwort (Bearbeitung, neue Beiträge) — separates Passwort!
-const ADMIN_HASH_SHA256 = "b8f4a44e59c998d28f5684e885d5ece7684a28cbe174bdb11a9d949e4a9dc23a"; 
+const ADMIN_HASH_SHA256 = "b8f4a44e59c998d28f5684e885d5ece7684a28cbe174bdb11a9d949e4a9dc23a"; // mit generate-hash.html erzeugen
 
 let siteUnlocked = sessionStorage.getItem("lz_site_ok") === "1"; // Besucher
 let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
@@ -130,10 +130,10 @@ function renderPost(p, idx) {
 function renderTextPost(p, pid, dateStr) {
   const preview = (p.text || "").replace(/\n\n/g, " ").slice(0, 160) + ((p.text||"").length > 160 ? "…" : "");
   const fullText = (p.text || "").split("\n\n").map(t => `<p>${t.replace(/\n/g,"<br>")}</p>`).join("");
-  const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditPost(${JSON.stringify(p).replace(/"/g,'&quot;')}, event)">✎</button>` : "";
+  const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
-  return `<div class="post" id="${pid}">
+  return `<div class="post" id="${pid}" data-type="text" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -150,6 +150,7 @@ function renderTextPost(p, pid, dateStr) {
     <div class="post-body">
       <div class="post-fulltext">${fullText}</div>
     </div>
+    <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
   </div>`;
 }
 
@@ -159,7 +160,7 @@ function renderPhotoPost(p, pid, dateStr) {
   const tagClass = isReise ? "reise" : "";
   const imgs = p.images || [];
   const preview = (p.text || "").slice(0, 140) + ((p.text||"").length > 140 ? "…" : "");
-  const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditPost(${JSON.stringify(p).replace(/"/g,'&quot;')}, event)">✎</button>` : "";
+  const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
   // slideshow markup
@@ -186,7 +187,7 @@ function renderPhotoPost(p, pid, dateStr) {
     </div>`;
   }
 
-  return `<div class="post" id="${pid}">
+  return `<div class="post" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${JSON.stringify(p.images||[]).replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -196,7 +197,7 @@ function renderPhotoPost(p, pid, dateStr) {
       <span class="post-tag ${tagClass}">${tagLabel}</span>
     </div>
     ${slidesHTML}
-    <div class="post-preview" style="margin-top:${imgs.length?'4px':'4px'}">${preview}</div>
+    <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">weiterlesen</span>
       <span class="entry-toggle-arrow">▼</span>
@@ -204,6 +205,7 @@ function renderPhotoPost(p, pid, dateStr) {
     <div class="post-body">
       <div class="post-fulltext">${(p.text||"").split("\n\n").map(t=>`<p>${t.replace(/\n/g,"<br>")}</p>`).join("")}</div>
     </div>
+    <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
   </div>`;
 }
 
@@ -263,6 +265,95 @@ function togglePost(pid) {
   const el = document.getElementById(pid);
   if (!el) return;
   el.classList.toggle("expanded");
+  // preview ausblenden wenn aufgeklappt
+  const preview = el.querySelector(".post-preview");
+  if (preview) preview.style.display = el.classList.contains("expanded") ? "none" : "";
+}
+
+// ── INLINE EDIT: TEXT + FOTO POSTS ───────────────────────────────────────────
+function toggleEditPost(pid, e) {
+  if (e) e.stopPropagation();
+  const formEl = document.getElementById("edit-form-" + pid);
+  if (!formEl) return;
+  if (formEl.style.display !== "none") { formEl.style.display = "none"; return; }
+
+  const postEl = document.getElementById(pid);
+  const type   = postEl.dataset.type;
+  const title  = postEl.dataset.title || "";
+  const text   = postEl.dataset.text  || "";
+  const date   = postEl.dataset.date  ? postEl.dataset.date.slice(0,10) : "";
+  const tag    = postEl.dataset.tag   || "";
+
+  const tagField = type === "photo"
+    ? `<div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666">typ:</label>
+        <select id="ef-tag-${pid}" style="font-family:'Courier New',monospace;font-size:12px;border:1px solid #000;padding:2px 4px">
+          <option value="" ${tag===''?'selected':''}>foto</option>
+          <option value="reise" ${tag==='reise'?'selected':''}>reise</option>
+        </select></div>`
+    : "";
+
+  formEl.style.display = "block";
+  formEl.innerHTML = `<div class="edit-form">
+    <div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666">titel:</label><input type="text" id="ef-title-${pid}" value="${title.replace(/"/g,'&quot;')}" style="width:calc(100% - 88px)"></div>
+    <div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666;vertical-align:top">text:</label><textarea id="ef-text-${pid}" rows="6" style="width:calc(100% - 88px)">${text}</textarea></div>
+    ${tagField}
+    <div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666">datum:</label><input type="date" id="ef-date-${pid}" value="${date}" style="width:140px"></div>
+    <div class="edit-form-btns">
+      <button onclick="saveEditPost('${pid}')">speichern</button>
+      <button onclick="document.getElementById('edit-form-${pid}').style.display='none'" style="color:#888;border-color:#888">abbrechen</button>
+    </div>
+    <div id="ef-status-${pid}" style="font-size:11px;margin-top:4px"></div>
+  </div>`;
+}
+
+async function saveEditPost(pid) {
+  const postEl  = document.getElementById(pid);
+  const type    = postEl.dataset.type;
+  const st      = document.getElementById("ef-status-" + pid);
+  const title   = document.getElementById("ef-title-" + pid).value.trim();
+  const text    = document.getElementById("ef-text-"  + pid).value;
+  const dateVal = document.getElementById("ef-date-"  + pid).value;
+  const tag     = type === "photo" ? (document.getElementById("ef-tag-" + pid)?.value || "") : undefined;
+
+  if (!title) { st.textContent = "fehler: titel fehlt."; return; }
+  const posted_at = dateVal ? new Date(dateVal).toISOString() : postEl.dataset.date;
+
+  // find + update in posts array
+  const idx = posts.findIndex(p =>
+    p.title === postEl.dataset.title &&
+    p.posted_at === postEl.dataset.date
+  );
+  if (idx < 0) { st.textContent = "fehler: beitrag nicht gefunden."; return; }
+
+  const updated = { ...posts[idx], title, text, posted_at };
+  if (tag !== undefined) updated.tag = tag;
+  if (!updated.tag) delete updated.tag;
+
+  const token  = localStorage.getItem("gh_token");
+  const repo   = localStorage.getItem("gh_repo");
+  const branch = localStorage.getItem("gh_branch") || "main";
+  if (!token || !repo) { st.textContent = "fehler: github einstellungen fehlen."; return; }
+
+  st.textContent = "speichere...";
+  try {
+    const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/posts.json?ref=${branch}`,
+      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+    if (!shaRes.ok) throw new Error(shaRes.status);
+    const { sha } = await shaRes.json();
+    const newPosts = [...posts];
+    newPosts[idx] = updated;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(newPosts, null, 2))));
+    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/posts.json`, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify({ message: `edit: ${title}`, content, sha, branch })
+    });
+    if (!putRes.ok) { const err = await putRes.json(); throw new Error(err.message || putRes.status); }
+    st.textContent = "✓ gespeichert.";
+    posts[idx] = updated;
+    mergePosts();
+    render();
+  } catch(err) { st.textContent = "fehler: " + err.message; }
 }
 
 // ── HIDE / SHOW POSTS ─────────────────────────────────────────────────────────
