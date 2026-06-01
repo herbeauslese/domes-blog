@@ -51,6 +51,11 @@ function mergePosts() {
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────────
+function stablePid(p) {
+  // stable key: type + title + posted_at — survives re-renders and re-sorts
+  return "post-" + safeid((p.type||"") + (p.title||"") + (p.posted_at||"")).slice(0, 40);
+}
+
 function render() {
   const q = searchQ.toLowerCase();
 
@@ -71,6 +76,11 @@ function render() {
     }
     return true;
   });
+
+  // hidden posts: skip unless showHidden
+  if (!showHidden) {
+    filtered = filtered.filter(p => !hiddenPosts.has(stablePid(p)));
+  }
 
   // update count
   document.getElementById("post-count").textContent = filtered.length + " beiträge";
@@ -99,13 +109,16 @@ function render() {
   document.querySelectorAll(".slideshow[data-slides]").forEach(el => {
     initSlideshow(el);
   });
+
+  // apply hidden UI state
+  requestAnimationFrame(applyHiddenUI);
 }
 
 function safeid(s) { return s.replace(/[^a-zA-Z0-9]/g, ""); }
 
 // ── RENDER SINGLE POST ───────────────────────────────────────────────────────
 function renderPost(p, idx) {
-  const pid = "post-" + idx;
+  const pid = stablePid(p);
   const dateStr = formatDate(p.posted_at);
 
   if (p.type === "text")  return renderTextPost(p, pid, dateStr);
@@ -118,13 +131,14 @@ function renderTextPost(p, pid, dateStr) {
   const preview = (p.text || "").replace(/\n\n/g, " ").slice(0, 160) + ((p.text||"").length > 160 ? "…" : "");
   const fullText = (p.text || "").split("\n\n").map(t => `<p>${t.replace(/\n/g,"<br>")}</p>`).join("");
   const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditPost(${JSON.stringify(p).replace(/"/g,'&quot;')}, event)">✎</button>` : "";
+  const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
   return `<div class="post" id="${pid}">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
         <span class="post-title" onclick="togglePost('${pid}')">${p.title || "(ohne titel)"}</span>
-        ${editBtn}
+        ${editBtn}${hideBtn}
       </span>
       <span class="post-tag">text</span>
     </div>
@@ -146,6 +160,7 @@ function renderPhotoPost(p, pid, dateStr) {
   const imgs = p.images || [];
   const preview = (p.text || "").slice(0, 140) + ((p.text||"").length > 140 ? "…" : "");
   const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditPost(${JSON.stringify(p).replace(/"/g,'&quot;')}, event)">✎</button>` : "";
+  const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
   // slideshow markup
   let slidesHTML = "";
@@ -176,7 +191,7 @@ function renderPhotoPost(p, pid, dateStr) {
     <div class="post-header">
       <span class="post-title-wrap">
         <span class="post-title" onclick="togglePost('${pid}')">${p.title || "(ohne titel)"}</span>
-        ${editBtn}
+        ${editBtn}${hideBtn}
       </span>
       <span class="post-tag ${tagClass}">${tagLabel}</span>
     </div>
@@ -197,35 +212,20 @@ function renderAlbumPost(p, pid, dateStr) {
   const cid = "cv-" + safeid(a.artist + a.album);
   const genres = (a.genre||"").split(",").map(g=>g.trim()).filter(Boolean).join(" · ");
 
-  // song ticker
-  const songs = (a.songs||[]).map(s =>
-    s === a.favorite_song ? `<span class="fav">${s}</span>` : s
-  ).join("  •  ");
-  const tickerId = "ticker-" + pid;
-  const songsHTML = songs
-    ? `<div class="entry-songs" id="songs-${pid}"><span class="entry-songs-inner" id="${tickerId}">${songs}</span></div>`
+  // songs: static list, unauffällig, im body
+  const songsListHTML = (a.songs||[]).length
+    ? `<div class="album-songs-list">${(a.songs||[]).map(s =>
+        s === a.favorite_song
+          ? `<span class="album-song fav">${s}</span>`
+          : `<span class="album-song">${s}</span>`
+      ).join("")}</div>`
     : "";
-
-  // sub-ratings
-  const SUB_CATS = [
-    { key:"hoerspass", label:"Hörspaß",  tip:"Will man bei dem Album abtanzen oder exzessiv nicken — oder läuft es eher nebenbei?" },
-    { key:"edginess",  label:"Edginess", tip:"Ist das Album etwas Besonderes? Fordert es den Hörer heraus? Probiert es etwas Neues?" },
-    { key:"harmonie",  label:"Harmonie", tip:"Ist das Album in sich stimmig? Schafft es ein Gesamtbild? Erzählt es eine Geschichte?" }
-  ];
-  const subs = a.sub_ratings || {};
-  const subHTML = `<div class="sub-ratings-full">${SUB_CATS.map(c => {
-    const v = subs[c.key]||0;
-    const stars = [1,2,3,4,5].map(i=>`<span class="srf-star ${i<=v?'filled':'empty'}">★</span>`).join("");
-    return `<div class="srf-row">
-      <span class="srf-label"><span>${c.label}</span><span class="srf-tooltip" data-tip="${c.tip}">?</span></span>
-      <span class="srf-stars">${stars}</span>
-    </div>`;
-  }).join("")}</div>`;
 
   const reviewHTML = a.review
-    ? `<div class="post-fulltext">${a.review.replace(/\n/g,"<br>")}</div>`
+    ? `<div class="post-fulltext" style="margin-top:10px">${a.review.replace(/\n/g,"<br>")}</div>`
     : "";
   const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditAlbum('${safeid(a.artist+a.album)}', event)">✎</button>` : "";
+  const hideBtn = unlocked ? `<button class="hide-btn" title="ausblenden" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
   return `<div class="post" id="${pid}">
     <div style="position:relative">
@@ -241,7 +241,6 @@ function renderAlbumPost(p, pid, dateStr) {
         <canvas class="album-cover-canvas" id="${cid}" width="4" height="4"></canvas>
         <div class="album-info">
           <div class="post-meta">${a.artist}${a.year ? " · "+a.year : ""}${genres ? " · "+genres : ""}</div>
-          ${songsHTML}
         </div>
       </div>
       <div class="post-date-inline" style="top:0">${dateStr}</div>
@@ -251,7 +250,7 @@ function renderAlbumPost(p, pid, dateStr) {
       <span class="entry-toggle-arrow">▼</span>
     </div>
     <div class="post-body">
-      ${Object.keys(subs).length ? subHTML : ""}
+      ${songsListHTML}
       ${reviewHTML}
       <div class="entry-date-small">${dateStr}</div>
     </div>
@@ -264,6 +263,51 @@ function togglePost(pid) {
   const el = document.getElementById(pid);
   if (!el) return;
   el.classList.toggle("expanded");
+}
+
+// ── HIDE / SHOW POSTS ─────────────────────────────────────────────────────────
+let hiddenPosts = new Set(JSON.parse(localStorage.getItem("lz_hidden") || "[]"));
+let showHidden  = false;
+
+function saveHidden() {
+  localStorage.setItem("lz_hidden", JSON.stringify([...hiddenPosts]));
+}
+
+function toggleHidePost(pid, e) {
+  if (e) e.stopPropagation();
+  if (hiddenPosts.has(pid)) {
+    hiddenPosts.delete(pid);
+  } else {
+    hiddenPosts.add(pid);
+  }
+  saveHidden();
+  render();
+}
+
+function applyHiddenUI() {
+  // colour hide-btns after render
+  document.querySelectorAll(".hide-btn").forEach(btn => {
+    const pid = btn.closest(".post")?.id;
+    if (pid && hiddenPosts.has(pid)) {
+      btn.textContent = "●";
+      btn.title = "einblenden";
+      btn.style.color = "var(--accent)";
+    } else {
+      btn.textContent = "◌";
+      btn.title = "ausblenden";
+      btn.style.color = "";
+    }
+  });
+  // show/hide toggle button visibility
+  const btn = document.getElementById("btn-show-hidden");
+  if (!btn) return;
+  if (hiddenPosts.size > 0) {
+    btn.style.display = "";
+    btn.textContent = showHidden ? `◉ ${hiddenPosts.size}` : `◎ ${hiddenPosts.size}`;
+    btn.title = showHidden ? "versteckte ausblenden" : "versteckte anzeigen";
+  } else {
+    btn.style.display = "none";
+  }
 }
 
 // ── SLIDESHOW ─────────────────────────────────────────────────────────────────
@@ -753,4 +797,10 @@ document.addEventListener("click", e => {
     return;
   }
   document.querySelectorAll(".srf-tooltip.tip-open").forEach(t => t.classList.remove("tip-open"));
+});
+
+// ── SHOW HIDDEN TOGGLE ────────────────────────────────────────────────────────
+document.getElementById("btn-show-hidden").addEventListener("click", () => {
+  showHidden = !showHidden;
+  render();
 });
