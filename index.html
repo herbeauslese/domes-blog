@@ -18,10 +18,21 @@
 </head>
 <body>
 
+<!-- ── ADMIN PASSWORD OVERLAY ── -->
+<div id="admin-pw-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150;align-items:center;justify-content:center">
+  <div id="admin-pw-box" style="background:#fff;border:2px solid #000;border-bottom:4px solid #000;padding:18px 20px;font-size:13px;width:260px;font-family:'Courier New',monospace">
+    <b style="display:block;margin-bottom:8px;font-family:'Special Elite','Courier New',monospace;font-size:14px">// admin //</b>
+    <input type="password" id="admin-pw-input" autocomplete="off" placeholder="admin-passwort" style="width:140px">
+    <button id="admin-pw-ok" style="margin-left:5px">ok</button>
+    <button id="admin-pw-cancel" style="margin-left:4px;color:#888;border-color:#888">✕</button>
+    <div id="admin-pw-error" style="font-size:11px;margin-top:6px;display:none;color:#c00">falsch.</div>
+  </div>
+</div>
+
 <!-- ── PASSWORD OVERLAY ── -->
 <div id="pw-overlay" style="display:none">
   <div id="pw-box">
-    <b>// rote haare //</b>
+    <b>// rotehaare //</b>
     <div class="pw-hint" style="margin-bottom:10px;line-height:1.7">
       Zutritt nur für Freunde.<br>
       <span style="font-size:10px">Kleiner Tipp: Das beste Bier der Welt:</span>
