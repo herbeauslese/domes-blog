@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>rotehaare</title>
+<title>rote haare</title>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
@@ -30,15 +30,15 @@
 </div>
 
 <!-- ── PASSWORD OVERLAY ── -->
-<div id="pw-overlay" style="display:none">
-  <div id="pw-box">
-    <b>// rotehaare blog //</b>
+<div id="pw-overlay" style="display:none;position:fixed;inset:0;background:#fff;z-index:99;align-items:flex-start;justify-content:center;padding-top:80px">
+  <div id="pw-box" style="pointer-events:all">
+    <b>// rote haare blog //</b>
     <div class="pw-hint" style="margin-bottom:10px;line-height:1.7">
       Zutritt nur für Freunde.<br>
       <span style="font-size:10px">Kleiner Tipp: Das beste Bier der Welt:</span>
     </div>
     <input type="password" id="pw-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="passwort">
-    <button id="pw-ok">rein</button>
+    <button id="pw-ok" type="button" style="touch-action:manipulation">rein</button>
     <div id="pw-error" style="font-size:11px;margin-top:6px;display:none;color:#c00"></div>
   </div>
 </div>
