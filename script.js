@@ -7,18 +7,18 @@ let sortDir    = -1; // -1 = newest first
 let filterType = "all";
 let searchQ    = "";
 
-// PBKDF2-SHA256 hash of the password (set yours with the helper tool)
-const PW_HASH_B64 = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965"; // replace with output of hashPassword()
-const PW_SALT_B64 = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965"; // replace with output of hashPassword()
-// Fallback: plain SHA-256 for backward compat if salt is placeholder
-const PW_HASH_SHA256 = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965";
+// Besucher-Passwort (Zugang zur Seite) — SHA-256 Hash
+const PW_HASH_SHA256    = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965";
 
-let unlocked = sessionStorage.getItem("lz_ok") === "1";
+// Admin-Passwort (Bearbeitung, neue Beiträge) — separates Passwort!
+const ADMIN_HASH_SHA256 = "b8f4a44e59c998d28f5684e885d5ece7684a28cbe174bdb11a9d949e4a9dc23a";
+
+let siteUnlocked = sessionStorage.getItem("lz_site_ok") === "1"; // Besucher
+let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 (async () => {
-  // Check password requirement
-  if (!unlocked) {
+  if (!siteUnlocked) {
     document.getElementById("pw-overlay").style.display = "flex";
     document.getElementById("pw-input").focus();
     return;
@@ -436,15 +436,14 @@ document.getElementById("btn-darkmode").addEventListener("click", () => {
   applyDark();
 });
 
-// ── PASSWORD ──────────────────────────────────────────────────────────────────
+// ── PASSWORD: BESUCHER ────────────────────────────────────────────────────────
 async function checkPw() {
-  const val = document.getElementById("pw-input").value;
-  // SHA-256 fallback (same as plattenregal)
+  const val  = document.getElementById("pw-input").value;
   const buf  = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(val));
   const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
   if (hash === PW_HASH_SHA256) {
-    unlocked = true;
-    sessionStorage.setItem("lz_ok","1");
+    siteUnlocked = true;
+    sessionStorage.setItem("lz_site_ok", "1");
     document.getElementById("pw-overlay").style.display = "none";
     document.getElementById("pw-input").value = "";
     document.getElementById("pw-error").style.display = "none";
@@ -461,11 +460,44 @@ async function checkPw() {
 document.getElementById("pw-ok").addEventListener("click", checkPw);
 document.getElementById("pw-input").addEventListener("keydown", e => { if(e.key==="Enter") checkPw(); });
 
+// ── PASSWORD: ADMIN ───────────────────────────────────────────────────────────
+async function checkAdminPw() {
+  const val  = document.getElementById("admin-pw-input").value;
+  const buf  = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(val));
+  const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+  if (hash === ADMIN_HASH_SHA256) {
+    unlocked = true;
+    sessionStorage.setItem("lz_admin_ok", "1");
+    document.getElementById("admin-pw-overlay").style.display = "none";
+    document.getElementById("admin-pw-input").value = "";
+    document.getElementById("admin-pw-error").style.display = "none";
+    // Admin-Panel öffnen
+    const p = document.getElementById("admin-panel");
+    p.style.display = "block";
+    document.getElementById("btn-admin").classList.add("active");
+    render(); // edit-buttons einblenden
+  } else {
+    document.getElementById("admin-pw-error").style.display = "block";
+    document.getElementById("admin-pw-input").select();
+    document.getElementById("admin-pw-box").style.animation = "none";
+    setTimeout(() => {
+      document.getElementById("admin-pw-box").style.animation = "shake 0.3s ease";
+    }, 10);
+  }
+}
+document.getElementById("admin-pw-ok").addEventListener("click", checkAdminPw);
+document.getElementById("admin-pw-input").addEventListener("keydown", e => { if(e.key==="Enter") checkAdminPw(); });
+document.getElementById("admin-pw-cancel").addEventListener("click", () => {
+  document.getElementById("admin-pw-overlay").style.display = "none";
+  document.getElementById("admin-pw-input").value = "";
+  document.getElementById("admin-pw-error").style.display = "none";
+});
+
 // ── ADMIN ─────────────────────────────────────────────────────────────────────
 document.getElementById("btn-admin").addEventListener("click", () => {
   if (!unlocked) {
-    document.getElementById("pw-overlay").style.display = "flex";
-    document.getElementById("pw-input").focus();
+    document.getElementById("admin-pw-overlay").style.display = "flex";
+    document.getElementById("admin-pw-input").focus();
     return;
   }
   const p = document.getElementById("admin-panel");
