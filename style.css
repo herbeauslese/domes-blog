@@ -507,6 +507,53 @@ body.dark .entry-songs { color: #aaa; }
   margin-top: 4px;
 }
 
+/* ── HIDE BUTTON ── */
+.hide-btn {
+  display: none;
+  font-size: 11px;
+  color: #ccc;
+  cursor: pointer;
+  margin-left: 4px;
+  font-family: var(--font-main);
+  vertical-align: middle;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+}
+.post-title-wrap:hover .hide-btn { display: inline; }
+.hide-btn:hover { color: #000; background: none; }
+body.dark .hide-btn { color: #444; }
+body.dark .hide-btn:hover { color: #ddd; background: none; }
+.hide-btn.active { display: inline; color: var(--accent); }
+
+/* post shown-as-hidden (when showHidden=true) */
+.post.post-hidden {
+  opacity: 0.35;
+}
+.post.post-hidden:hover { opacity: 0.7; }
+
+/* ── ALBUM SONGS LIST (static, body) ── */
+.album-songs-list {
+  font-size: 11px;
+  color: #999;
+  line-height: 1.7;
+  margin-bottom: 4px;
+  border-left: 2px solid #e0e0e0;
+  padding-left: 8px;
+}
+body.dark .album-songs-list { color: #555; border-color: #2a2a2a; }
+.album-song { display: inline; }
+.album-song::after { content: "  ·  "; color: #ddd; }
+body.dark .album-song::after { color: #333; }
+.album-song:last-child::after { content: ""; }
+.album-song.fav {
+  color: #555;
+  font-weight: bold;
+}
+body.dark .album-song.fav { color: #888; }
+.album-song.fav::before { content: "★ "; color: var(--accent); font-size: 9px; }
+
 /* ── FOOTER ── */
 #footer {
   margin-top: 16px;
