@@ -3,7 +3,7 @@ let posts   = [];  // from posts.json  (type: text | photo | album)
 let albums  = [];  // from albums.json (legacy, injected as album-posts)
 let allPosts = []; // merged + sorted feed
 
-let sortDir    = 1; // -1 = newest first
+let sortDir    = -1; // -1 = newest first
 let filterType = "all";
 let searchQ    = "";
 
