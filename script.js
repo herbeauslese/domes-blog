@@ -556,18 +556,33 @@ document.getElementById("btn-darkmode").addEventListener("click", () => {
 
 // ── PASSWORD: BESUCHER ────────────────────────────────────────────────────────
 async function checkPw() {
-  const val  = document.getElementById("pw-input").value;
+  const raw  = document.getElementById("pw-input").value;
+  const val  = raw.trim(); // leerzeichen am ende abschneiden
+  const errEl = document.getElementById("pw-error");
+
+  if (!val) {
+    errEl.textContent = "kein passwort eingegeben.";
+    errEl.style.display = "block";
+    return;
+  }
+
   const buf  = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(val));
   const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+
   if (hash === PW_HASH_SHA256) {
     siteUnlocked = true;
     sessionStorage.setItem("lz_site_ok", "1");
     document.getElementById("pw-overlay").style.display = "none";
     document.getElementById("pw-input").value = "";
-    document.getElementById("pw-error").style.display = "none";
+    errEl.style.display = "none";
     await loadData();
   } else {
-    document.getElementById("pw-error").style.display = "block";
+    // hilfreiche fehlermeldung
+    let hint = "falsch.";
+    if (raw !== val) hint = "falsch. (leerzeichen am ende entfernt — versuch nochmal)";
+    else if (raw.length < 3) hint = "falsch. (zu kurz?)";
+    errEl.textContent = hint;
+    errEl.style.display = "block";
     document.getElementById("pw-input").select();
     document.getElementById("pw-box").style.animation = "none";
     setTimeout(() => {
@@ -575,12 +590,15 @@ async function checkPw() {
     }, 10);
   }
 }
+
+// click UND touchend — mobil zuverlässiger
 document.getElementById("pw-ok").addEventListener("click", checkPw);
+document.getElementById("pw-ok").addEventListener("touchend", e => { e.preventDefault(); checkPw(); });
 document.getElementById("pw-input").addEventListener("keydown", e => { if(e.key==="Enter") checkPw(); });
 
 // ── PASSWORD: ADMIN ───────────────────────────────────────────────────────────
 async function checkAdminPw() {
-  const val  = document.getElementById("admin-pw-input").value;
+  const val  = document.getElementById("admin-pw-input").value.trim();
   const buf  = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(val));
   const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
   if (hash === ADMIN_HASH_SHA256) {
@@ -604,6 +622,7 @@ async function checkAdminPw() {
   }
 }
 document.getElementById("admin-pw-ok").addEventListener("click", checkAdminPw);
+document.getElementById("admin-pw-ok").addEventListener("touchend", e => { e.preventDefault(); checkAdminPw(); });
 document.getElementById("admin-pw-input").addEventListener("keydown", e => { if(e.key==="Enter") checkAdminPw(); });
 document.getElementById("admin-pw-cancel").addEventListener("click", () => {
   document.getElementById("admin-pw-overlay").style.display = "none";
