@@ -249,7 +249,7 @@ function renderAlbumPost(p, pid, dateStr) {
           <div class="post-meta">${a.artist}${a.year ? " · "+a.year : ""}${genres ? " · "+genres : ""}</div>
         </div>
       </div>
-      <div class="post-date-inline" style="top:0">${dateStr}</div>
+      <div class="post-date-inline album-date" style="top:0">${dateStr}</div>
     </div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">${a.review ? "rezension lesen" : "details"}</span>
