@@ -11,7 +11,7 @@ let searchQ    = "";
 const PW_HASH_SHA256    = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965";
 
 // Admin-Passwort (Bearbeitung, neue Beiträge) — separates Passwort!
-const ADMIN_HASH_SHA256 = "b8f4a44e59c998d28f5684e885d5ece7684a28cbe174bdb11a9d949e4a9dc23a";
+const ADMIN_HASH_SHA256 = "b8f4a44e59c998d28f5684e885d5ece7684a28cbe174bdb11a9d949e4a9dc23a"; // mit generate-hash.html erzeugen
 
 let siteUnlocked = sessionStorage.getItem("lz_site_ok") === "1"; // Besucher
 let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
@@ -233,7 +233,7 @@ function renderAlbumPost(p, pid, dateStr) {
       <div class="post-header" style="padding-right:52px">
         <span class="post-title-wrap">
           <span class="post-title" onclick="togglePost('${pid}')">${a.album}</span>
-          ${editBtn}
+          ${editBtn}${hideBtn}
         </span>
         <span class="post-tag album">album</span>
       </div>
