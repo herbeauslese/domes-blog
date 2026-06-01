@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dome's Blog</title>
+<title>leetzschreib</title>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
@@ -21,10 +21,13 @@
 <!-- ── PASSWORD OVERLAY ── -->
 <div id="pw-overlay" style="display:none">
   <div id="pw-box">
-    <b>// Dome's blog //</b>
-    <div class="pw-hint">Das beste Bier der Welt:</div>
+    <b>// leetzschreib //</b>
+    <div class="pw-hint" style="margin-bottom:10px;line-height:1.7">
+      Zutritt nur für Freunde.<br>
+      <span style="font-size:10px">Kleiner Tipp: Das beste Bier der Welt:</span>
+    </div>
     <input type="password" id="pw-input" autocomplete="off" placeholder="passwort">
-    <button id="pw-ok">ok</button>
+    <button id="pw-ok">rein</button>
     <div id="pw-error">falsch.</div>
   </div>
 </div>
@@ -35,7 +38,7 @@
     <button id="btn-darkmode" title="Dark Mode">◑</button>
     <button id="btn-admin" title="Admin">⚙</button>
   </div>
-  <h1><span>Dome's</span>Blog</h1>
+  <h1><span>leetz</span>schreib</h1>
   <p class="sub">ein ganz persönlicher blog</p>
 </div>
 
@@ -43,6 +46,7 @@
 <div id="admin-panel">
   <div>
     <button id="btn-new-post" style="font-size:12px">+ neuer beitrag</button>
+    <button id="btn-show-hidden" style="font-size:12px;display:none">◎ 0</button>
   </div>
 </div>
 
