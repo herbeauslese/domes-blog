@@ -20,7 +20,7 @@ let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
 (async () => {
   if (!siteUnlocked) {
     document.getElementById("pw-overlay").style.display = "flex";
-    document.getElementById("pw-input").focus();
+    setTimeout(() => document.getElementById("pw-input").focus(), 100);
     return;
   }
   await loadData();
@@ -592,8 +592,16 @@ async function checkPw() {
 }
 
 // click UND touchend — mobil zuverlässiger
-document.getElementById("pw-ok").addEventListener("click", checkPw);
-document.getElementById("pw-ok").addEventListener("touchend", e => { e.preventDefault(); checkPw(); });
+let pwBtnBusy = false;
+function handlePwBtn(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (pwBtnBusy) return;
+  pwBtnBusy = true;
+  checkPw().finally(() => { pwBtnBusy = false; });
+}
+document.getElementById("pw-ok").addEventListener("click",    handlePwBtn);
+document.getElementById("pw-ok").addEventListener("touchend", handlePwBtn);
 document.getElementById("pw-input").addEventListener("keydown", e => { if(e.key==="Enter") checkPw(); });
 
 // ── PASSWORD: ADMIN ───────────────────────────────────────────────────────────
