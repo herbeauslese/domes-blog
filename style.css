@@ -391,6 +391,11 @@ body.dark .slide-counter { color: #555; }
 }
 .album-rating .rating-denom { font-size: 9px; color: #bbb; font-weight: normal; }
 
+/* album posts: datum weiter links damit es nicht mit rating überlappt */
+.post .post-date-inline.album-date {
+  right: 46px;
+}
+
 /* ── ENTRY EXPAND TOGGLE ── */
 .entry-toggle {
   display: inline-flex;
