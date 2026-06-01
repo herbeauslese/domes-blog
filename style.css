@@ -509,23 +509,23 @@ body.dark .entry-songs { color: #aaa; }
 
 /* ── HIDE BUTTON ── */
 .hide-btn {
-  display: none;
   font-size: 11px;
   color: #ccc;
   cursor: pointer;
-  margin-left: 4px;
+  margin-left: 6px;
   font-family: var(--font-main);
   vertical-align: middle;
   background: none;
   border: none;
   padding: 0;
   line-height: 1;
+  opacity: 0.4;
+  transition: opacity 0.15s, color 0.15s;
 }
-.post-title-wrap:hover .hide-btn { display: inline; }
-.hide-btn:hover { color: #000; background: none; }
-body.dark .hide-btn { color: #444; }
+.hide-btn:hover { color: #000; background: none; opacity: 1; }
+body.dark .hide-btn { color: #888; }
 body.dark .hide-btn:hover { color: #ddd; background: none; }
-.hide-btn.active { display: inline; color: var(--accent); }
+.hide-btn.active { opacity: 1; color: var(--accent); }
 
 /* post shown-as-hidden (when showHidden=true) */
 .post.post-hidden {
