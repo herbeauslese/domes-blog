@@ -590,6 +590,10 @@ body.dark #pw-overlay { background: #111; }
   width: 280px;
 }
 body.dark #pw-box { background: #111; border-color: #ddd; color: #ddd; }
+body.dark #admin-pw-box { background: #111; border-color: #ddd; color: #ddd; }
+body.dark #admin-pw-box input { background: #1a1a1a; color: #ddd; border-color: #555; }
+body.dark #admin-pw-box button { background: #1a1a1a; color: #ddd; border-color: #555; }
+body.dark #admin-pw-box button:hover { background: #ddd; color: #111; }
 #pw-box b { display: block; margin-bottom: 6px; font-size: 14px; font-family: var(--font-display); }
 .pw-hint {
   font-size: 11px;
