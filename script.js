@@ -8,7 +8,7 @@ let filterType = "all";
 let searchQ    = "";
 
 // Besucher-Passwort (Zugang zur Seite) — SHA-256 Hash
-const PW_HASH_SHA256    = "c36c423691658ecfae3fd8206435d3f5442e8b5864a3c9ae1c6a632e9a459965";
+const PW_HASH_SHA256    = "64c71ecd5b75b224f530753e133106bf754a54814bec3c28453741b75843d826";
 
 // Admin-Passwort (Bearbeitung, neue Beiträge) — separates Passwort!
 const ADMIN_HASH_SHA256 = "b8f4a44e59c998d28f5684e885d5ece7684a28cbe174bdb11a9d949e4a9dc23a"; // mit generate-hash.html erzeugen
