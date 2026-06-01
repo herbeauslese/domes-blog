@@ -3,7 +3,7 @@ let posts   = [];  // from posts.json  (type: text | photo | album)
 let albums  = [];  // from albums.json (legacy, injected as album-posts)
 let allPosts = []; // merged + sorted feed
 
-let sortDir    = 1; // -1 = newest first
+let sortDir    = 1; // 1 = oldest first, -1 = newest first
 let filterType = "all";
 let searchQ    = "";
 
@@ -29,6 +29,10 @@ let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
 async function loadData() {
   try { posts  = await (await fetch("posts.json?_="  + Date.now())).json(); } catch(e) { posts  = []; }
   try { albums = await (await fetch("albums.json?_=" + Date.now())).json(); } catch(e) { albums = []; }
+  try {
+    const h = await (await fetch("hidden.json?_=" + Date.now())).json();
+    hiddenPosts = new Set(Array.isArray(h) ? h : []);
+  } catch(e) { hiddenPosts = new Set(); }
   mergePosts();
   applyDark();
   render();
@@ -357,22 +361,45 @@ async function saveEditPost(pid) {
 }
 
 // ── HIDE / SHOW POSTS ─────────────────────────────────────────────────────────
-let hiddenPosts = new Set(JSON.parse(localStorage.getItem("lz_hidden") || "[]"));
+let hiddenPosts = new Set(); // wird in loadData aus hidden.json geladen
 let showHidden  = false;
 
-function saveHidden() {
-  localStorage.setItem("lz_hidden", JSON.stringify([...hiddenPosts]));
+async function saveHidden() {
+  const token  = localStorage.getItem("gh_token");
+  const repo   = localStorage.getItem("gh_repo");
+  const branch = localStorage.getItem("gh_branch") || "main";
+  if (!token || !repo) return; // kein push wenn keine gh-einstellungen
+
+  const data = JSON.stringify([...hiddenPosts], null, 2);
+  const content = btoa(unescape(encodeURIComponent(data)));
+
+  // SHA holen (Datei existiert evtl. noch nicht)
+  let sha = null;
+  try {
+    const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/hidden.json?ref=${branch}`,
+      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+    if (shaRes.ok) sha = (await shaRes.json()).sha;
+  } catch(e) {}
+
+  const body = { message: "hidden: update", content, branch };
+  if (sha) body.sha = sha;
+
+  await fetch(`https://api.github.com/repos/${repo}/contents/hidden.json`, {
+    method: "PUT",
+    headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
 }
 
-function toggleHidePost(pid, e) {
+async function toggleHidePost(pid, e) {
   if (e) e.stopPropagation();
   if (hiddenPosts.has(pid)) {
     hiddenPosts.delete(pid);
   } else {
     hiddenPosts.add(pid);
   }
-  saveHidden();
-  render();
+  render(); // sofort UI updaten
+  await saveHidden(); // dann zu github pushen
 }
 
 function applyHiddenUI() {
