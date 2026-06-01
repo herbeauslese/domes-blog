@@ -197,7 +197,41 @@ button {
 button:hover { background: #000; color: #fff; }
 
 /* ── POST FEED ── */
-#feed { margin-top: 0; }
+#feed {
+  margin-top: 0;
+  border-top: 2px solid #000;
+}
+body.dark #feed { border-color: #ddd; }
+
+@media (max-width: 480px) {
+  /* Mobile: controls viel schlanker */
+  #controls {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    padding: 4px 0 6px 0;
+    margin-bottom: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  body.dark #controls { border-color: #333; }
+  #controls::before { display: none; }
+  #controls input[type=text] { flex: 1; min-width: 0; font-size: 12px; }
+  #controls-filters {
+    width: 100%;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed #e0e0e0;
+    gap: 4px;
+  }
+  body.dark #controls-filters { border-color: #333; }
+  #controls-filters.hidden { display: none; }
+  #controls-right { position: static; flex-direction: row; align-items: center; gap: 6px; margin-left: auto; }
+  #post-count { font-size: 10px; }
+  #btn-filter-toggle { display: inline-block; font-size: 13px; padding: 1px 6px; border: 1px solid #ccc; color: #888; background: none; }
+  #btn-filter-toggle:hover { background: none; color: #000; }
+}
 
 .post {
   padding: 14px 0 10px 0;
@@ -348,12 +382,12 @@ body.dark .slide-counter { color: #555; }
 }
 .album-rating {
   position: absolute;
-  top: 14px; right: 0;
+  top: 0; right: 0;
   font-family: var(--font-main);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
   color: var(--accent);
-  line-height: 1;
+  line-height: 1.3;
 }
 .album-rating .rating-denom { font-size: 9px; color: #bbb; font-weight: normal; }
 
@@ -697,15 +731,9 @@ textarea { width: 100%; margin-top: 3px; }
 }
 #song-radios label { display: block; }
 
-/* ── MOBILE ── */
+/* ── MOBILE (general) ── */
 @media (max-width: 480px) {
   h1 { font-size: 22px; }
   .post-title { font-size: 14px; }
   .row label { width: 80px; font-size: 10px; }
-  #btn-filter-toggle { display: inline-block; font-size: 14px; padding: 2px 7px; flex-shrink: 0; border: 1px solid #ccc; color: #888; background: none; }
-  #controls { flex-direction: column; gap: 0; align-items: stretch; }
-  #controls-filters { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e0e0e0; }
-  #controls-filters.hidden { display: none; }
-  #controls { padding-right: 8px; }
-  #controls-right { position: static; flex-direction: row; align-items: center; gap: 8px; margin-top: 4px; }
 }
