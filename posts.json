@@ -1,0 +1,19 @@
+[
+  {
+    "type": "text",
+    "title": "Warum ich diesen Blog starte",
+    "text": "Ich schreibe eigentlich nicht gerne. Aber ich denke gerne. Und manchmal ist das Aufschreiben der einzige Weg, die Gedanken loszuwerden.\n\nHier soll kein Magazin entstehen. Kein Influencer-Kanal. Nur ein Ort, an dem ich Dinge festhalte — Alben, die mich umgehauen haben. Orte, an die ich nochmal zurück will. Und Gedanken, die sonst im Nirgendwo verschwinden.",
+    "posted_at": "2026-06-01T10:00:00.000Z"
+  },
+  {
+    "type": "photo",
+    "title": "Potsdam im April",
+    "tag": "reise",
+    "images": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Sanssouci-Luftbild2.jpg/1280px-Sanssouci-Luftbild2.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Potsdam_Stadtkanal_2013.jpg/1280px-Potsdam_Stadtkanal_2013.jpg"
+    ],
+    "text": "Der April in Potsdam war diesmal wirklich gut. Sanssouci leer, Sonne stark, kein Touristenbus weit und breit.",
+    "posted_at": "2026-04-20T09:00:00.000Z"
+  }
+]
