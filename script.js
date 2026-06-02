@@ -242,27 +242,56 @@ function renderPhotoPost(p, pid, dateStr) {
   const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
-  // slideshow markup
+  // ── KOLLAGE (preview, außerhalb post-body) ──
+  let collageHTML = "";
+  if (imgs.length === 1) {
+    collageHTML = `<div class="collage collage-1" onclick="togglePost('${pid}')">
+      <img src="${imgs[0]}" alt="" loading="lazy">
+    </div>`;
+  } else if (imgs.length === 2) {
+    collageHTML = `<div class="collage collage-2" onclick="togglePost('${pid}')">
+      <img src="${imgs[0]}" alt="" loading="lazy">
+      <img src="${imgs[1]}" alt="" loading="lazy">
+    </div>`;
+  } else if (imgs.length === 3) {
+    collageHTML = `<div class="collage collage-3" onclick="togglePost('${pid}')">
+      <img src="${imgs[0]}" alt="" loading="lazy">
+      <div class="collage-col">
+        <img src="${imgs[1]}" alt="" loading="lazy">
+        <img src="${imgs[2]}" alt="" loading="lazy">
+      </div>
+    </div>`;
+  } else if (imgs.length >= 4) {
+    collageHTML = `<div class="collage collage-4" onclick="togglePost('${pid}')">
+      <img src="${imgs[0]}" alt="" loading="lazy">
+      <img src="${imgs[1]}" alt="" loading="lazy">
+      <img src="${imgs[2]}" alt="" loading="lazy">
+      <div class="collage-more">+${imgs.length - 3}</div>
+    </div>`;
+  }
+
+  // ── SLIDESHOW (im body, mit Overlay-Buttons) ──
   let slidesHTML = "";
   if (imgs.length > 0) {
-    const slidesData = JSON.stringify(imgs).replace(/"/g, "&quot;");
     const tracks = imgs.map((url, i) =>
       `<img class="slide-img${i===0?' active':''}" src="${url}" alt="" loading="lazy">`
     ).join("");
     const dots = imgs.length > 1
-      ? imgs.map((_, i) => `<span class="slide-dot${i===0?' active':''}" onclick="goSlide('${pid}',${i})"></span>`).join("")
+      ? `<div class="slide-dots">${imgs.map((_, i) =>
+          `<span class="slide-dot${i===0?' active':''}" onclick="goSlide('${pid}',${i})"></span>`
+        ).join("")}</div>`
       : "";
-    const nav = imgs.length > 1
-      ? `<div class="slide-nav">
-           <button class="slide-btn" onclick="prevSlide('${pid}')">←</button>
-           <div class="slide-dots">${dots}</div>
-           <span class="slide-counter" id="${pid}-counter">1 / ${imgs.length}</span>
-           <button class="slide-btn" onclick="nextSlide('${pid}')">→</button>
-         </div>`
+    const overlayNav = imgs.length > 1
+      ? `<button class="slide-overlay-btn slide-overlay-prev" onclick="prevSlide('${pid}')">‹</button>
+         <button class="slide-overlay-btn slide-overlay-next" onclick="nextSlide('${pid}')">›</button>
+         <div class="slide-overlay-counter" id="${pid}-counter">1 / ${imgs.length}</div>`
       : "";
-    slidesHTML = `<div class="slideshow" id="${pid}-slides" data-slides="${slidesData}" data-current="0" style="padding-right:0">
-      <div class="slide-track" style="aspect-ratio:4/3;position:relative">${tracks}</div>
-      ${nav}
+    slidesHTML = `<div class="slideshow" id="${pid}-slides" data-current="0">
+      <div class="slide-track" style="aspect-ratio:4/3;position:relative">
+        ${tracks}
+        ${overlayNav}
+      </div>
+      ${dots}
     </div>`;
   }
 
@@ -275,13 +304,14 @@ function renderPhotoPost(p, pid, dateStr) {
       </span>
       <span class="post-tag ${tagClass}">${tagLabel}</span>
     </div>
-    ${slidesHTML}
+    ${collageHTML}
     <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">weiterlesen</span>
       <span class="entry-toggle-arrow">▼</span>
     </div>
     <div class="post-body">
+      ${slidesHTML}
       <div class="post-fulltext">${parseText(p.text||"", pid)}</div>
     </div>
     <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
@@ -574,11 +604,11 @@ function initSlideshow(el) {
 function goSlide(pid, idx) {
   const wrap = document.getElementById(pid + "-slides");
   if (!wrap) return;
-  const imgs = wrap.querySelectorAll(".slide-img");
-  const dots = wrap.querySelectorAll(".slide-dot");
+  const imgs    = wrap.querySelectorAll(".slide-img");
+  const dots    = wrap.querySelectorAll(".slide-dot");
   const counter = document.getElementById(pid + "-counter");
   imgs.forEach((img, i) => img.classList.toggle("active", i === idx));
-  dots.forEach((d, i) => d.classList.toggle("active", i === idx));
+  dots.forEach((d,   i) => d.classList.toggle("active",   i === idx));
   wrap.dataset.current = idx;
   if (counter) counter.textContent = (idx+1) + " / " + imgs.length;
 }
