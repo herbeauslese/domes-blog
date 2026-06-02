@@ -24,6 +24,17 @@
 </head>
 <body>
 
+<!-- ── LOADING SCREEN ── -->
+<div id="loading-screen">
+  <div id="loading-box">
+    <span id="loading-title">rotehaare</span>
+    <div id="loading-bar"><div id="loading-bar-inner"></div></div>
+  </div>
+</div>
+
+<!-- ── BACK TO TOP ── -->
+<button id="btn-back-top" title="nach oben" aria-label="nach oben">↑</button>
+
 <!-- ── ADMIN PASSWORD OVERLAY ── -->
 <div id="admin-pw-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150;align-items:center;justify-content:center">
   <div id="admin-pw-box" style="background:#fff;border:2px solid #000;border-bottom:4px solid #000;padding:18px 20px;font-size:13px;width:260px;font-family:'Courier New',monospace">
@@ -38,7 +49,7 @@
 <!-- ── PASSWORD OVERLAY ── -->
 <div id="pw-overlay" style="display:none;position:fixed;inset:0;background:#fff;z-index:99;align-items:flex-start;justify-content:center;padding-top:80px">
   <div id="pw-box" style="pointer-events:all">
-    <b>// rotehaare blog //</b>
+    <b>// rote haare blog //</b>
     <div class="pw-hint" style="margin-bottom:10px;line-height:1.7">
       Zutritt nur für Freunde.<br>
       <span style="font-size:10px">Kleiner Tipp: Das beste Bier der Welt:</span>
@@ -132,7 +143,15 @@
       <div class="row"><label>titel:</label><input type="text" id="f-text-title" placeholder="überschrift"></div>
       <div class="row" style="align-items:flex-start">
         <label style="padding-top:3px">text:</label>
-        <textarea id="f-text-body" rows="7" placeholder="doppelte leerzeile = neuer absatz"></textarea>
+        <div style="flex:1;min-width:0">
+          <div class="editor-toolbar">
+            <button type="button" onclick="editorWrap('f-text-body','**','**')" title="Fett">B</button>
+            <button type="button" onclick="editorLink('f-text-body')" title="Link">🔗</button>
+            <button type="button" onclick="editorInsert('f-text-body','[Bild1]')" title="Bildverweis">📷</button>
+            <span class="editor-hint">**fett** · [Text](url) · [Bild2]</span>
+          </div>
+          <textarea id="f-text-body" rows="7" placeholder="doppelte leerzeile = neuer absatz"></textarea>
+        </div>
       </div>
       <div class="row"><label>datum:</label><input type="date" id="f-text-date"></div>
       <br>
@@ -150,17 +169,32 @@
           <option value="reise">reise</option>
         </select>
       </div>
-      <div style="margin:6px 0 3px 0;font-size:11px;color:#666">bilder (URLs):</div>
+      <div style="margin:6px 0 3px 0;font-size:11px;color:#666">bilder:</div>
       <div id="photo-url-list">
         <div class="photo-url-row">
-          <input type="url" placeholder="https://...">
+          <input type="url" placeholder="https://... (URL)">
           <button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>
         </div>
       </div>
-      <button onclick="addPhotoUrlRow()" style="font-size:11px;margin:4px 0 8px 0;color:#666;border-color:#999">+ bild hinzufügen</button>
+      <div style="display:flex;gap:6px;margin:4px 0 8px 0;flex-wrap:wrap">
+        <button onclick="addPhotoUrlRow()" style="font-size:11px;color:#666;border-color:#999">+ URL</button>
+        <label id="btn-upload-img" style="font-size:11px;color:#666;border:1px solid #999;padding:2px 8px;cursor:pointer;font-family:'Courier New',monospace">
+          ↑ bild hochladen
+          <input type="file" id="img-upload-input" accept="image/*" multiple style="display:none">
+        </label>
+        <span id="upload-status" style="font-size:11px;color:#888;align-self:center"></span>
+      </div>
       <div class="row" style="align-items:flex-start">
         <label style="padding-top:3px">text:</label>
-        <textarea id="f-photo-text" rows="4" placeholder="beschreibung / bericht"></textarea>
+        <div style="flex:1;min-width:0">
+          <div class="editor-toolbar">
+            <button type="button" onclick="editorWrap('f-photo-text','**','**')" title="Fett">B</button>
+            <button type="button" onclick="editorLink('f-photo-text')" title="Link">🔗</button>
+            <button type="button" onclick="editorInsert('f-photo-text','[Bild1]')" title="Bildverweis">📷</button>
+            <span class="editor-hint">**fett** · [Text](url) · [Bild2]</span>
+          </div>
+          <textarea id="f-photo-text" rows="4" placeholder="beschreibung / bericht"></textarea>
+        </div>
       </div>
       <div class="row"><label>datum:</label><input type="date" id="f-photo-date"></div>
       <br>
