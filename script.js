@@ -363,6 +363,35 @@ function toggleEditPost(pid, e) {
   const date   = postEl.dataset.date  ? postEl.dataset.date.slice(0,10) : "";
   const tag    = postEl.dataset.tag   || "";
 
+  // bestehende Bilder aus dem Post holen
+  const existingImages = (() => {
+    const idx = posts.findIndex(p =>
+      p.title === postEl.dataset.title &&
+      p.posted_at === postEl.dataset.date
+    );
+    return (idx >= 0 && posts[idx].images) ? posts[idx].images : [];
+  })();
+
+  const imagesField = type === "photo" ? `
+    <div style="margin-bottom:8px">
+      <label style="width:80px;font-size:11px;color:#666;vertical-align:top;display:inline-block;padding-top:3px">bilder:</label>
+      <div style="display:inline-block;width:calc(100% - 88px);vertical-align:top">
+        <div id="ef-img-list-${pid}">
+          ${existingImages.length
+            ? existingImages.map(url => `<div class="photo-url-row">
+                <input type="url" value="${url}" style="flex:1">
+                <button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>
+              </div>`).join("")
+            : `<div class="photo-url-row">
+                <input type="url" placeholder="https://...">
+                <button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>
+              </div>`
+          }
+        </div>
+        <button type="button" onclick="addEfImgRow('${pid}')" style="font-size:11px;margin-top:3px;color:#666;border-color:#999">+ url</button>
+      </div>
+    </div>` : "";
+
   const tagField = type === "photo"
     ? `<div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666">typ:</label>
         <select id="ef-tag-${pid}" style="font-family:'Courier New',monospace;font-size:12px;border:1px solid #000;padding:2px 4px">
@@ -393,6 +422,7 @@ function toggleEditPost(pid, e) {
         <textarea id="ef-text-${pid}" rows="6" style="width:100%">${text}</textarea>
       </div>
     </div>
+    ${imagesField}
     ${tagField}
     <div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666">datum:</label><input type="date" id="ef-date-${pid}" value="${date}" style="width:140px"></div>
     <div class="edit-form-btns">
@@ -403,6 +433,15 @@ function toggleEditPost(pid, e) {
   </div>`;
 }
 
+function addEfImgRow(pid) {
+  const list = document.getElementById("ef-img-list-" + pid);
+  if (!list) return;
+  const row = document.createElement("div");
+  row.className = "photo-url-row";
+  row.innerHTML = `<input type="url" placeholder="https://..." style="flex:1"><button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>`;
+  list.appendChild(row);
+}
+
 async function saveEditPost(pid) {
   const postEl  = document.getElementById(pid);
   const type    = postEl.dataset.type;
@@ -411,6 +450,12 @@ async function saveEditPost(pid) {
   const text    = document.getElementById("ef-text-"  + pid).value;
   const dateVal = document.getElementById("ef-date-"  + pid).value;
   const tag     = type === "photo" ? (document.getElementById("ef-tag-" + pid)?.value || "") : undefined;
+
+  // bilder aus der liste lesen
+  const imgList = document.getElementById("ef-img-list-" + pid);
+  const images  = imgList
+    ? [...imgList.querySelectorAll("input[type=url]")].map(i => i.value.trim()).filter(Boolean)
+    : undefined;
 
   if (!title) { st.textContent = "fehler: titel fehlt."; return; }
   const posted_at = dateVal ? new Date(dateVal).toISOString() : postEl.dataset.date;
@@ -425,6 +470,7 @@ async function saveEditPost(pid) {
   const updated = { ...posts[idx], title, text, posted_at };
   if (tag !== undefined) updated.tag = tag;
   if (!updated.tag) delete updated.tag;
+  if (images !== undefined) updated.images = images;
 
   const token  = localStorage.getItem("gh_token");
   const repo   = localStorage.getItem("gh_repo");
@@ -1089,6 +1135,10 @@ document.getElementById("img-upload-input").addEventListener("change", async fun
   if (!token || !repo) { st.textContent = "github einstellungen fehlen!"; return; }
   if (!files.length)   return;
 
+  // Speichern-Button sperren während Upload
+  const pushBtn = document.getElementById("btn-push-photo");
+  if (pushBtn) { pushBtn.disabled = true; pushBtn.textContent = "↑ lädt..."; }
+
   st.textContent = `0 / ${files.length} hochgeladen...`;
   let uploaded = 0;
 
@@ -1097,7 +1147,6 @@ document.getElementById("img-upload-input").addEventListener("change", async fun
       st.textContent = `konvertiere ${file.name}...`;
       const { url, filename } = await uploadImageToRepo(file, token, repo, branch);
 
-      // URL-Zeile ins Formular einfügen
       const list = document.getElementById("photo-url-list");
       const emptyInput = [...list.querySelectorAll("input[type=url]")].find(i => !i.value);
       if (emptyInput) {
@@ -1112,16 +1161,30 @@ document.getElementById("img-upload-input").addEventListener("change", async fun
       st.textContent = `${uploaded} / ${files.length} hochgeladen...`;
     } catch(err) {
       st.textContent = `fehler: ${err.message}`;
+      if (pushBtn) { pushBtn.disabled = false; pushBtn.textContent = "speichern + push"; }
       return;
     }
   }
 
   st.textContent = `✓ ${uploaded} bild${uploaded > 1 ? "er" : ""} hochgeladen`;
+  if (pushBtn) { pushBtn.disabled = false; pushBtn.textContent = "speichern + push"; }
   this.value = "";
 });
 
 // ── IMAGE CONVERSION: alles → JPEG, max 1600px, ~800KB ───────────────────────
 async function convertToJpeg(file) {
+  // Größencheck vorab
+  if (file.size > 900 * 1024) {
+    console.log(`[upload] ${file.name}: ${(file.size/1024/1024).toFixed(1)}MB — wird skaliert`);
+  }
+
+  // HEIC kann Safari/Chrome nicht per Image-Tag dekodieren
+  // → prüfen ob es überhaupt ein ladbares Format ist
+  const isHeic = /\.(heic|heif)$/i.test(file.name) || file.type === "image/heic" || file.type === "image/heif";
+  if (isHeic) {
+    throw new Error("HEIC wird vom Browser nicht unterstützt. Bitte das Foto vorher in den Einstellungen als JPEG speichern: Einstellungen → Kamera → Formate → Kompatibel");
+  }
+
   const url = URL.createObjectURL(file);
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -1130,11 +1193,12 @@ async function convertToJpeg(file) {
       let w = img.naturalWidth;
       let h = img.naturalHeight;
 
-      // runterskalieren wenn größer als MAX
       if (w > MAX || h > MAX) {
         if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
         else       { w = Math.round(w * MAX / h); h = MAX; }
       }
+
+      console.log(`[upload] ${file.name}: ${img.naturalWidth}×${img.naturalHeight} → ${w}×${h}`);
 
       const canvas = document.createElement("canvas");
       canvas.width  = w;
@@ -1144,12 +1208,25 @@ async function convertToJpeg(file) {
 
       const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
       const b64 = dataUrl.split(",")[1];
+      const estimatedKb = Math.round(b64.length * 0.75 / 1024);
+      console.log(`[upload] komprimiert: ~${estimatedKb}KB`);
+
+      if (estimatedKb > 900) {
+        // nochmal mit niedrigerer Qualität
+        const dataUrl2 = canvas.toDataURL("image/jpeg", 0.65);
+        const b64_2 = dataUrl2.split(",")[1];
+        console.log(`[upload] nochmals komprimiert: ~${Math.round(b64_2.length * 0.75 / 1024)}KB`);
+        const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9._-]/g, "_");
+        resolve({ b64: b64_2, filename: baseName + ".jpg" });
+        return;
+      }
+
       const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9._-]/g, "_");
       resolve({ b64, filename: baseName + ".jpg" });
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error("Bild konnte nicht geladen werden"));
+      reject(new Error(`"${file.name}" konnte nicht geladen werden. Bitte als JPEG exportieren.`));
     };
     img.src = url;
   });
@@ -1191,11 +1268,30 @@ async function editUploadImages(input, pid) {
   if (!token || !repo) { st.textContent = "github einstellungen fehlen!"; return; }
   if (!files.length)   return;
 
+  // Speichern sperren während Upload
+  const saveBtn = document.querySelector(`#edit-form-${pid} button[onclick*="saveEditPost"]`);
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "↑ lädt..."; }
+
   for (const file of files) {
     try {
       st.textContent = `konvertiere ${file.name}...`;
-      await uploadImageToRepo(file, token, repo, branch);
+      const { url } = await uploadImageToRepo(file, token, repo, branch);
 
+      // URL in Bilder-Liste eintragen
+      const imgList = document.getElementById("ef-img-list-" + pid);
+      if (imgList) {
+        const emptyInput = [...imgList.querySelectorAll("input[type=url]")].find(i => !i.value);
+        if (emptyInput) {
+          emptyInput.value = url;
+        } else {
+          const row = document.createElement("div");
+          row.className = "photo-url-row";
+          row.innerHTML = `<input type="url" value="${url}" style="flex:1"><button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>`;
+          imgList.appendChild(row);
+        }
+      }
+
+      // [BildN] in Text einfügen
       const existing = [...(ta.value.matchAll(/\[Bild(\d+)\]/gi))].map(m => parseInt(m[1]));
       const next = existing.length ? Math.max(...existing) + 1 : 1;
       const ref  = `[Bild${next}]`;
@@ -1205,9 +1301,11 @@ async function editUploadImages(input, pid) {
       st.textContent = `✓ als ${ref} eingefügt`;
     } catch(err) {
       st.textContent = `fehler: ${err.message}`;
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "speichern"; }
       return;
     }
   }
+  if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "speichern"; }
   input.value = "";
 }
 
