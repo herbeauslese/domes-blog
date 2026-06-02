@@ -195,7 +195,14 @@ function renderPost(p, idx) {
 }
 
 function renderTextPost(p, pid, dateStr) {
-  const preview = (p.text || "").replace(/\*\*/g,"").replace(/\[([^\]]+)\]\([^\)]+\)/g,"$1").replace(/\[Bild\d+\]/gi,"").replace(/\n\n/g," ").slice(0,160) + ((p.text||"").length > 160 ? "…" : "");
+  const rawPreview = (p.text || "")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
+    .replace(/\[Bild\d+\]/gi, "")
+    .replace(/\n\n/g, " ")
+    .replace(/\n/g, " ")
+    .slice(0, 160);
+  const preview = rawPreview + ((p.text||"").length > 160 ? "…" : "");
   const fullText = parseText(p.text || "", pid);
   const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
@@ -226,7 +233,12 @@ function renderPhotoPost(p, pid, dateStr) {
   const tagLabel = isReise ? "reise" : "foto";
   const tagClass = isReise ? "reise" : "";
   const imgs = p.images || [];
-  const preview = (p.text || "").slice(0, 140) + ((p.text||"").length > 140 ? "…" : "");
+  const preview = (p.text || "")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
+    .replace(/\[Bild\d+\]/gi, "")
+    .replace(/\n/g, " ")
+    .slice(0, 140) + ((p.text||"").length > 140 ? "…" : "");
   const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
