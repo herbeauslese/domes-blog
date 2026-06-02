@@ -19,6 +19,7 @@ let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
 // ── INIT ─────────────────────────────────────────────────────────────────────
 (async () => {
   if (!siteUnlocked) {
+    hideLoadingScreen();
     document.getElementById("pw-overlay").style.display = "flex";
     setTimeout(() => document.getElementById("pw-input").focus(), 100);
     return;
@@ -27,15 +28,20 @@ let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
 })();
 
 async function loadData() {
+  setLoadingProgress(10);
   try { posts  = await (await fetch("posts.json?_="  + Date.now())).json(); } catch(e) { posts  = []; }
+  setLoadingProgress(40);
   try { albums = await (await fetch("albums.json?_=" + Date.now())).json(); } catch(e) { albums = []; }
+  setLoadingProgress(70);
   try {
     const h = await (await fetch("hidden.json?_=" + Date.now())).json();
     hiddenPosts = new Set(Array.isArray(h) ? h : []);
   } catch(e) { hiddenPosts = new Set(); }
+  setLoadingProgress(90);
   mergePosts();
   applyDark();
   render();
+  hideLoadingScreen();
 }
 
 // ── MERGE posts + albums into one feed ───────────────────────────────────────
@@ -120,6 +126,47 @@ function render() {
 
 function safeid(s) { return s.replace(/[^a-zA-Z0-9]/g, ""); }
 
+// ── TEXT PARSER: bold, links, bildverweise ────────────────────────────────────
+// **fett** → <strong>
+// [Text](url) → <a href>
+// [Bild2] → springt zu Bild 2 in der Slideshow des Posts
+function parseText(text, pid) {
+  return text
+    // Zeilenumbrüche erst später (nach inline-parsing)
+    .split("\n\n").map(para => {
+      let t = para
+        // **fett**
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        // [Text](url) — externer Link
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+          '<a href="$2" target="_blank" rel="noopener" class="post-link">$1</a>')
+        // [Bild1], [Bild2] etc. — springt zur Slideshow
+        .replace(/\[Bild(\d+)\]/gi, (_, n) => {
+          const idx = parseInt(n) - 1;
+          return pid
+            ? `<a href="#" class="post-img-ref" onclick="jumpToSlide('${pid}',${idx},event)">Bild ${n}</a>`
+            : `Bild ${n}`;
+        })
+        // Zeilenumbrüche innerhalb Absatz
+        .replace(/\n/g, "<br>");
+      return `<p>${t}</p>`;
+    }).join("");
+}
+
+// springt zur Slideshow und aktiviert Bild n
+function jumpToSlide(pid, idx, e) {
+  e.preventDefault();
+  // Post aufklappen falls zu
+  const postEl = document.getElementById(pid);
+  if (postEl && !postEl.classList.contains("expanded")) togglePost(pid);
+  // kurz warten bis aufgeklappt, dann springen
+  setTimeout(() => {
+    goSlide(pid, idx);
+    const slides = document.getElementById(pid + "-slides");
+    if (slides) slides.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 100);
+}
+
 // ── RENDER SINGLE POST ───────────────────────────────────────────────────────
 function renderPost(p, idx) {
   const pid = stablePid(p);
@@ -132,8 +179,8 @@ function renderPost(p, idx) {
 }
 
 function renderTextPost(p, pid, dateStr) {
-  const preview = (p.text || "").replace(/\n\n/g, " ").slice(0, 160) + ((p.text||"").length > 160 ? "…" : "");
-  const fullText = (p.text || "").split("\n\n").map(t => `<p>${t.replace(/\n/g,"<br>")}</p>`).join("");
+  const preview = (p.text || "").replace(/\*\*/g,"").replace(/\[([^\]]+)\]\([^\)]+\)/g,"$1").replace(/\[Bild\d+\]/gi,"").replace(/\n\n/g," ").slice(0,160) + ((p.text||"").length > 160 ? "…" : "");
+  const fullText = parseText(p.text || "", pid);
   const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
@@ -207,7 +254,7 @@ function renderPhotoPost(p, pid, dateStr) {
       <span class="entry-toggle-arrow">▼</span>
     </div>
     <div class="post-body">
-      <div class="post-fulltext">${(p.text||"").split("\n\n").map(t=>`<p>${t.replace(/\n/g,"<br>")}</p>`).join("")}</div>
+      <div class="post-fulltext">${parseText(p.text||"", pid)}</div>
     </div>
     <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
   </div>`;
@@ -296,10 +343,22 @@ function toggleEditPost(pid, e) {
         </select></div>`
     : "";
 
+  const toolbarHTML = `<div class="editor-toolbar">
+    <button type="button" onclick="editorWrap('ef-text-${pid}','**','**')" title="Fett">B</button>
+    <button type="button" onclick="editorLink('ef-text-${pid}')" title="Link">🔗</button>
+    <button type="button" onclick="editorInsert('ef-text-${pid}','[Bild1]')" title="Bildverweis">📷</button>
+    <span class="editor-hint">**fett** · [Text](url) · [Bild2]</span>
+  </div>`;
+
   formEl.style.display = "block";
   formEl.innerHTML = `<div class="edit-form">
     <div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666">titel:</label><input type="text" id="ef-title-${pid}" value="${title.replace(/"/g,'&quot;')}" style="width:calc(100% - 88px)"></div>
-    <div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666;vertical-align:top">text:</label><textarea id="ef-text-${pid}" rows="6" style="width:calc(100% - 88px)">${text}</textarea></div>
+    <div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666;vertical-align:top">text:</label>
+      <div style="display:inline-block;width:calc(100% - 88px);vertical-align:top">
+        ${toolbarHTML}
+        <textarea id="ef-text-${pid}" rows="6" style="width:100%">${text}</textarea>
+      </div>
+    </div>
     ${tagField}
     <div style="margin-bottom:5px"><label style="width:80px;font-size:11px;color:#666">datum:</label><input type="date" id="ef-date-${pid}" value="${date}" style="width:140px"></div>
     <div class="edit-form-btns">
@@ -975,6 +1034,136 @@ document.addEventListener("click", e => {
   }
   document.querySelectorAll(".srf-tooltip.tip-open").forEach(t => t.classList.remove("tip-open"));
 });
+
+// ── LOADING SCREEN ────────────────────────────────────────────────────────────
+const loadingScreen = document.getElementById("loading-screen");
+const loadingBar    = document.getElementById("loading-bar-inner");
+
+function setLoadingProgress(pct) {
+  loadingBar.style.width = pct + "%";
+}
+function hideLoadingScreen() {
+  setLoadingProgress(100);
+  setTimeout(() => {
+    loadingScreen.classList.add("fade-out");
+    setTimeout(() => loadingScreen.style.display = "none", 400);
+  }, 200);
+}
+
+// ── BACK TO TOP ───────────────────────────────────────────────────────────────
+const backTopBtn = document.getElementById("btn-back-top");
+window.addEventListener("scroll", () => {
+  backTopBtn.classList.toggle("visible", window.scrollY > 300);
+}, { passive: true });
+backTopBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// ── IMAGE UPLOAD ──────────────────────────────────────────────────────────────
+document.getElementById("img-upload-input").addEventListener("change", async function() {
+  const files  = [...this.files];
+  const st     = document.getElementById("upload-status");
+  const token  = localStorage.getItem("gh_token");
+  const repo   = localStorage.getItem("gh_repo");
+  const branch = localStorage.getItem("gh_branch") || "main";
+
+  if (!token || !repo) { st.textContent = "github einstellungen fehlen!"; return; }
+  if (!files.length)   return;
+
+  st.textContent = `0 / ${files.length} hochgeladen...`;
+  let uploaded = 0;
+
+  for (const file of files) {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path     = `img/${safeName}`;
+
+    // base64 lesen
+    const b64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload  = () => res(r.result.split(",")[1]);
+      r.onerror = () => rej(new Error("Lesefehler"));
+      r.readAsDataURL(file);
+    });
+
+    // existiert die Datei schon? sha holen
+    let sha = null;
+    try {
+      const check = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,
+        { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+      if (check.ok) sha = (await check.json()).sha;
+    } catch(e) {}
+
+    const body = { message: `img: upload ${safeName}`, content: b64, branch };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) { st.textContent = `fehler bei ${file.name}`; return; }
+
+    // URL-Zeile ins Formular einfügen
+    const url  = `https://${repo.split("/")[0]}.github.io/${repo.split("/")[1]}/${path}`;
+    const list = document.getElementById("photo-url-list");
+    // ersten leeren URL-Slot befüllen, sonst neue Zeile
+    const emptyInput = [...list.querySelectorAll("input[type=url]")].find(i => !i.value);
+    if (emptyInput) {
+      emptyInput.value = url;
+    } else {
+      const row = document.createElement("div");
+      row.className = "photo-url-row";
+      row.innerHTML = `<input type="url" value="${url}"><button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>`;
+      list.appendChild(row);
+    }
+
+    uploaded++;
+    st.textContent = `${uploaded} / ${files.length} hochgeladen...`;
+  }
+
+  st.textContent = `✓ ${uploaded} bild${uploaded > 1 ? "er" : ""} hochgeladen`;
+  this.value = ""; // reset input
+});
+
+// ── EDITOR TOOLBAR HELPERS ────────────────────────────────────────────────────
+function editorWrap(id, before, after) {
+  const ta    = document.getElementById(id);
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const sel   = ta.value.slice(start, end) || "text";
+  ta.value    = ta.value.slice(0, start) + before + sel + after + ta.value.slice(end);
+  ta.focus();
+  ta.selectionStart = start + before.length;
+  ta.selectionEnd   = start + before.length + sel.length;
+}
+
+function editorLink(id) {
+  const ta  = document.getElementById(id);
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const sel   = ta.value.slice(start, end) || "Linktext";
+  const url   = prompt("URL eingeben:", "https://");
+  if (!url) return;
+  const insert = `[${sel}](${url})`;
+  ta.value = ta.value.slice(0, start) + insert + ta.value.slice(end);
+  ta.focus();
+}
+
+function editorInsert(id, text) {
+  const ta = document.getElementById(id);
+  if (!ta) return;
+  const pos = ta.selectionStart;
+  // Bildnummer: nächste freie Nummer vorschlagen
+  const existing = [...ta.value.matchAll(/\[Bild(\d+)\]/gi)].map(m => parseInt(m[1]));
+  const next = existing.length ? Math.max(...existing) + 1 : 1;
+  const insert = `[Bild${next}]`;
+  ta.value = ta.value.slice(0, pos) + insert + ta.value.slice(pos);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = pos + insert.length;
+}
 
 // ── SHOW HIDDEN TOGGLE ────────────────────────────────────────────────────────
 document.getElementById("btn-show-hidden").addEventListener("click", () => {
