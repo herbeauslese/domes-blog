@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>rote haare</title>
+<script>
+  // HTTP → HTTPS redirect
+  if (location.protocol === "http:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+    location.replace("https://" + location.href.slice(7));
+  }
+</script>
+<title>rotehaare</title>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
@@ -32,7 +38,7 @@
 <!-- ── PASSWORD OVERLAY ── -->
 <div id="pw-overlay" style="display:none;position:fixed;inset:0;background:#fff;z-index:99;align-items:flex-start;justify-content:center;padding-top:80px">
   <div id="pw-box" style="pointer-events:all">
-    <b>// rote haare blog //</b>
+    <b>// rotehaare blog //</b>
     <div class="pw-hint" style="margin-bottom:10px;line-height:1.7">
       Zutritt nur für Freunde.<br>
       <span style="font-size:10px">Kleiner Tipp: Das beste Bier der Welt:</span>
@@ -49,7 +55,7 @@
     <button id="btn-darkmode" title="Dark Mode">◑</button>
     <button id="btn-admin" title="Admin">⚙</button>
   </div>
-  <h1><span>rote</span>haare</h1>
+  <h1><span>rotehaare</span>blog</h1>
   <p class="sub">ein ganz persönlicher blog</p>
 </div>
 
