@@ -1120,28 +1120,36 @@ document.getElementById("img-upload-input").addEventListener("change", async fun
   this.value = "";
 });
 
-// ── IMAGE CONVERSION: alles → JPEG ───────────────────────────────────────────
-// Konvertiert jedes Bild (inkl. HEIC) zu JPEG via Canvas
-// Gibt { b64, filename } zurück
+// ── IMAGE CONVERSION: alles → JPEG, max 1600px, ~800KB ───────────────────────
 async function convertToJpeg(file) {
   const url = URL.createObjectURL(file);
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
+      const MAX = 1600;
+      let w = img.naturalWidth;
+      let h = img.naturalHeight;
+
+      // runterskalieren wenn größer als MAX
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+
       const canvas = document.createElement("canvas");
-      canvas.width  = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      canvas.getContext("2d").drawImage(img, 0, 0);
+      canvas.width  = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
       URL.revokeObjectURL(url);
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
       const b64 = dataUrl.split(",")[1];
-      // Dateiname: Endung → .jpg
       const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9._-]/g, "_");
       resolve({ b64, filename: baseName + ".jpg" });
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error("Bild konnte nicht geladen werden (Format nicht unterstützt?)"));
+      reject(new Error("Bild konnte nicht geladen werden"));
     };
     img.src = url;
   });
