@@ -375,6 +375,12 @@ function toggleEditPost(pid, e) {
     <button type="button" onclick="editorWrap('ef-text-${pid}','**','**')" title="Fett">B</button>
     <button type="button" onclick="editorLink('ef-text-${pid}')" title="Link">🔗</button>
     <button type="button" onclick="editorInsert('ef-text-${pid}','[Bild1]')" title="Bildverweis">📷</button>
+    <label class="editor-upload-label" title="Bild hochladen + verlinken">
+      ↑ bild
+      <input type="file" accept="image/*" multiple style="display:none"
+        onchange="editUploadImages(this,'${pid}')">
+    </label>
+    <span id="ef-upload-status-${pid}" style="font-size:10px;color:#888"></span>
     <span class="editor-hint">**fett** · [Text](url) · [Bild2]</span>
   </div>`;
 
@@ -1138,6 +1144,62 @@ document.getElementById("img-upload-input").addEventListener("change", async fun
   st.textContent = `✓ ${uploaded} bild${uploaded > 1 ? "er" : ""} hochgeladen`;
   this.value = ""; // reset input
 });
+
+// ── IMAGE UPLOAD IN EDIT FORM ─────────────────────────────────────────────────
+async function editUploadImages(input, pid) {
+  const files  = [...input.files];
+  const st     = document.getElementById("ef-upload-status-" + pid);
+  const ta     = document.getElementById("ef-text-" + pid);
+  const token  = localStorage.getItem("gh_token");
+  const repo   = localStorage.getItem("gh_repo");
+  const branch = localStorage.getItem("gh_branch") || "main";
+
+  if (!token || !repo) { st.textContent = "github einstellungen fehlen!"; return; }
+  if (!files.length)   return;
+
+  st.textContent = "lädt...";
+
+  for (const file of files) {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path     = `img/${safeName}`;
+
+    const b64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload  = () => res(r.result.split(",")[1]);
+      r.onerror = () => rej(new Error("Lesefehler"));
+      r.readAsDataURL(file);
+    });
+
+    let sha = null;
+    try {
+      const check = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,
+        { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+      if (check.ok) sha = (await check.json()).sha;
+    } catch(e) {}
+
+    const body = { message: `img: upload ${safeName}`, content: b64, branch };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) { st.textContent = `fehler bei ${file.name}`; return; }
+
+    // nächste Bildnummer berechnen und [BildN] in textarea einfügen
+    const existing = [...(ta.value.matchAll(/\[Bild(\d+)\]/gi))].map(m => parseInt(m[1]));
+    const next = existing.length ? Math.max(...existing) + 1 : 1;
+    const ref  = `[Bild${next}]`;
+    const pos  = ta.selectionStart ?? ta.value.length;
+    ta.value   = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
+    ta.focus();
+
+    st.textContent = `✓ als ${ref} eingefügt`;
+  }
+  input.value = "";
+}
 
 // ── EDITOR TOOLBAR HELPERS ────────────────────────────────────────────────────
 function editorWrap(id, before, after) {
