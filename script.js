@@ -243,48 +243,65 @@ function renderPhotoPost(p, pid, dateStr) {
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
   // ── KOLLAGE (preview, außerhalb post-body) ──
+  // Zeigt bis zu 9 Bilder als Grid, Rest als +N
   let collageHTML = "";
-  if (imgs.length === 1) {
-    collageHTML = `<div class="collage collage-1" onclick="togglePost('${pid}')">
-      <img src="${imgs[0]}" alt="" loading="lazy">
-    </div>`;
-  } else if (imgs.length === 2) {
-    collageHTML = `<div class="collage collage-2" onclick="togglePost('${pid}')">
-      <img src="${imgs[0]}" alt="" loading="lazy">
-      <img src="${imgs[1]}" alt="" loading="lazy">
-    </div>`;
-  } else if (imgs.length === 3) {
-    collageHTML = `<div class="collage collage-3" onclick="togglePost('${pid}')">
-      <img src="${imgs[0]}" alt="" loading="lazy">
-      <div class="collage-col">
-        <img src="${imgs[1]}" alt="" loading="lazy">
-        <img src="${imgs[2]}" alt="" loading="lazy">
-      </div>
-    </div>`;
-  } else if (imgs.length >= 4) {
-    collageHTML = `<div class="collage collage-4" onclick="togglePost('${pid}')">
-      <img src="${imgs[0]}" alt="" loading="lazy">
-      <img src="${imgs[1]}" alt="" loading="lazy">
-      <img src="${imgs[2]}" alt="" loading="lazy">
-      <div class="collage-more">+${imgs.length - 3}</div>
-    </div>`;
+  if (imgs.length > 0) {
+    const MAX_SHOWN = 9;
+    const shown = imgs.slice(0, MAX_SHOWN);
+    const rest  = imgs.length - MAX_SHOWN;
+    const count = shown.length;
+    // Grid-Klasse: 1, 2, 3, 4, oder viele
+    const gridClass = count === 1 ? "collage-1"
+                    : count === 2 ? "collage-2"
+                    : count === 3 ? "collage-3"
+                    : count <= 4  ? "collage-4"
+                    : count <= 6  ? "collage-6"
+                    : "collage-9";
+    const cells = shown.map((url, i) => {
+      if (i === MAX_SHOWN - 1 && rest > 0) {
+        return `<div class="collage-cell collage-more-wrap">
+          <img src="${url}" alt="" loading="lazy">
+          <div class="collage-more">+${rest + 1}</div>
+        </div>`;
+      }
+      return `<div class="collage-cell"><img src="${url}" alt="" loading="lazy"></div>`;
+    }).join("");
+    collageHTML = `<div class="collage ${gridClass}" onclick="togglePost('${pid}')">${cells}</div>`;
   }
+
+  // ── TEXT: [Bild1]-Verweise → Reihenfolge der images[] anpassen ──
+  // Wenn im Text [Bild2] vor [Bild1] steht, werden die Bilder entsprechend umsortiert
+  function reorderImagesByText(images, text) {
+    const refs = [...text.matchAll(/\[Bild(\d+)\]/gi)].map(m => parseInt(m[1]) - 1);
+    const seen = new Set();
+    const ordered = [];
+    for (const idx of refs) {
+      if (idx >= 0 && idx < images.length && !seen.has(idx)) {
+        ordered.push(images[idx]);
+        seen.add(idx);
+      }
+    }
+    // restliche Bilder (ohne Verweis) ans Ende
+    images.forEach((img, i) => { if (!seen.has(i)) ordered.push(img); });
+    return ordered.length === images.length ? ordered : images;
+  }
+  const orderedImgs = reorderImagesByText(imgs, p.text || "");
 
   // ── SLIDESHOW (im body, mit Overlay-Buttons) ──
   let slidesHTML = "";
-  if (imgs.length > 0) {
-    const tracks = imgs.map((url, i) =>
+  if (orderedImgs.length > 0) {
+    const tracks = orderedImgs.map((url, i) =>
       `<img class="slide-img${i===0?' active':''}" src="${url}" alt="" loading="lazy">`
     ).join("");
-    const dots = imgs.length > 1
-      ? `<div class="slide-dots">${imgs.map((_, i) =>
+    const dots = orderedImgs.length > 1
+      ? `<div class="slide-dots">${orderedImgs.map((_, i) =>
           `<span class="slide-dot${i===0?' active':''}" onclick="goSlide('${pid}',${i})"></span>`
         ).join("")}</div>`
       : "";
-    const overlayNav = imgs.length > 1
+    const overlayNav = orderedImgs.length > 1
       ? `<button class="slide-overlay-btn slide-overlay-prev" onclick="prevSlide('${pid}')">‹</button>
          <button class="slide-overlay-btn slide-overlay-next" onclick="nextSlide('${pid}')">›</button>
-         <div class="slide-overlay-counter" id="${pid}-counter">1 / ${imgs.length}</div>`
+         <div class="slide-overlay-counter" id="${pid}-counter">1 / ${orderedImgs.length}</div>`
       : "";
     slidesHTML = `<div class="slideshow" id="${pid}-slides" data-current="0">
       <div class="slide-track" style="aspect-ratio:4/3;position:relative">
@@ -419,6 +436,7 @@ function toggleEditPost(pid, e) {
           }
         </div>
         <button type="button" onclick="addEfImgRow('${pid}')" style="font-size:11px;margin-top:3px;color:#666;border-color:#999">+ url</button>
+        <button type="button" onclick="repushImages('${pid}')" style="font-size:11px;margin-top:3px;margin-left:4px;color:#888;border-color:#ccc" title="Bilder aus der Liste nochmal ins Repo pushen">↻ bilder neu pushen</button>
       </div>
     </div>` : "";
 
@@ -1286,6 +1304,49 @@ async function uploadImageToRepo(file, token, repo, branch) {
   const url = `https://${repo.split("/")[0]}.github.io/${repo.split("/")[1]}/${path}`;
   return { url, filename, path };
 }
+// ── BILDER NEU PUSHEN ─────────────────────────────────────────────────────────
+async function repushImages(pid) {
+  const imgList = document.getElementById("ef-img-list-" + pid);
+  const st      = document.getElementById("ef-upload-status-" + pid);
+  const token   = localStorage.getItem("gh_token");
+  const repo    = localStorage.getItem("gh_repo");
+  const branch  = localStorage.getItem("gh_branch") || "main";
+
+  if (!token || !repo) { if(st) st.textContent = "github einstellungen fehlen!"; return; }
+
+  const urls = imgList
+    ? [...imgList.querySelectorAll("input[type=url]")].map(i => i.value.trim()).filter(Boolean)
+    : [];
+
+  if (!urls.length) { if(st) st.textContent = "keine bilder in der liste."; return; }
+
+  // Nur lokale Repo-Bilder (img/...) neu pushen, keine externen URLs
+  const repoBase = `https://${repo.split("/")[0]}.github.io/${repo.split("/")[1]}/`;
+  const localUrls = urls.filter(u => u.startsWith(repoBase) || u.startsWith("img/"));
+  if (!localUrls.length) { if(st) st.textContent = "keine lokalen repo-bilder gefunden."; return; }
+
+  if(st) st.textContent = `0 / ${localUrls.length} neu gepusht...`;
+  let done = 0;
+
+  for (const url of localUrls) {
+    try {
+      // Bild laden
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`laden fehlgeschlagen: ${res.status}`);
+      const blob = await res.blob();
+      const file = new File([blob], url.split("/").pop(), { type: blob.type });
+
+      await uploadImageToRepo(file, token, repo, branch);
+      done++;
+      if(st) st.textContent = `${done} / ${localUrls.length} neu gepusht...`;
+    } catch(err) {
+      if(st) st.textContent = `fehler bei ${url.split("/").pop()}: ${err.message}`;
+      return;
+    }
+  }
+  if(st) st.textContent = `✓ ${done} bild${done>1?"er":""} neu gepusht`;
+}
+
 // ── IMAGE UPLOAD IN EDIT FORM ─────────────────────────────────────────────────
 async function editUploadImages(input, pid) {
   const files  = [...input.files];
@@ -1321,12 +1382,16 @@ async function editUploadImages(input, pid) {
         }
       }
 
-      // [BildN] in Text einfügen
+      // [BildN] in Text einfügen — Cursor-Position nach jedem Insert neu lesen
       const existing = [...(ta.value.matchAll(/\[Bild(\d+)\]/gi))].map(m => parseInt(m[1]));
       const next = existing.length ? Math.max(...existing) + 1 : 1;
       const ref  = `[Bild${next}]`;
-      const pos  = ta.selectionStart ?? ta.value.length;
+      // Cursor-Position jetzt lesen (nach vorherigem Insert aktuell)
+      const pos  = ta.selectionStart !== ta.selectionEnd ? ta.selectionStart : ta.selectionStart ?? ta.value.length;
       ta.value   = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
+      // Cursor hinter den eingefügten Text setzen
+      const newPos = pos + ref.length;
+      ta.setSelectionRange(newPos, newPos);
       ta.focus();
       st.textContent = `✓ als ${ref} eingefügt`;
     } catch(err) {
