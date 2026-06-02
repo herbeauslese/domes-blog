@@ -6,7 +6,7 @@
   --accent-dim: #2d5239;
   --font-main: "Courier New", monospace;
   --font-display: "Special Elite", "Courier New", monospace;
-} 
+}
 
 body {
   font-family: var(--font-main);
@@ -21,58 +21,138 @@ body {
 }
 
 /* ── DARK MODE ── */
-body.dark { background: #111; color: #ddd; }
-body.dark h1 span { background: #ddd; color: #111; }
-body.dark #site-header { border-color: #ddd; }
-body.dark p.sub { color: #777; border-color: #444; }
-body.dark #controls { border-color: #555; }
-body.dark #controls::before { color: #555; }
-body.dark select, body.dark input, body.dark textarea {
-  background: #1a1a1a; color: #ddd; border-color: #555;
+/* ══════════════════════════════════════════════════════
+   DARK MODE — komplett überarbeitet, hoher Kontrast
+   ══════════════════════════════════════════════════════
+   --dk-bg:       Seitenhintergrund
+   --dk-surface:  Karten, Inputs, Boxen
+   --dk-border:   Rahmen, Trennlinien
+   --dk-border-s: schwache Trennlinien
+   --dk-text:     Haupttext
+   --dk-text-2:   Sekundärtext (Meta, Datum)
+   --dk-text-3:   Sehr dezent (Hints, Labels)
+*/
+body.dark {
+  --dk-bg:       #0f0f0f;
+  --dk-surface:  #1c1c1c;
+  --dk-border:   #e0e0e0;
+  --dk-border-s: #2e2e2e;
+  --dk-text:     #f0f0f0;
+  --dk-text-2:   #a0a0a0;
+  --dk-text-3:   #606060;
+  background: var(--dk-bg);
+  color: var(--dk-text);
 }
-body.dark button { background: #1a1a1a; color: #ddd; border-color: #555; }
-body.dark button:hover { background: #ddd; color: #111; }
-body.dark .post { border-color: #333; }
-body.dark .post:last-child { border-color: #ddd; }
-body.dark .post-meta { color: #666; }
-body.dark .post-tag { border-color: #555; color: #666; }
-body.dark .post-tag.reise { border-color: var(--accent); color: var(--accent); }
-body.dark .post-tag.album { border-color: #555; color: #888; }
-body.dark #footer { border-color: #ddd; color: #666; }
-body.dark #footer a { color: #ddd; }
-body.dark .entry-toggle { color: #555; border-color: #2a2a2a; }
-body.dark .entry-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Struktur */
+body.dark h1 span                { background: var(--dk-text); color: var(--dk-bg); }
+body.dark #site-header           { border-color: var(--dk-border); }
+body.dark p.sub                  { color: var(--dk-text-2); border-color: var(--dk-border-s); }
+body.dark #controls              { border-color: var(--dk-border-s); }
+body.dark #controls::before      { color: var(--dk-text-3); }
+body.dark #post-count            { color: var(--dk-text-3); }
+body.dark #feed                  { border-color: var(--dk-border); }
+body.dark #footer                { border-color: var(--dk-border); color: var(--dk-text-2); }
+body.dark #footer a              { color: var(--dk-text); }
+
+/* Inputs & Buttons */
+body.dark select,
+body.dark input,
+body.dark textarea               { background: var(--dk-surface); color: var(--dk-text); border-color: var(--dk-border-s); }
+body.dark button                 { background: var(--dk-surface); color: var(--dk-text); border-color: var(--dk-border-s); }
+body.dark button:hover           { background: var(--dk-text); color: var(--dk-bg); }
+
+/* Posts */
+body.dark .post                  { border-color: var(--dk-border-s); }
+body.dark .post:last-child       { border-color: var(--dk-border); }
+body.dark .post-meta             { color: var(--dk-text-2); }
+body.dark .post-preview          { color: var(--dk-text-2); }
+body.dark .post-date-inline      { color: var(--dk-text-3); }
+body.dark .post-tag              { border-color: var(--dk-border-s); color: var(--dk-text-2); }
+body.dark .post-tag.reise        { border-color: var(--accent); color: var(--accent); }
+body.dark .post-tag.album        { border-color: var(--dk-text-2); color: var(--dk-text-2); }
+
+/* Toggle */
+body.dark .entry-toggle          { color: var(--dk-text-3); border-color: var(--dk-border-s); }
+body.dark .entry-toggle:hover    { color: var(--accent); border-color: var(--accent); }
 body.dark .post.expanded .entry-toggle { color: var(--accent); border-color: var(--accent); }
-body.dark .edit-btn { color: #555; }
-body.dark .edit-btn:hover { color: #ddd; }
-body.dark .edit-form { background: #1a1a1a; border-color: #444; }
-body.dark .edit-form label { color: #888; }
-body.dark #admin-bar button { color: #555; }
-body.dark #admin-bar button:hover { color: #ddd; background: none; }
-body.dark #admin-bar button.active { color: #ddd; }
-body.dark #pw-box { background: #111; border-color: #ddd; }
-body.dark #popup-overlay { background: rgba(0,0,0,0.75); }
-body.dark #popup-box { background: #111; border-color: #ddd; color: #ddd; }
-body.dark #popup-close { color: #666; }
-body.dark #popup-close:hover { color: #ddd; background: none; }
-body.dark .album-cover-canvas { border-color: #444; background: #222; }
-body.dark .slide-img { border-color: #333; }
-body.dark .slide-dot { background: #444; }
-body.dark .slide-dot.active { background: #ddd; }
-body.dark .slide-btn { color: #666; border-color: #444; }
-body.dark .slide-btn:hover { color: #ddd; border-color: #ddd; background: none; }
-body.dark .sub-ratings-full { border-color: #333; }
-body.dark .srf-row { color: #888; }
-body.dark .srf-star.empty { color: #444; }
-body.dark .srf-tooltip { border-color: #555; color: #555; }
-body.dark .entry-date-small { color: #555; }
-body.dark .album-rating .rating-denom { color: #666; }
-body.dark #mb-results:not(:empty) { border-color: #444; }
-body.dark #song-radios { border-color: #444; }
-body.dark details summary { color: #666; }
-body.dark #admin-panel { border-color: #333; }
-body.dark .post-type-label { color: #555; }
-body.dark .pw-hint { color: #555; }
+
+/* Album */
+body.dark .album-cover-canvas   { border-color: var(--dk-border-s); background: #222; }
+body.dark .album-rating .rating-denom { color: var(--dk-text-3); }
+body.dark .album-songs-list     { color: var(--dk-text-3); border-color: var(--dk-border-s); }
+body.dark .album-song.fav       { color: var(--dk-text-2); }
+
+/* Slideshow */
+body.dark .slide-img            { border-color: var(--dk-border-s); }
+body.dark .slide-dot            { background: var(--dk-border-s); }
+body.dark .slide-dot.active     { background: var(--dk-text); }
+body.dark .slide-btn            { color: var(--dk-text-2); border-color: var(--dk-border-s); }
+body.dark .slide-btn:hover      { color: var(--dk-text); border-color: var(--dk-text); background: none; }
+body.dark .slide-counter        { color: var(--dk-text-3); }
+
+/* Admin */
+body.dark #admin-bar button          { color: var(--dk-text-3); }
+body.dark #admin-bar button:hover    { color: var(--dk-text); background: none; }
+body.dark #admin-bar button.active   { color: var(--dk-text); }
+body.dark #admin-panel               { border-color: var(--dk-border-s); }
+body.dark .edit-btn                  { color: var(--dk-text-3); }
+body.dark .edit-btn:hover            { color: var(--dk-text); }
+body.dark .hide-btn                  { color: var(--dk-text-3); }
+body.dark .hide-btn:hover            { color: var(--dk-text); background: none; }
+body.dark .edit-form                 { background: var(--dk-surface); border-color: var(--dk-border-s); }
+body.dark .edit-form label           { color: var(--dk-text-2); }
+body.dark .entry-date-small          { color: var(--dk-text-3); }
+
+/* Overlays */
+body.dark #pw-box                { background: var(--dk-bg); border-color: var(--dk-border); color: var(--dk-text); }
+body.dark #pw-box input          { background: var(--dk-surface); color: var(--dk-text); border-color: var(--dk-border-s); }
+body.dark .pw-hint               { color: var(--dk-text-2); }
+body.dark #pw-error              { color: #ff6b6b; }
+body.dark #popup-overlay         { background: rgba(0,0,0,0.8); }
+body.dark #popup-box             { background: var(--dk-bg); border-color: var(--dk-border); color: var(--dk-text); }
+body.dark #popup-close           { color: var(--dk-text-2); }
+body.dark #popup-close:hover     { color: var(--dk-text); background: none; }
+body.dark #admin-pw-box          { background: var(--dk-bg); border-color: var(--dk-border); color: var(--dk-text); }
+body.dark #admin-pw-box input    { background: var(--dk-surface); color: var(--dk-text); border-color: var(--dk-border-s); }
+body.dark #admin-pw-box button   { background: var(--dk-surface); color: var(--dk-text); border-color: var(--dk-border-s); }
+body.dark #admin-pw-box button:hover { background: var(--dk-text); color: var(--dk-bg); }
+
+/* Loading */
+body.dark #loading-screen        { background: var(--dk-bg); }
+body.dark #loading-title         { color: var(--dk-text); }
+body.dark #loading-bar           { background: var(--dk-border-s); }
+body.dark #loading-bar-inner     { background: var(--dk-text); }
+
+/* Back to top */
+body.dark #btn-back-top          { background: var(--dk-bg); color: var(--dk-text); border-color: var(--dk-border); }
+body.dark #btn-back-top:hover    { background: var(--dk-text); color: var(--dk-bg); }
+
+/* Misc */
+body.dark #mb-results:not(:empty) { border-color: var(--dk-border-s); }
+body.dark #song-radios           { border-color: var(--dk-border-s); }
+body.dark details summary        { color: var(--dk-text-2); }
+body.dark .entry-songs           { color: var(--dk-text-2); }
+body.dark .sub-ratings-full      { border-color: var(--dk-border-s); }
+body.dark .srf-row               { color: var(--dk-text-2); }
+body.dark .srf-star.empty        { color: var(--dk-border-s); }
+body.dark .srf-tooltip           { border-color: var(--dk-text-3); color: var(--dk-text-3); }
+body.dark .editor-toolbar button { background: var(--dk-surface); color: var(--dk-text-2); border-color: var(--dk-border-s); }
+body.dark .editor-toolbar button:hover { background: var(--dk-text); color: var(--dk-bg); border-color: var(--dk-text); }
+body.dark .editor-hint           { color: var(--dk-text-3); }
+body.dark .post-link             { color: var(--accent); }
+body.dark .post-img-ref          { color: var(--accent); }
+
+/* Dark mode toggle pill */
+body.dark #mode-switch span      { color: var(--dk-text-3); }
+body.dark #mode-switch span.active { color: var(--dk-text); }
+body.dark .pill                  { border-color: var(--dk-border-s); background: #333; }
+body.dark #mode-toggle input:checked + .pill { background: var(--dk-text); }
+body.dark #mode-toggle input:checked + .pill::after { background: var(--dk-bg); }
+body.dark .pill::after           { background: var(--dk-text); }
+
+/* Mobile controls */
+body.dark #controls-filters      { border-color: var(--dk-border-s); }
 
 /* ── HEADER ── */
 #site-header {
@@ -155,7 +235,6 @@ p.sub {
   display: block;
   margin-bottom: 2px;
 }
-body.dark #controls::before { color: #555; }
 
 #controls-filters {
   display: flex;
@@ -173,7 +252,6 @@ body.dark #controls::before { color: #555; }
   font-family: var(--font-main);
 }
 #post-count { font-size: 10px; color: #aaa; white-space: nowrap; line-height: 1.3; }
-body.dark #post-count { color: #555; }
 #btn-filter-toggle { display: none; }
 
 select, input[type=text], input[type=number], input[type=password],
@@ -201,7 +279,6 @@ button:hover { background: #000; color: #fff; }
   margin-top: 0;
   border-top: 2px solid #000;
 }
-body.dark #feed { border-color: #ddd; }
 
 @media (max-width: 480px) {
   /* Mobile: controls viel schlanker */
@@ -215,7 +292,6 @@ body.dark #feed { border-color: #ddd; }
     gap: 4px;
     align-items: center;
   }
-  body.dark #controls { border-color: #333; }
   #controls::before { display: none; }
   #controls input[type=text] { flex: 1; min-width: 0; font-size: 12px; }
   #controls-filters {
@@ -225,7 +301,6 @@ body.dark #feed { border-color: #ddd; }
     border-top: 1px dashed #e0e0e0;
     gap: 4px;
   }
-  body.dark #controls-filters { border-color: #333; }
   #controls-filters.hidden { display: none; }
   #controls-right { position: static; flex-direction: row; align-items: center; gap: 6px; margin-left: auto; }
   #post-count { font-size: 10px; }
@@ -270,7 +345,6 @@ body.dark #feed { border-color: #ddd; }
 }
 .post-tag.reise { border-color: var(--accent); color: var(--accent); }
 .post-tag.album { border-color: #000; color: #000; }
-body.dark .post-tag.album { border-color: #aaa; color: #aaa; }
 
 .post-date-inline {
   position: absolute;
@@ -280,7 +354,6 @@ body.dark .post-tag.album { border-color: #aaa; color: #aaa; }
   font-family: var(--font-main);
   white-space: nowrap;
 }
-body.dark .post-date-inline { color: #555; }
 
 /* ── POST META (album: artist, year/genre) ── */
 .post-meta {
@@ -298,7 +371,6 @@ body.dark .post-date-inline { color: #555; }
   color: #444;
   margin-top: 4px;
 }
-body.dark .post-preview { color: #999; }
 
 /* ── PHOTO SLIDESHOW ── */
 .slideshow {
@@ -354,7 +426,6 @@ body.dark .post-preview { color: #999; }
 }
 .slide-btn:hover { color: #000; border-color: #000; background: none; }
 .slide-counter { font-size: 10px; color: #aaa; margin-left: auto; }
-body.dark .slide-counter { color: #555; }
 
 /* ── ALBUM POST ── */
 .album-row {
@@ -496,7 +567,6 @@ body.dark .slide-counter { color: #555; }
   margin-bottom: 4px;
   color: #333;
 }
-body.dark .entry-songs { color: #aaa; }
 .entry-songs, .entry-songs *, .entry-songs-inner, .entry-songs-inner * {
   font-size: 11px !important;
 }
@@ -562,8 +632,6 @@ body.dark .entry-songs { color: #aaa; }
   transition: opacity 0.15s, color 0.15s;
 }
 .hide-btn:hover { color: #000; background: none; opacity: 1; }
-body.dark .hide-btn { color: #888; }
-body.dark .hide-btn:hover { color: #ddd; background: none; }
 .hide-btn.active { opacity: 1; color: var(--accent); }
 
 /* post shown-as-hidden (when showHidden=true) */
@@ -581,16 +649,13 @@ body.dark .hide-btn:hover { color: #ddd; background: none; }
   border-left: 2px solid #e0e0e0;
   padding-left: 8px;
 }
-body.dark .album-songs-list { color: #555; border-color: #2a2a2a; }
 .album-song { display: inline; }
 .album-song::after { content: "  ·  "; color: #ddd; }
-body.dark .album-song::after { color: #333; }
 .album-song:last-child::after { content: ""; }
 .album-song.fav {
   color: #555;
   font-weight: bold;
 }
-body.dark .album-song.fav { color: #888; }
 .album-song.fav::before { content: "★ "; color: var(--accent); font-size: 9px; }
 
 /* preview verstecken wenn aufgeklappt — via JS togglePost */
@@ -625,9 +690,6 @@ body.dark .album-song.fav { color: #888; }
   font-family: var(--font-main);
   margin-left: 4px;
 }
-body.dark .editor-toolbar button { background: #1a1a1a; color: #888; border-color: #444; }
-body.dark .editor-toolbar button:hover { background: #ddd; color: #111; border-color: #ddd; }
-body.dark .editor-hint { color: #555; }
 
 /* ── POST LINKS ── */
 .post-link {
@@ -637,7 +699,6 @@ body.dark .editor-hint { color: #555; }
   font-family: var(--font-main);
 }
 .post-link:hover { color: var(--accent-dim); }
-body.dark .post-link { color: var(--accent); }
 
 .post-img-ref {
   color: var(--accent);
@@ -660,14 +721,10 @@ body.dark .post-link { color: var(--accent); }
   transition: opacity 0.4s ease;
 }
 #loading-screen.fade-out { opacity: 0; pointer-events: none; }
-body.dark #loading-screen { background: #111; }
 #loading-box { text-align: center; font-family: var(--font-display); }
 #loading-title { display: block; font-size: 28px; letter-spacing: 2px; margin-bottom: 16px; color: #000; }
-body.dark #loading-title { color: #ddd; }
 #loading-bar { width: 160px; height: 2px; background: #e0e0e0; margin: 0 auto; overflow: hidden; }
-body.dark #loading-bar { background: #333; }
 #loading-bar-inner { height: 100%; width: 0%; background: #000; transition: width 0.3s ease; }
-body.dark #loading-bar-inner { background: #ddd; }
 
 /* ── BACK TO TOP ── */
 #btn-back-top {
@@ -690,8 +747,6 @@ body.dark #loading-bar-inner { background: #ddd; }
 }
 #btn-back-top.visible { display: flex; }
 #btn-back-top:hover { background: #000; color: #fff; }
-body.dark #btn-back-top { background: #111; color: #ddd; border-color: #ddd; }
-body.dark #btn-back-top:hover { background: #ddd; color: #111; }
 
 /* upload label */
 #btn-upload-img:hover { background: #000; color: #fff; border-color: #000; }
@@ -709,7 +764,6 @@ body.dark #btn-back-top:hover { background: #ddd; color: #111; }
   align-items: center;
 }
 #footer a { color: #000; }
-body.dark #footer a { color: #ddd; }
 
 /* ── PASSWORD OVERLAY ── */
 #pw-overlay {
@@ -721,7 +775,6 @@ body.dark #footer a { color: #ddd; }
   align-items: center;
   justify-content: center;
 }
-body.dark #pw-overlay { background: #111; }
 #pw-box {
   background: #fff;
   border: 2px solid #000;
@@ -732,7 +785,6 @@ body.dark #pw-overlay { background: #111; }
   max-width: calc(100vw - 40px);
   text-align: center;
 }
-body.dark #pw-box { background: #111; border-color: #ddd; color: #ddd; }
 #pw-box b {
   display: block;
   margin-bottom: 12px;
@@ -747,7 +799,6 @@ body.dark #pw-box { background: #111; border-color: #ddd; color: #ddd; }
   font-style: italic;
   line-height: 1.6;
 }
-body.dark .pw-hint { color: #666; }
 #pw-input {
   width: 100%;
   font-size: 15px;
@@ -764,11 +815,6 @@ body.dark .pw-hint { color: #666; }
   letter-spacing: 1px;
 }
 #pw-error { font-size: 12px; margin-top: 8px; display: none; color: #c00; }
-body.dark #pw-error { color: #f88; }
-body.dark #admin-pw-box { background: #111; border-color: #ddd; color: #ddd; }
-body.dark #admin-pw-box input { background: #1a1a1a; color: #ddd; border-color: #555; }
-body.dark #admin-pw-box button { background: #1a1a1a; color: #ddd; border-color: #555; }
-body.dark #admin-pw-box button:hover { background: #ddd; color: #111; }
 
 /* ── POPUP OVERLAY ── */
 #popup-overlay {
