@@ -24,10 +24,10 @@ let filterType = "all";
 let searchQ    = "";
 
 // Besucher-Passwort (Zugang zur Seite) — SHA-256 Hash
-const PW_HASH_SHA256    = "ebc5fcca14a0cd1e62e741d1a413a2e9eb97f0322a09c2d8eb2b73768006d8bd";
+const PW_HASH_SHA256    = "4a4502d754a5f4b056e90be59f0ae45baf97da1886c3de441a1e08c809e9bfb6";
 
 // Admin-Passwort (Bearbeitung, neue Beiträge) — separates Passwort!
-const ADMIN_HASH_SHA256 = "DEIN_ADMIN_HASH_HIER"; // mit generate-hash.html erzeugen
+const ADMIN_HASH_SHA256 = "b8f4a44e59c998d28f5684e885d5ece7684a28cbe174bdb11a9d949e4a9dc23a"; // mit generate-hash.html erzeugen
 
 let siteUnlocked = sessionStorage.getItem("lz_site_ok") === "1"; // Besucher
 let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
