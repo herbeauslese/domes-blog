@@ -1093,58 +1093,84 @@ document.getElementById("img-upload-input").addEventListener("change", async fun
   let uploaded = 0;
 
   for (const file of files) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path     = `img/${safeName}`;
-
-    // base64 lesen
-    const b64 = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload  = () => res(r.result.split(",")[1]);
-      r.onerror = () => rej(new Error("Lesefehler"));
-      r.readAsDataURL(file);
-    });
-
-    // existiert die Datei schon? sha holen
-    let sha = null;
     try {
-      const check = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,
-        { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
-      if (check.ok) sha = (await check.json()).sha;
-    } catch(e) {}
+      st.textContent = `konvertiere ${file.name}...`;
+      const { url, filename } = await uploadImageToRepo(file, token, repo, branch);
 
-    const body = { message: `img: upload ${safeName}`, content: b64, branch };
-    if (sha) body.sha = sha;
-
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-      method: "PUT",
-      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) { st.textContent = `fehler bei ${file.name}`; return; }
-
-    // URL-Zeile ins Formular einfügen
-    const url  = `https://${repo.split("/")[0]}.github.io/${repo.split("/")[1]}/${path}`;
-    const list = document.getElementById("photo-url-list");
-    // ersten leeren URL-Slot befüllen, sonst neue Zeile
-    const emptyInput = [...list.querySelectorAll("input[type=url]")].find(i => !i.value);
-    if (emptyInput) {
-      emptyInput.value = url;
-    } else {
-      const row = document.createElement("div");
-      row.className = "photo-url-row";
-      row.innerHTML = `<input type="url" value="${url}"><button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>`;
-      list.appendChild(row);
+      // URL-Zeile ins Formular einfügen
+      const list = document.getElementById("photo-url-list");
+      const emptyInput = [...list.querySelectorAll("input[type=url]")].find(i => !i.value);
+      if (emptyInput) {
+        emptyInput.value = url;
+      } else {
+        const row = document.createElement("div");
+        row.className = "photo-url-row";
+        row.innerHTML = `<input type="url" value="${url}"><button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>`;
+        list.appendChild(row);
+      }
+      uploaded++;
+      st.textContent = `${uploaded} / ${files.length} hochgeladen...`;
+    } catch(err) {
+      st.textContent = `fehler: ${err.message}`;
+      return;
     }
-
-    uploaded++;
-    st.textContent = `${uploaded} / ${files.length} hochgeladen...`;
   }
 
   st.textContent = `✓ ${uploaded} bild${uploaded > 1 ? "er" : ""} hochgeladen`;
-  this.value = ""; // reset input
+  this.value = "";
 });
 
+// ── IMAGE CONVERSION: alles → JPEG ───────────────────────────────────────────
+// Konvertiert jedes Bild (inkl. HEIC) zu JPEG via Canvas
+// Gibt { b64, filename } zurück
+async function convertToJpeg(file) {
+  const url = URL.createObjectURL(file);
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width  = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+      const b64 = dataUrl.split(",")[1];
+      // Dateiname: Endung → .jpg
+      const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9._-]/g, "_");
+      resolve({ b64, filename: baseName + ".jpg" });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Bild konnte nicht geladen werden (Format nicht unterstützt?)"));
+    };
+    img.src = url;
+  });
+}
+
+async function uploadImageToRepo(file, token, repo, branch) {
+  const { b64, filename } = await convertToJpeg(file);
+  const path = `img/${filename}`;
+
+  let sha = null;
+  try {
+    const check = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,
+      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+    if (check.ok) sha = (await check.json()).sha;
+  } catch(e) {}
+
+  const body = { message: `img: upload ${filename}`, content: b64, branch };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    method: "PUT",
+    headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.status); }
+
+  const url = `https://${repo.split("/")[0]}.github.io/${repo.split("/")[1]}/${path}`;
+  return { url, filename, path };
+}
 // ── IMAGE UPLOAD IN EDIT FORM ─────────────────────────────────────────────────
 async function editUploadImages(input, pid) {
   const files  = [...input.files];
@@ -1157,46 +1183,22 @@ async function editUploadImages(input, pid) {
   if (!token || !repo) { st.textContent = "github einstellungen fehlen!"; return; }
   if (!files.length)   return;
 
-  st.textContent = "lädt...";
-
   for (const file of files) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path     = `img/${safeName}`;
-
-    const b64 = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload  = () => res(r.result.split(",")[1]);
-      r.onerror = () => rej(new Error("Lesefehler"));
-      r.readAsDataURL(file);
-    });
-
-    let sha = null;
     try {
-      const check = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,
-        { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
-      if (check.ok) sha = (await check.json()).sha;
-    } catch(e) {}
+      st.textContent = `konvertiere ${file.name}...`;
+      await uploadImageToRepo(file, token, repo, branch);
 
-    const body = { message: `img: upload ${safeName}`, content: b64, branch };
-    if (sha) body.sha = sha;
-
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-      method: "PUT",
-      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) { st.textContent = `fehler bei ${file.name}`; return; }
-
-    // nächste Bildnummer berechnen und [BildN] in textarea einfügen
-    const existing = [...(ta.value.matchAll(/\[Bild(\d+)\]/gi))].map(m => parseInt(m[1]));
-    const next = existing.length ? Math.max(...existing) + 1 : 1;
-    const ref  = `[Bild${next}]`;
-    const pos  = ta.selectionStart ?? ta.value.length;
-    ta.value   = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
-    ta.focus();
-
-    st.textContent = `✓ als ${ref} eingefügt`;
+      const existing = [...(ta.value.matchAll(/\[Bild(\d+)\]/gi))].map(m => parseInt(m[1]));
+      const next = existing.length ? Math.max(...existing) + 1 : 1;
+      const ref  = `[Bild${next}]`;
+      const pos  = ta.selectionStart ?? ta.value.length;
+      ta.value   = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
+      ta.focus();
+      st.textContent = `✓ als ${ref} eingefügt`;
+    } catch(err) {
+      st.textContent = `fehler: ${err.message}`;
+      return;
+    }
   }
   input.value = "";
 }
