@@ -161,9 +161,28 @@ body.dark #controls-filters      { border-color: var(--dk-border-s); }
 #site-header {
   border: 2px solid #000;
   border-bottom: 4px solid #000;
-  padding: 10px 12px 8px 12px;
+  padding: 10px 12px 0 12px;
   margin-bottom: 14px;
   position: relative;
+}
+#header-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+#header-me {
+  height: 72px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  /* PNG mit transparentem Hintergrund — passt zu hell und dunkel */
+  margin-bottom: 0;
+  align-self: flex-end;
+}
+body.dark #header-me {
+  filter: invert(1);
 }
 h1 {
   font-family: var(--font-display);
