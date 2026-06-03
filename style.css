@@ -509,22 +509,38 @@ body.dark .slide-track { border-color: var(--dk-border-s); background: #1c1c1c; 
 body.dark .slide-dot { background: var(--dk-border-s); }
 body.dark .slide-dot.active { background: var(--dk-text); }
 
-/* ── REISE POST ── */
+/* ══════════════════════════════════════════
+   BEITRAG-HIERARCHIE
+   Stufe 1: Text & Album — Basis (keine Änderung)
+   Stufe 2: Foto — etwas auffälliger
+   Stufe 3: Reise — am prominentesten
+   ══════════════════════════════════════════ */
+
+/* ── STUFE 2: FOTO ── */
+.post.post-foto .post-title {
+  font-size: 18px;
+}
+@media (max-width: 480px) {
+  .post.post-foto .post-title { font-size: 16px; }
+}
+
+/* ── STUFE 3: REISE ── */
 .post.post-reise {
   background: #f7f9f7;
   margin-left: -14px;
   margin-right: -14px;
   padding-left: 14px;
   padding-right: 14px;
+  padding-top: 18px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #c8d9c8;
 }
-body.dark .post.post-reise { background: #141a14; }
-
+body.dark .post.post-reise { background: #141a14; border-color: #2a3a2a; }
 .post.post-reise .post-title {
-  font-size: 20px;
+  font-size: 22px;
 }
-
 @media (max-width: 480px) {
-  .post.post-reise .post-title { font-size: 17px; }
+  .post.post-reise .post-title { font-size: 18px; }
 }
 .album-row {
   display: flex;
