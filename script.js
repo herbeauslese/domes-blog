@@ -243,30 +243,27 @@ function renderPhotoPost(p, pid, dateStr) {
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
   // ── KOLLAGE (preview, außerhalb post-body) ──
-  // Zeigt bis zu 9 Bilder als Grid, Rest als +N
   let collageHTML = "";
   if (imgs.length > 0) {
     const MAX_SHOWN = 9;
     const shown = imgs.slice(0, MAX_SHOWN);
-    const rest  = imgs.length - MAX_SHOWN;
-    const count = shown.length;
-    // Grid-Klasse: 1, 2, 3, 4, oder viele
-    const gridClass = count === 1 ? "collage-1"
-                    : count === 2 ? "collage-2"
-                    : count === 3 ? "collage-3"
-                    : count <= 4  ? "collage-4"
-                    : count <= 6  ? "collage-6"
-                    : "collage-9";
+    const extra = imgs.length - MAX_SHOWN;
+    const n = shown.length;
+
+    // Grid-Spalten je nach Anzahl — immer vollständig gefüllt
+    const cols = n === 1 ? 1 : n === 2 ? 2 : n === 4 ? 2 : 3;
+    const rows = Math.ceil(n / cols);
+
     const cells = shown.map((url, i) => {
-      if (i === MAX_SHOWN - 1 && rest > 0) {
-        return `<div class="collage-cell collage-more-wrap">
-          <img src="${url}" alt="" loading="lazy">
-          <div class="collage-more">+${rest + 1}</div>
-        </div>`;
-      }
-      return `<div class="collage-cell"><img src="${url}" alt="" loading="lazy"></div>`;
+      const isLast = i === shown.length - 1;
+      const inner = `<img src="${url}" alt="" loading="lazy">`;
+      const more  = (isLast && extra > 0)
+        ? `<div class="collage-more">+${extra + 1}</div>`
+        : "";
+      return `<div class="collage-cell">${inner}${more}</div>`;
     }).join("");
-    collageHTML = `<div class="collage ${gridClass}" onclick="togglePost('${pid}')">${cells}</div>`;
+
+    collageHTML = `<div class="collage" style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)" onclick="togglePost('${pid}')">${cells}</div>`;
   }
 
   // ── TEXT: [Bild1]-Verweise → Reihenfolge der images[] anpassen ──
