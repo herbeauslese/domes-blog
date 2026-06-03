@@ -169,11 +169,11 @@ body.dark #controls-filters      { border-color: var(--dk-border-s); }
   display: block;
 }
 #header-me {
-  height: 86px;
+  height: 82px;
   width: auto;
   position: absolute;
   bottom: 0;
-  right: 44px;
+  right: 80px;
   display: block;
   pointer-events: none;
 }
