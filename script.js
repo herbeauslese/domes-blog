@@ -312,7 +312,7 @@ function renderPhotoPost(p, pid, dateStr) {
     </div>`;
   }
 
-  return `<div class="post" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${JSON.stringify(p.images||[]).replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
+  return `<div class="${'post' + (isReise ? ' post-reise' : '')}" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${JSON.stringify(p.images||[]).replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
