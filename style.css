@@ -17,7 +17,7 @@ body {
   background: #fff;
   color: #000;
   padding: 16px 14px 60px 14px;
-  max-width: 800px;
+  max-width: 680px;
   margin: 0 auto;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -161,25 +161,21 @@ body.dark #controls-filters      { border-color: var(--dk-border-s); }
 #site-header {
   border: 2px solid #000;
   border-bottom: 4px solid #000;
-  padding: 10px 12px 0 12px;
+  padding: 10px 12px 8px 12px;
   margin-bottom: 14px;
   position: relative;
-  overflow: hidden;
 }
 #header-inner {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
-  padding-right: 56px; /* Platz für admin-bar */
+  display: block;
 }
 #header-me {
   height: 110px;
   width: auto;
+  position: absolute;
+  bottom: 0;
+  right: 44px; /* links von admin-bar */
   display: block;
-  flex-shrink: 0;
-  align-self: flex-end;
-  margin-bottom: 0;
+  pointer-events: none;
 }
 body.dark #header-me { filter: invert(1); }
 h1 {
@@ -200,7 +196,6 @@ p.sub {
   font-size: 11px;
   color: #555;
   margin-top: 4px;
-  margin-bottom: 8px;
   border-top: 1px dashed #bbb;
   padding-top: 4px;
 }
