@@ -418,14 +418,7 @@ body.dark .collage { border-color: var(--dk-border-s); background: #222; }
   background: #f0f0f0;
 }
 body.dark .slide-img { background: #1a1a1a; }
-.collage-more-wrap { position: relative; }
-
-.collage-1 { grid-template-columns: 1fr; }
-.collage-2 { grid-template-columns: 1fr 1fr; }
-.collage-3 { grid-template-columns: 1fr 1fr 1fr; }
-.collage-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-.collage-6 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
-.collage-9 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+/* grid wordt inline gezet via JS */
 
 .collage-more {
   position: absolute;
