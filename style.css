@@ -164,26 +164,24 @@ body.dark #controls-filters      { border-color: var(--dk-border-s); }
   padding: 10px 12px 0 12px;
   margin-bottom: 14px;
   position: relative;
+  overflow: hidden;
 }
 #header-inner {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 8px;
+  padding-right: 56px; /* Platz für admin-bar */
 }
 #header-me {
-  height: 72px;
+  height: 110px;
   width: auto;
   display: block;
   flex-shrink: 0;
-  image-rendering: pixelated;
-  /* PNG mit transparentem Hintergrund — passt zu hell und dunkel */
-  margin-bottom: 0;
   align-self: flex-end;
+  margin-bottom: 0;
 }
-body.dark #header-me {
-  filter: invert(1);
-}
+body.dark #header-me { filter: invert(1); }
 h1 {
   font-family: var(--font-display);
   font-size: 28px;
@@ -202,6 +200,7 @@ p.sub {
   font-size: 11px;
   color: #555;
   margin-top: 4px;
+  margin-bottom: 8px;
   border-top: 1px dashed #bbb;
   padding-top: 4px;
 }
