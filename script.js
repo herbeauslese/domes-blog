@@ -436,7 +436,6 @@ function toggleEditPost(pid, e) {
           }
         </div>
         <button type="button" onclick="addEfImgRow('${pid}')" style="font-size:11px;margin-top:3px;color:#666;border-color:#999">+ url</button>
-        <button type="button" onclick="repushImages('${pid}')" style="font-size:11px;margin-top:3px;margin-left:4px;color:#888;border-color:#ccc" title="Bilder aus der Liste nochmal ins Repo pushen">↻ bilder neu pushen</button>
       </div>
     </div>` : "";
 
@@ -762,6 +761,14 @@ async function checkPw() {
     document.getElementById("pw-overlay").style.display = "none";
     document.getElementById("pw-input").value = "";
     errEl.style.display = "none";
+    // iOS zoom reset
+    const vp = document.querySelector("meta[name=viewport]");
+    if (vp) {
+      vp.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+      setTimeout(() => {
+        vp.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+      }, 100);
+    }
     await loadData();
   } else {
     // hilfreiche fehlermeldung
@@ -1304,49 +1311,6 @@ async function uploadImageToRepo(file, token, repo, branch) {
   const url = `https://${repo.split("/")[0]}.github.io/${repo.split("/")[1]}/${path}`;
   return { url, filename, path };
 }
-// ── BILDER NEU PUSHEN ─────────────────────────────────────────────────────────
-async function repushImages(pid) {
-  const imgList = document.getElementById("ef-img-list-" + pid);
-  const st      = document.getElementById("ef-upload-status-" + pid);
-  const token   = localStorage.getItem("gh_token");
-  const repo    = localStorage.getItem("gh_repo");
-  const branch  = localStorage.getItem("gh_branch") || "main";
-
-  if (!token || !repo) { if(st) st.textContent = "github einstellungen fehlen!"; return; }
-
-  const urls = imgList
-    ? [...imgList.querySelectorAll("input[type=url]")].map(i => i.value.trim()).filter(Boolean)
-    : [];
-
-  if (!urls.length) { if(st) st.textContent = "keine bilder in der liste."; return; }
-
-  // Nur lokale Repo-Bilder (img/...) neu pushen, keine externen URLs
-  const repoBase = `https://${repo.split("/")[0]}.github.io/${repo.split("/")[1]}/`;
-  const localUrls = urls.filter(u => u.startsWith(repoBase) || u.startsWith("img/"));
-  if (!localUrls.length) { if(st) st.textContent = "keine lokalen repo-bilder gefunden."; return; }
-
-  if(st) st.textContent = `0 / ${localUrls.length} neu gepusht...`;
-  let done = 0;
-
-  for (const url of localUrls) {
-    try {
-      // Bild laden
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`laden fehlgeschlagen: ${res.status}`);
-      const blob = await res.blob();
-      const file = new File([blob], url.split("/").pop(), { type: blob.type });
-
-      await uploadImageToRepo(file, token, repo, branch);
-      done++;
-      if(st) st.textContent = `${done} / ${localUrls.length} neu gepusht...`;
-    } catch(err) {
-      if(st) st.textContent = `fehler bei ${url.split("/").pop()}: ${err.message}`;
-      return;
-    }
-  }
-  if(st) st.textContent = `✓ ${done} bild${done>1?"er":""} neu gepusht`;
-}
-
 // ── IMAGE UPLOAD IN EDIT FORM ─────────────────────────────────────────────────
 async function editUploadImages(input, pid) {
   const files  = [...input.files];
