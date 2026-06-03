@@ -518,29 +518,39 @@ body.dark .slide-dot.active { background: var(--dk-text); }
 
 /* ── STUFE 2: FOTO ── */
 .post.post-foto .post-title {
-  font-size: 18px;
+  font-size: 20px;
 }
 @media (max-width: 480px) {
-  .post.post-foto .post-title { font-size: 16px; }
+  .post.post-foto .post-title { font-size: 17px; }
 }
 
 /* ── STUFE 3: REISE ── */
 .post.post-reise {
-  background: #f7f9f7;
+  background: #eef4ee;
   margin-left: -14px;
   margin-right: -14px;
   padding-left: 14px;
   padding-right: 14px;
-  padding-top: 18px;
-  padding-bottom: 2px;
-  border-bottom: 1px solid #c8d9c8;
+  padding-top: 22px;
+  padding-bottom: 6px;
+  border-top: 3px solid var(--accent);
+  border-bottom: 3px solid var(--accent);
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
-body.dark .post.post-reise { background: #141a14; border-color: #2a3a2a; }
+body.dark .post.post-reise {
+  background: #0e1a0e;
+  border-color: var(--accent);
+}
 .post.post-reise .post-title {
-  font-size: 22px;
+  font-size: 26px;
+  letter-spacing: 0.5px;
+}
+.post.post-reise .post-meta {
+  font-size: 12px;
 }
 @media (max-width: 480px) {
-  .post.post-reise .post-title { font-size: 18px; }
+  .post.post-reise .post-title { font-size: 21px; }
 }
 .album-row {
   display: flex;
