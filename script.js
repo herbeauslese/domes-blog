@@ -1578,6 +1578,8 @@ function editorHeading(id) {  const ta  = document.getElementById(id);
   const newPos = before.length + prefix.length + 3 + sel.length;
   ta.setSelectionRange(newPos, newPos);
 }
+
+function editorLink(id) {
   const ta  = document.getElementById(id);
   if (!ta) return;
   const start = ta.selectionStart;
