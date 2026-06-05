@@ -50,7 +50,7 @@
 <!-- ── PASSWORD OVERLAY ── -->
 <div id="pw-overlay" style="display:none;position:fixed;inset:0;background:#fff;z-index:99;align-items:flex-start;justify-content:center;padding-top:80px">
   <div id="pw-box" style="pointer-events:all">
-    <b>// rotehare blog //</b>
+    <b>// rotehaare blog //</b>
     <div class="pw-hint" style="margin-bottom:10px;line-height:1.7">
       Zutritt nur für Freunde.<br>
       <span style="font-size:10px">Kleiner Tipp: Das beste Bier der Welt:</span>
@@ -152,9 +152,11 @@
         <div style="flex:1;min-width:0">
           <div class="editor-toolbar">
             <button type="button" onclick="editorWrap('f-text-body','**','**')" title="Fett">B</button>
+            <button type="button" onclick="editorWrap('f-text-body','*','*')" title="Kursiv" style="font-style:italic">I</button>
+            <button type="button" onclick="editorHeading('f-text-body')" title="Überschrift">H</button>
             <button type="button" onclick="editorLink('f-text-body')" title="Link">🔗</button>
             <button type="button" onclick="editorInsert('f-text-body','[Bild1]')" title="Bildverweis">📷</button>
-            <span class="editor-hint">**fett** · [Text](url) · [Bild2]</span>
+            <span class="editor-hint">**fett** · *kursiv* · ## titel · [Text](url) · [Bild2]</span>
           </div>
           <textarea id="f-text-body" rows="7" placeholder="doppelte leerzeile = neuer absatz"></textarea>
         </div>
@@ -162,6 +164,7 @@
       <div class="row"><label>datum:</label><input type="date" id="f-text-date"></div>
       <br>
       <button id="btn-push-text">speichern + push</button>
+      <button id="btn-draft-text" style="margin-left:6px;color:#888;border-color:#ccc">als entwurf</button>
       <div id="ps-text" style="font-size:11px;margin-top:5px"></div>
     </div>
 
@@ -195,9 +198,11 @@
         <div style="flex:1;min-width:0">
           <div class="editor-toolbar">
             <button type="button" onclick="editorWrap('f-photo-text','**','**')" title="Fett">B</button>
+            <button type="button" onclick="editorWrap('f-photo-text','*','*')" title="Kursiv" style="font-style:italic">I</button>
+            <button type="button" onclick="editorHeading('f-photo-text')" title="Überschrift">H</button>
             <button type="button" onclick="editorLink('f-photo-text')" title="Link">🔗</button>
             <button type="button" onclick="editorInsert('f-photo-text','[Bild1]')" title="Bildverweis">📷</button>
-            <span class="editor-hint">**fett** · [Text](url) · [Bild2]</span>
+            <span class="editor-hint">**fett** · *kursiv* · ## titel · [Text](url) · [Bild2]</span>
           </div>
           <textarea id="f-photo-text" rows="4" placeholder="beschreibung / bericht"></textarea>
         </div>
@@ -205,6 +210,7 @@
       <div class="row"><label>datum:</label><input type="date" id="f-photo-date"></div>
       <br>
       <button id="btn-push-photo">speichern + push</button>
+      <button id="btn-draft-photo" style="margin-left:6px;color:#888;border-color:#ccc">als entwurf</button>
       <div id="ps-photo" style="font-size:11px;margin-top:5px"></div>
     </div>
 
