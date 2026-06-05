@@ -58,6 +58,26 @@ async function loadData() {
   applyDark();
   render();
   hideLoadingScreen();
+  // nach dem Laden: Hash-Anker scrollen + highlighten
+  handleHashOnLoad();
+}
+
+function handleHashOnLoad() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  setTimeout(() => {
+    const el = document.getElementById(hash);
+    if (!el) return;
+    // Post aufklappen
+    if (!el.classList.contains("expanded")) togglePost(hash);
+    // Scrollen
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Rahmen aufleuchten lassen
+      el.classList.add("post-highlight");
+      setTimeout(() => el.classList.remove("post-highlight"), 2000);
+    }, 150);
+  }, 300);
 }
 
 // ── MERGE posts + albums into one feed ───────────────────────────────────────
@@ -223,6 +243,7 @@ function renderTextPost(p, pid, dateStr) {
     </div>
     <div class="post-body">
       <div class="post-fulltext">${fullText}</div>
+      ${shareBarHTML(pid, p.title)}
     </div>
     <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
   </div>`;
@@ -327,6 +348,7 @@ function renderPhotoPost(p, pid, dateStr) {
     <div class="post-body">
       ${slidesHTML}
       <div class="post-fulltext">${parseText(p.text||"", pid)}</div>
+      ${shareBarHTML(pid, p.title)}
     </div>
     <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
   </div>`;
@@ -378,6 +400,7 @@ function renderAlbumPost(p, pid, dateStr) {
       ${songsListHTML}
       ${reviewHTML}
       <div class="entry-date-small">${dateStr}</div>
+      ${shareBarHTML(pid, a.album)}
     </div>
     <div id="edit-${safeid(a.artist+a.album)}" style="display:none"></div>
   </div>`;
@@ -1402,6 +1425,41 @@ function editorInsert(id, text) {
   ta.value = ta.value.slice(0, pos) + insert + ta.value.slice(pos);
   ta.focus();
   ta.selectionStart = ta.selectionEnd = pos + insert.length;
+}
+
+// ── SHARE BAR ─────────────────────────────────────────────────────────────────
+function shareBarHTML(pid, title) {
+  const t = (title || "").replace(/'/g, "\\'");
+  return `<div class="share-bar">
+    <button class="share-btn" onclick="copyPostLink('${pid}', this)" title="Link kopieren">🔗 link</button>
+    <button class="share-btn" onclick="shareWhatsApp('${t}')" title="Per WhatsApp teilen">↗ whatsapp</button>
+  </div>`;
+}
+
+function copyPostLink(pid, btn) {
+  const url = window.location.origin + window.location.pathname + "#" + pid;
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = "✓ kopiert";
+    setTimeout(() => btn.textContent = orig, 2000);
+  }).catch(() => {
+    // Fallback für ältere Browser
+    const ta = document.createElement("textarea");
+    ta.value = window.location.origin + window.location.pathname + "#" + pid;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    const orig = btn.textContent;
+    btn.textContent = "✓ kopiert";
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function shareWhatsApp(title) {
+  const url  = window.location.origin + window.location.pathname;
+  const text = `Sieh dir den Blogpost von rotehaare an: "${title}" ${url}`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 }
 
 // ── SHOW HIDDEN TOGGLE ────────────────────────────────────────────────────────
