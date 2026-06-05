@@ -1,6 +1,6 @@
 // ── SUPABASE KOMMENTARE ───────────────────────────────────────────────────────
-const SUPABASE_URL = "https://ackydvpgtnhtnhyntrsl.supabase.co/rest/v1/";       // z.B. https://abcdef.supabase.co
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFja3lkdnBndG5odG5oeW50cnNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NDk0MTcsImV4cCI6MjA5NjIyNTQxN30.UFczilhvmdTVr8Uv_MzB17GGFFC54y6CNOK4rdZVDBQ";    // sb_publishable_... oder langer anon key
+const SUPABASE_URL = "https://ackydvpgtnhtnhyntrsl.supabase.co";       // z.B. https://abcdef.supabase.co
+const SUPABASE_KEY = "sb_publishable_khT5dm8EktKtovCyrDk19w_WpRfvRl0";    // sb_publishable_... oder langer anon key
 
 async function loadComments(pid) {
   try {
