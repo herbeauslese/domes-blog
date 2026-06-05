@@ -1,3 +1,112 @@
+// ── SUPABASE KOMMENTARE ───────────────────────────────────────────────────────
+const SUPABASE_URL = "https://ackydvpgtnhtnhyntrsl.supabase.co/rest/v1/";       // z.B. https://abcdef.supabase.co
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFja3lkdnBndG5odG5oeW50cnNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NDk0MTcsImV4cCI6MjA5NjIyNTQxN30.UFczilhvmdTVr8Uv_MzB17GGFFC54y6CNOK4rdZVDBQ";    // sb_publishable_... oder langer anon key
+
+async function loadComments(pid) {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/comments?post_id=eq.${encodeURIComponent(pid)}&order=created_at.asc`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!res.ok) return [];
+    return await res.json();
+  } catch(e) { return []; }
+}
+
+async function postComment(pid, name, text) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/comments`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    },
+    body: JSON.stringify({ post_id: pid, name: name.trim(), text: text.trim() })
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.status); }
+  return await res.json();
+}
+
+async function deleteComment(id, btn) {
+  if (!unlocked) return;
+  btn.textContent = "...";
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/comments?id=eq.${id}`, {
+      method: "DELETE",
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+    });
+    btn.closest(".comment-item").remove();
+  } catch(e) { btn.textContent = "✕"; }
+}
+
+function commentSectionHTML(pid) {
+  return `<div class="comment-section" id="comments-${pid}">
+    <div class="comment-list" id="comment-list-${pid}">
+      <div class="comment-loading">lade kommentare...</div>
+    </div>
+    <div class="comment-form">
+      <input type="text" id="comment-name-${pid}" placeholder="dein name" maxlength="40" class="comment-input-name">
+      <textarea id="comment-text-${pid}" placeholder="kommentar schreiben..." rows="2" maxlength="500" class="comment-input-text"></textarea>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="comment-submit" onclick="submitComment('${pid}')">senden</button>
+        <span id="comment-status-${pid}" style="font-size:11px;color:#888"></span>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function initComments(pid) {
+  const listEl = document.getElementById("comment-list-" + pid);
+  if (!listEl) return;
+  const comments = await loadComments(pid);
+  renderCommentList(pid, comments);
+}
+
+function renderCommentList(pid, comments) {
+  const listEl = document.getElementById("comment-list-" + pid);
+  if (!listEl) return;
+  if (!comments.length) {
+    listEl.innerHTML = `<div class="comment-empty">noch keine kommentare.</div>`;
+    return;
+  }
+  listEl.innerHTML = comments.map(c => {
+    const date = new Date(c.created_at).toLocaleDateString("de-DE", { day:"2-digit", month:"2-digit", year:"numeric" });
+    const deleteBtn = unlocked ? `<button class="comment-delete" onclick="deleteComment(${c.id}, this)">✕</button>` : "";
+    return `<div class="comment-item">
+      <div class="comment-meta"><span class="comment-name">${escapeHtml(c.name)}</span><span class="comment-date">${date}</span>${deleteBtn}</div>
+      <div class="comment-text">${escapeHtml(c.text).replace(/\n/g,"<br>")}</div>
+    </div>`;
+  }).join("");
+}
+
+function escapeHtml(s) {
+  return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+async function submitComment(pid) {
+  const nameEl   = document.getElementById("comment-name-" + pid);
+  const textEl   = document.getElementById("comment-text-" + pid);
+  const statusEl = document.getElementById("comment-status-" + pid);
+  const name = nameEl.value.trim();
+  const text = textEl.value.trim();
+  if (!name) { statusEl.textContent = "name fehlt."; return; }
+  if (!text) { statusEl.textContent = "kommentar fehlt."; return; }
+  statusEl.textContent = "sende...";
+  try {
+    await postComment(pid, name, text);
+    nameEl.value = "";
+    textEl.value = "";
+    statusEl.textContent = "✓ gesendet!";
+    setTimeout(() => statusEl.textContent = "", 3000);
+    // Liste neu laden
+    const comments = await loadComments(pid);
+    renderCommentList(pid, comments);
+  } catch(e) {
+    statusEl.textContent = "fehler: " + e.message;
+  }
+}
+
 // ── LOADING SCREEN ────────────────────────────────────────────────────────────
 const loadingScreen = document.getElementById("loading-screen");
 const loadingBar    = document.getElementById("loading-bar-inner");
@@ -106,6 +215,8 @@ function render() {
   const q = searchQ.toLowerCase();
 
   let filtered = allPosts.filter(p => {
+    // Entwürfe nur für Admin sichtbar
+    if (p.draft && !unlocked) return false;
     // type filter
     if (filterType === "text"  && p.type !== "text")  return false;
     if (filterType === "photo" && p.type !== "photo") return false;
@@ -162,21 +273,29 @@ function render() {
 
 function safeid(s) { return s.replace(/[^a-zA-Z0-9]/g, ""); }
 
-// ── TEXT PARSER: bold, links, bildverweise ────────────────────────────────────
+// ── TEXT PARSER: bold, italic, heading, links, bildverweise ──────────────────
 // **fett** → <strong>
+// *kursiv* → <em>
+// ## Überschrift → <h4>
 // [Text](url) → <a href>
 // [Bild2] → springt zu Bild 2 in der Slideshow des Posts
 function parseText(text, pid) {
   return text
-    // Zeilenumbrüche erst später (nach inline-parsing)
     .split("\n\n").map(para => {
+      // ## Überschrift → eigener Block
+      if (/^##\s+/.test(para.trim())) {
+        const heading = para.trim().replace(/^##\s+/, "");
+        return `<h4 class="post-heading">${heading}</h4>`;
+      }
       let t = para
         // **fett**
         .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        // *kursiv* (nicht ** treffen)
+        .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
         // [Text](url) — externer Link
         .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
           '<a href="$2" target="_blank" rel="noopener" class="post-link">$1</a>')
-        // [Bild1], [Bild2] etc. — springt zur Slideshow
+        // [Bild1], [Bild2] etc.
         .replace(/\[Bild(\d+)\]/gi, (_, n) => {
           const idx = parseInt(n) - 1;
           return pid
@@ -216,7 +335,9 @@ function renderPost(p, idx) {
 
 function renderTextPost(p, pid, dateStr) {
   const rawPreview = (p.text || "")
+    .replace(/^##\s+/gm, "")
     .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
     .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
     .replace(/\[Bild\d+\]/gi, "")
     .replace(/\n\n/g, " ")
@@ -227,7 +348,9 @@ function renderTextPost(p, pid, dateStr) {
   const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
 
-  return `<div class="post" id="${pid}" data-type="text" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
+  const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
+
+  return `<div class="post${p.draft ? ' post-draft' : ''}" id="${pid}" data-type="text" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -235,6 +358,7 @@ function renderTextPost(p, pid, dateStr) {
         ${editBtn}${hideBtn}
       </span>
       <span class="post-tag">text</span>
+      ${draftBadge}
     </div>
     <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
@@ -244,6 +368,7 @@ function renderTextPost(p, pid, dateStr) {
     <div class="post-body">
       <div class="post-fulltext">${fullText}</div>
       ${shareBarHTML(pid, p.title)}
+      ${commentSectionHTML(pid)}
     </div>
     <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
   </div>`;
@@ -255,7 +380,9 @@ function renderPhotoPost(p, pid, dateStr) {
   const tagClass = isReise ? "reise" : "";
   const imgs = p.images || [];
   const preview = (p.text || "")
+    .replace(/^##\s+/gm, "")
     .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
     .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
     .replace(/\[Bild\d+\]/gi, "")
     .replace(/\n/g, " ")
@@ -349,6 +476,7 @@ function renderPhotoPost(p, pid, dateStr) {
       ${slidesHTML}
       <div class="post-fulltext">${parseText(p.text||"", pid)}</div>
       ${shareBarHTML(pid, p.title)}
+      ${commentSectionHTML(pid)}
     </div>
     <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
   </div>`;
@@ -401,6 +529,7 @@ function renderAlbumPost(p, pid, dateStr) {
       ${reviewHTML}
       <div class="entry-date-small">${dateStr}</div>
       ${shareBarHTML(pid, a.album)}
+      ${commentSectionHTML(pid)}
     </div>
     <div id="edit-${safeid(a.artist+a.album)}" style="display:none"></div>
   </div>`;
@@ -411,9 +540,12 @@ function togglePost(pid) {
   const el = document.getElementById(pid);
   if (!el) return;
   el.classList.toggle("expanded");
-  // preview ausblenden wenn aufgeklappt
   const preview = el.querySelector(".post-preview");
   if (preview) preview.style.display = el.classList.contains("expanded") ? "none" : "";
+  // Kommentare laden wenn aufgeklappt
+  if (el.classList.contains("expanded")) {
+    initComments(pid);
+  }
 }
 
 // ── INLINE EDIT: TEXT + FOTO POSTS ───────────────────────────────────────────
@@ -469,6 +601,8 @@ function toggleEditPost(pid, e) {
 
   const toolbarHTML = `<div class="editor-toolbar">
     <button type="button" onclick="editorWrap('ef-text-${pid}','**','**')" title="Fett">B</button>
+    <button type="button" onclick="editorWrap('ef-text-${pid}','*','*')" title="Kursiv" style="font-style:italic">I</button>
+    <button type="button" onclick="editorHeading('ef-text-${pid}')" title="Überschrift">H</button>
     <button type="button" onclick="editorLink('ef-text-${pid}')" title="Link">🔗</button>
     <button type="button" onclick="editorInsert('ef-text-${pid}','[Bild1]')" title="Bildverweis">📷</button>
     <label class="editor-upload-label" title="Bild hochladen + verlinken">
@@ -477,7 +611,7 @@ function toggleEditPost(pid, e) {
         onchange="editUploadImages(this,'${pid}')">
     </label>
     <span id="ef-upload-status-${pid}" style="font-size:10px;color:#888"></span>
-    <span class="editor-hint">**fett** · [Text](url) · [Bild2]</span>
+    <span class="editor-hint">**fett** · *kursiv* · ## titel · [Text](url) · [Bild2]</span>
   </div>`;
 
   formEl.style.display = "block";
@@ -930,7 +1064,7 @@ async function pushToGithub(newEntry, currentData, path, ps) {
 }
 
 // ── SUBMIT TEXT POST ──────────────────────────────────────────────────────────
-document.getElementById("btn-push-text").addEventListener("click", async () => {
+async function pushTextPost(isDraft) {
   const ps = document.getElementById("ps-text");
   const title = document.getElementById("f-text-title").value.trim();
   const text  = document.getElementById("f-text-body").value.trim();
@@ -939,13 +1073,16 @@ document.getElementById("btn-push-text").addEventListener("click", async () => {
   if (!text)  { ps.textContent = "fehler: text fehlt.";  return; }
   const posted_at = dateVal ? new Date(dateVal).toISOString() : new Date().toISOString();
   const entry = { type: "text", title, text, posted_at };
+  if (isDraft) entry.draft = true;
   const ok = await pushToGithub(entry, posts, "posts.json", ps);
   if (ok) {
     posts.push(entry);
     mergePosts(); render();
     ["f-text-title","f-text-body","f-text-date"].forEach(id => document.getElementById(id).value = "");
   }
-});
+}
+document.getElementById("btn-push-text").addEventListener("click",  () => pushTextPost(false));
+document.getElementById("btn-draft-text").addEventListener("click", () => pushTextPost(true));
 
 // ── SUBMIT PHOTO POST ─────────────────────────────────────────────────────────
 function addPhotoUrlRow() {
@@ -970,11 +1107,24 @@ document.getElementById("btn-push-photo").addEventListener("click", async () => 
   if (tag) entry.tag = tag;
   const ok = await pushToGithub(entry, posts, "posts.json", ps);
   if (ok) {
-    posts.push(entry);
-    mergePosts(); render();
+    posts.push(entry); mergePosts(); render();
     ["f-photo-title","f-photo-text","f-photo-date"].forEach(id => document.getElementById(id).value = "");
     document.getElementById("photo-url-list").innerHTML = `<div class="photo-url-row"><input type="url" placeholder="https://..."><button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button></div>`;
   }
+});
+document.getElementById("btn-draft-photo").addEventListener("click", async () => {
+  const ps      = document.getElementById("ps-photo");
+  const title   = document.getElementById("f-photo-title").value.trim();
+  const text    = document.getElementById("f-photo-text").value.trim();
+  const tag     = document.getElementById("f-photo-tag").value;
+  const dateVal = document.getElementById("f-photo-date").value;
+  const images  = [...document.querySelectorAll("#photo-url-list input")].map(i => i.value.trim()).filter(Boolean);
+  if (!title) { ps.textContent = "fehler: titel fehlt."; return; }
+  const posted_at = dateVal ? new Date(dateVal).toISOString() : new Date().toISOString();
+  const entry = { type: "photo", title, images, text, posted_at, draft: true };
+  if (tag) entry.tag = tag;
+  const ok = await pushToGithub(entry, posts, "posts.json", ps);
+  if (ok) { posts.push(entry); mergePosts(); render(); }
 });
 
 // ── SUBMIT ALBUM POST ─────────────────────────────────────────────────────────
@@ -1402,6 +1552,32 @@ function editorWrap(id, before, after) {
 }
 
 function editorLink(id) {
+  const ta  = document.getElementById(id);
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const sel   = ta.value.slice(start, end) || "Linktext";
+  const url   = prompt("URL eingeben:", "https://");
+  if (!url) return;
+  const insert = `[${sel}](${url})`;
+  ta.value = ta.value.slice(0, start) + insert + ta.value.slice(end);
+  ta.focus();
+}
+
+function editorHeading(id) {  const ta  = document.getElementById(id);
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const sel   = ta.value.slice(start, end) || "Überschrift";
+  // Auf neue Zeile setzen wenn nötig
+  const before = ta.value.slice(0, start);
+  const prefix = (before.length > 0 && !before.endsWith("\n\n")) ? "\n\n" : "";
+  const insert = `${prefix}## ${sel}\n\n`;
+  ta.value = before + insert + ta.value.slice(end);
+  ta.focus();
+  const newPos = before.length + prefix.length + 3 + sel.length;
+  ta.setSelectionRange(newPos, newPos);
+}
   const ta  = document.getElementById(id);
   if (!ta) return;
   const start = ta.selectionStart;
