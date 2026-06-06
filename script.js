@@ -1,6 +1,7 @@
 // ── SUPABASE KOMMENTARE ───────────────────────────────────────────────────────
-const SUPABASE_URL = "https://ackydvpgtnhtnhyntrsl.supabase.co";       // z.B. https://abcdef.supabase.co
-const SUPABASE_KEY = "sb_publishable_khT5dm8EktKtovCyrDk19w_WpRfvRl0";    // sb_publishable_... oder langer anon key
+// Werte kommen aus config.js
+const SUPABASE_URL = CONFIG.SUPABASE_URL;
+const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
 
 async function loadComments(pid) {
   try {
@@ -132,11 +133,9 @@ let sortDir    = 1; // 1 = oldest first, -1 = newest first
 let filterType = "all";
 let searchQ    = "";
 
-// Besucher-Passwort (Zugang zur Seite) — SHA-256 Hash
-const PW_HASH_SHA256    = "4a4502d754a5f4b056e90be59f0ae45baf97da1886c3de441a1e08c809e9bfb6";
-
-// Admin-Passwort (Bearbeitung, neue Beiträge) — separates Passwort!
-const ADMIN_HASH_SHA256 = "b8f4a44e59c998d28f5684e885d5ece7684a28cbe174bdb11a9d949e4a9dc23a"; // mit generate-hash.html erzeugen
+// Passwörter kommen aus config.js
+const PW_HASH_SHA256    = CONFIG.PW_HASH;
+const ADMIN_HASH_SHA256 = CONFIG.ADMIN_HASH;
 
 let siteUnlocked = sessionStorage.getItem("lz_site_ok") === "1"; // Besucher
 let unlocked     = sessionStorage.getItem("lz_admin_ok") === "1"; // Admin
@@ -878,7 +877,11 @@ document.getElementById("filter-type").addEventListener("change", e => {
 // ── DATE FORMAT ───────────────────────────────────────────────────────────────
 function formatDate(iso) {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString("de-DE", { day:"2-digit", month:"2-digit", year:"numeric" });
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
 }
 
 // ── DARK MODE ─────────────────────────────────────────────────────────────────
