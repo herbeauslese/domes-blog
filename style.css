@@ -1185,32 +1185,40 @@ textarea { width: 100%; margin-top: 3px; }
 }
 
 /* ══════════════════════════════════════════════════════
-   RAW / TERMINAL AESTHETIC OVERRIDES
+   RAW / TERMINAL AESTHETIC — EXTREME EDITION
    ══════════════════════════════════════════════════════ */
 
-/* Kein Special Elite mehr — alles Courier */
+/* Alles Courier, kein dekorativer Font */
 :root {
   --font-display: "Courier New", monospace;
+  --line-color: #e0e0e0;
+  --line-color-strong: #999;
+}
+body.dark {
+  --line-color: #222;
+  --line-color-strong: #444;
 }
 
-/* Engere, dichtere Basis */
 body {
   font-size: 13px;
-  line-height: 1.5;
-  letter-spacing: 0.1px;
+  line-height: 1.55;
 }
 
-/* Header: raw log style */
+/* ── HEADER: schlank, kein dicker Rahmen ── */
 #site-header {
-  border: 1px solid #000;
-  border-bottom: 1px solid #000;
-  padding: 8px 10px 6px 10px;
+  border: none;
+  border-bottom: 2px solid #000;
+  padding: 10px 0 6px 0;
+  margin-bottom: 0;
 }
+body.dark #site-header { border-color: var(--dk-text); }
+
 h1 {
-  font-size: 20px;
-  letter-spacing: 4px;
+  font-size: 22px;
+  letter-spacing: 6px;
   font-family: "Courier New", monospace;
   font-weight: bold;
+  text-transform: lowercase;
 }
 h1 span {
   background: none;
@@ -1218,205 +1226,296 @@ h1 span {
   padding: 0;
   margin-right: 0;
   font-weight: bold;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
+body.dark h1 span { color: var(--dk-text); }
+
 p.sub {
   font-size: 10px;
-  color: #999;
-  letter-spacing: 0.5px;
+  color: #aaa;
+  letter-spacing: 1px;
   border-top: none;
-  padding-top: 0;
-  margin-top: 2px;
+  padding-top: 2px;
+  margin-top: 3px;
 }
-p.sub::before { content: "// "; color: #ccc; }
+p.sub::before { content: "→ "; }
+body.dark p.sub { color: #555; }
 
-/* Feed: keine dicke Linie oben */
-#feed { border-top: 1px solid #ccc; }
-body.dark #feed { border-color: #333; }
+/* ── CONTROLS ── */
+#controls {
+  border: none;
+  border-top: 1px solid var(--line-color);
+  border-bottom: 1px solid var(--line-color);
+  padding: 5px 0;
+  margin-bottom: 0;
+}
+#controls::before {
+  content: "filter:";
+  font-size: 10px;
+  color: #bbb;
+  letter-spacing: 0.5px;
+}
+body.dark #controls::before { color: #444; }
 
-/* Posts: dichter, keine starken Trennlinien */
+/* ── FEED ── */
+#feed { border-top: none; }
+
+/* ── POSTS ── */
 .post {
-  padding: 10px 0 8px 0;
-  border-bottom: 1px solid #e8e8e8;
+  padding: 9px 0 7px 0;
+  border-bottom: 1px solid var(--line-color);
+  position: relative;
 }
-body.dark .post { border-color: #222; }
-.post:last-child { border-bottom: 1px solid #ccc; }
-body.dark .post:last-child { border-color: #444; }
+.post:last-child { border-bottom: 2px solid #000; }
+body.dark .post:last-child { border-color: var(--dk-text); }
 
-/* Titel: plain monospace, kein Special Elite */
+/* Zeilennummer-Feeling: linke Linie bei Reise-Posts */
+.post.post-reise {
+  background: none;
+  border-top: none;
+  border-bottom: 1px solid var(--line-color);
+  border-left: 2px solid var(--accent);
+  margin-left: -8px;
+  padding-left: 8px;
+  padding-top: 9px;
+  padding-bottom: 7px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+body.dark .post.post-reise { background: none; border-left-color: var(--accent); border-bottom-color: var(--line-color); }
+
+/* ── TITEL ── */
 .post-title {
   font-family: "Courier New", monospace;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  text-decoration: none;
 }
-.post.post-foto .post-title  { font-size: 15px; }
-.post.post-reise .post-title { font-size: 16px; letter-spacing: 1px; }
+.post-title:hover { text-decoration: underline; text-underline-offset: 2px; }
+.post.post-foto .post-title  { font-size: 14px; }
+.post.post-reise .post-title { font-size: 15px; letter-spacing: 0.5px; }
 @media (max-width: 480px) {
-  .post.post-reise .post-title { font-size: 15px; }
+  .post.post-reise .post-title { font-size: 14px; }
 }
 
-/* Tags: eckige Klammern statt Boxen */
+/* ── TAGS: plain text in eckigen Klammern ── */
 .post-tag {
-  font-size: 10px;
+  font-size: 9px;
   border: none;
-  color: #aaa;
+  color: #bbb;
   padding: 0;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
   text-transform: lowercase;
 }
 .post-tag::before { content: "["; }
 .post-tag::after  { content: "]"; }
-.post-tag.reise { color: var(--accent); }
-.post-tag.album { color: #555; }
-body.dark .post-tag.album { color: #888; }
+.post-tag.reise   { color: var(--accent); }
+.post-tag.album   { color: #888; }
+body.dark .post-tag { color: #555; }
+body.dark .post-tag.reise { color: var(--accent); }
+body.dark .post-tag.album { color: #666; }
 
-/* Datum: technisches Format */
+/* ── DATUM ── */
 .post-date-inline {
-  font-size: 10px;
-  color: #bbb;
-  letter-spacing: 0.3px;
+  font-size: 9px;
+  color: #ccc;
+  letter-spacing: 0.5px;
+  font-family: "Courier New", monospace;
 }
-body.dark .post-date-inline { color: #555; }
+body.dark .post-date-inline { color: #444; }
 
-/* Meta: uppercase weg, kleiner */
+/* ── META ── */
 .post-meta {
   font-size: 10px;
-  color: #999;
+  color: #bbb;
   text-transform: none;
   letter-spacing: 0;
+  margin-bottom: 3px;
 }
-body.dark .post-meta { color: #666; }
+body.dark .post-meta { color: #555; }
 
-/* Rating: inline plain */
+/* ── RATING ── */
 .album-rating {
-  font-size: 13px;
-  font-weight: normal;
-  color: #555;
-}
-.album-rating .rating-denom { font-size: 10px; color: #bbb; }
-body.dark .album-rating { color: #aaa; }
-
-/* Preview: gedimmt */
-.post-preview {
   font-size: 12px;
-  color: #777;
-  margin-top: 3px;
+  font-weight: normal;
+  color: #888;
+  top: 9px;
 }
-body.dark .post-preview { color: #666; }
+.album-rating .rating-denom { font-size: 9px; color: #ccc; }
+body.dark .album-rating { color: #666; }
+body.dark .album-rating .rating-denom { color: #444; }
 
-/* Toggle: noch dezenter */
+/* ── PREVIEW ── */
+.post-preview {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 2px;
+  line-height: 1.5;
+}
+body.dark .post-preview { color: #555; }
+
+/* ── TOGGLE: pfeil + label ── */
 .entry-toggle {
-  font-size: 10px;
+  font-size: 9px;
   color: #ccc;
   border-bottom: none;
-  margin-top: 5px;
-  letter-spacing: 0.3px;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+  padding-bottom: 0;
 }
-.entry-toggle::before { content: "→ "; color: #ddd; }
-body.dark .entry-toggle { color: #444; }
-body.dark .entry-toggle::before { color: #333; }
-.entry-toggle:hover, .post.expanded .entry-toggle { color: var(--accent); }
-.entry-toggle:hover::before, .post.expanded .entry-toggle::before { color: var(--accent); }
+.entry-toggle::before { content: "↓ "; }
+.post.expanded .entry-toggle::before { content: "↑ "; }
+body.dark .entry-toggle { color: #3a3a3a; }
+.entry-toggle:hover,
+.post.expanded .entry-toggle { color: var(--accent); }
 
-/* Volltext: etwas enger */
+/* ── VOLLTEXT ── */
 .post-fulltext {
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
-.post-fulltext p + p { margin-top: 6px; }
+.post-fulltext p + p { margin-top: 8px; }
 
-/* Kommentare: log-style */
+/* ── HEADING IM TEXT ── */
+.post-heading {
+  font-size: 13px;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 14px 0 4px 0;
+  color: #555;
+}
+.post-heading::before { content: "// "; color: #ddd; font-weight: normal; }
+body.dark .post-heading { color: #aaa; }
+body.dark .post-heading::before { color: #333; }
+
+/* ── ALBUM SONGS ── */
+.album-songs-list {
+  font-size: 10px;
+  color: #ccc;
+  border-left: 1px solid #eee;
+}
+body.dark .album-songs-list { color: #444; border-color: #222; }
+.album-song.fav { color: #888; }
+.album-song.fav::before { font-size: 8px; }
+
+/* ── KOMMENTARE ── */
 .comment-section {
-  border-top: 1px dashed #e0e0e0;
-  margin-top: 12px;
+  border-top: 1px solid var(--line-color);
+  margin-top: 14px;
   padding-top: 10px;
 }
-.comment-name {
-  font-family: "Courier New", monospace;
-  font-size: 11px;
-  font-weight: bold;
+.comment-item {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line-color);
 }
-.comment-meta::before { content: "// "; color: #ccc; font-size: 10px; }
-.comment-date { font-size: 10px; }
-.comment-text { font-size: 12px; }
-.comment-input-name, .comment-input-text { font-size: 12px; }
-.comment-submit { font-size: 11px; }
-.comment-empty, .comment-loading { font-size: 11px; }
+.comment-meta::before { content: "// "; color: #ddd; font-size: 10px; }
+body.dark .comment-meta::before { color: #333; }
+.comment-name { font-size: 11px; font-weight: bold; letter-spacing: 0.3px; }
+.comment-date { font-size: 9px; color: #ccc; }
+body.dark .comment-date { color: #444; }
+.comment-text { font-size: 12px; line-height: 1.5; margin-top: 2px; }
+.comment-empty, .comment-loading {
+  font-size: 10px;
+  color: #ccc;
+  font-style: normal;
+  letter-spacing: 0.3px;
+}
+.comment-empty::before  { content: "-- "; }
+.comment-loading::before { content: ".. "; }
+body.dark .comment-empty,
+body.dark .comment-loading { color: #333; }
+.comment-input-name { width: 180px; font-size: 12px; }
+.comment-input-text { font-size: 12px; }
+.comment-submit { font-size: 11px; letter-spacing: 0.5px; }
 
-/* Share bar: minimal */
+/* ── SHARE BAR ── */
 .share-bar {
   border-top: none;
-  margin-top: 8px;
+  margin-top: 10px;
   padding-top: 0;
-  gap: 10px;
+  gap: 14px;
 }
 .share-btn {
   font-size: 10px;
   border: none;
   padding: 0;
-  color: #bbb;
-  letter-spacing: 0.3px;
+  color: #ccc;
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
 }
-.share-btn:hover { color: #000; background: none; border: none; }
-body.dark .share-btn { color: #444; }
-body.dark .share-btn:hover { color: var(--dk-text); background: none; }
+.share-btn::before { content: "↗ "; }
+.share-btn:first-child::before { content: "# "; }
+.share-btn:hover { color: var(--accent); background: none; }
+body.dark .share-btn { color: #333; }
+body.dark .share-btn:hover { color: var(--accent); }
 
-/* Controls: noch schlanker */
-#controls {
-  border: none;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 4px 0 6px 0;
-  margin-bottom: 0;
-}
-#controls::before { content: "// filter"; color: #ccc; font-size: 10px; }
-body.dark #controls { border-color: #222; }
-body.dark #controls::before { color: #444; }
-
-/* Reise: subtilerer Hintergrund */
-.post.post-reise {
-  background: #fafcfa;
-  border-top: 1px solid #c8d9c8;
-  border-bottom: 1px solid #c8d9c8;
-  padding-top: 12px;
-  padding-bottom: 4px;
-}
-body.dark .post.post-reise { background: #0d160d; border-color: #1e2e1e; }
-
-/* Entwurf badge */
+/* ── ENTWURF ── */
 .draft-badge {
   font-size: 9px;
   border: none;
   color: #f0a000;
   padding: 0;
+  letter-spacing: 0.3px;
 }
 .draft-badge::before { content: "["; }
 .draft-badge::after  { content: "]"; }
 
-/* Album songs: kleiner */
-.album-songs-list { font-size: 10px; }
-
-/* Heading in posts */
-.post-heading {
-  font-size: 14px;
-  font-family: "Courier New", monospace;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin: 10px 0 3px 0;
-}
-.post-heading::before { content: "## "; color: #ccc; }
-
-/* Footer */
+/* ── FOOTER ── */
 #footer {
-  border-top: 1px solid #ccc;
+  border-top: 2px solid #000;
   font-size: 10px;
-  color: #aaa;
+  color: #bbb;
+  letter-spacing: 0.3px;
 }
+body.dark #footer { border-color: var(--dk-text); color: var(--dk-text-3); }
 #footer a { color: #888; }
+body.dark #footer a { color: var(--dk-text-2); }
 
-/* Back to top */
+/* ── BACK TO TOP ── */
 #btn-back-top {
   border: 1px solid #ccc;
-  font-size: 12px;
-  width: 28px;
-  height: 28px;
+  font-size: 11px;
+  width: 26px;
+  height: 26px;
+  bottom: 16px;
+  right: 12px;
+  color: #bbb;
+}
+#btn-back-top:hover { background: #000; color: #fff; border-color: #000; }
+body.dark #btn-back-top { border-color: #333; color: #444; }
+body.dark #btn-back-top:hover { background: var(--dk-text); color: var(--dk-bg); border-color: var(--dk-text); }
+
+/* ── SLIDESHOW DOTS ── */
+.slide-dot { width: 5px; height: 5px; background: #ddd; }
+.slide-dot.active { background: #000; }
+body.dark .slide-dot { background: #333; }
+body.dark .slide-dot.active { background: var(--dk-text); }
+
+/* ── SLIDE OVERLAY BUTTONS ── */
+.slide-overlay-btn {
+  background: rgba(0,0,0,0.35);
+  font-size: 20px;
+  width: 36px;
+  height: 48px;
+}
+
+/* ── KOLLAGE ── */
+.collage { border: none; gap: 1px; }
+.collage-more { font-size: 16px; letter-spacing: 2px; }
+
+/* ── PASSWORT ── */
+#pw-box b { letter-spacing: 4px; font-size: 18px; text-transform: lowercase; }
+.pw-hint::before { content: "// "; color: #ddd; }
+#pw-input { letter-spacing: 2px; }
+#pw-ok { letter-spacing: 2px; text-transform: lowercase; }
+
+/* ── MOBILE ── */
+@media (max-width: 480px) {
+  h1 { font-size: 18px; letter-spacing: 4px; }
+  .post-title { font-size: 13px; }
+  .post.post-reise .post-title { font-size: 14px; }
 }
