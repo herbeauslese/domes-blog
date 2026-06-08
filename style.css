@@ -405,6 +405,11 @@ body.dark .collage { border-color: var(--dk-border-s); background: #222; }
 
 .collage-cell { overflow: hidden; position: relative; min-height: 0; }
 .collage-cell img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+/* Einzelbild: volle Breite, natürliche Höhe */
+.collage.collage-single .collage-cell img {
+  height: auto;
+  object-fit: unset;
+}
 
 /* Slideshow: ganzes Bild sichtbar, Ränder mit Hintergrundfarbe */
 .slide-img {
