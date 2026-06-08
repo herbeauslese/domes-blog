@@ -220,6 +220,7 @@ function render() {
     if (filterType === "text"  && p.type !== "text")  return false;
     if (filterType === "photo" && p.type !== "photo") return false;
     if (filterType === "album" && p.type !== "album") return false;
+    if (filterType === "embed" && p.type !== "embed") return false;
     if (filterType === "reise" && !(p.type === "photo" && p.tag === "reise")) return false;
     // search
     if (q) {
@@ -336,6 +337,7 @@ function renderPost(p, idx) {
   if (p.type === "text")  return renderTextPost(p, pid, dateStr);
   if (p.type === "photo") return renderPhotoPost(p, pid, dateStr);
   if (p.type === "album") return renderAlbumPost(p, pid, dateStr);
+  if (p.type === "embed") return renderEmbedPost(p, pid, dateStr);
   return "";
 }
 
@@ -485,6 +487,40 @@ function renderPhotoPost(p, pid, dateStr) {
     <div class="post-body">
       ${slidesHTML}
       <div class="post-fulltext">${parseText(p.text||"", pid)}</div>
+      ${shareBarHTML(pid, p.title)}
+      ${commentSectionHTML(pid)}
+    </div>
+    <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
+  </div>`;
+}
+
+function renderEmbedPost(p, pid, dateStr) {
+  const preview = (p.text || "").replace(/\*\*(.+?)\*\*/g,"$1").replace(/\*(.+?)\*/g,"$1").slice(0,140) + ((p.text||"").length>140?"…":"");
+  const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
+  const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
+  const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
+
+  // iframe sicher rendern — nur iframe und div tags erlaubt
+  const safeEmbed = (p.embed || "").replace(/<(?!\/?(iframe|div)[\s>])/gi, "&lt;");
+
+  return `<div class="post${p.draft?' post-draft':''}" id="${pid}" data-type="embed" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
+    <div class="post-date-inline">${dateStr}</div>
+    <div class="post-header">
+      <span class="post-title-wrap">
+        <span class="post-title" onclick="togglePost('${pid}')">${p.title || "(ohne titel)"}</span>
+        ${editBtn}${hideBtn}
+      </span>
+      <span class="post-tag">embed</span>
+      ${draftBadge}
+    </div>
+    ${preview ? `<div class="post-preview">${preview}</div>` : ""}
+    <div class="entry-toggle" onclick="togglePost('${pid}')">
+      <span style="flex:1">öffnen</span>
+      <span class="entry-toggle-arrow">▼</span>
+    </div>
+    <div class="post-body">
+      <div class="post-embed">${safeEmbed}</div>
+      ${p.text ? `<div class="post-fulltext" style="margin-top:8px">${parseText(p.text, pid)}</div>` : ""}
       ${shareBarHTML(pid, p.title)}
       ${commentSectionHTML(pid)}
     </div>
@@ -1157,7 +1193,26 @@ document.getElementById("btn-draft-photo").addEventListener("click", async () =>
   if (ok) { posts.push(entry); mergePosts(); render(); }
 });
 
-// ── SUBMIT ALBUM POST ─────────────────────────────────────────────────────────
+// ── SUBMIT EMBED POST ─────────────────────────────────────────────────────────
+async function pushEmbedPost(isDraft) {
+  const ps      = document.getElementById("ps-embed");
+  const title   = document.getElementById("f-embed-title").value.trim();
+  const code    = document.getElementById("f-embed-code").value.trim();
+  const text    = document.getElementById("f-embed-text").value.trim();
+  const dateVal = document.getElementById("f-embed-date").value;
+  if (!title) { ps.textContent = "fehler: titel fehlt."; return; }
+  if (!code)  { ps.textContent = "fehler: embed code fehlt."; return; }
+  const posted_at = dateVal ? new Date(dateVal).toISOString() : new Date().toISOString();
+  const entry = { type: "embed", title, embed: code, text, posted_at };
+  if (isDraft) entry.draft = true;
+  const ok = await pushToGithub(entry, posts, "posts.json", ps);
+  if (ok) {
+    posts.push(entry); mergePosts(); render();
+    ["f-embed-title","f-embed-code","f-embed-text","f-embed-date"].forEach(id => document.getElementById(id).value = "");
+  }
+}
+document.getElementById("btn-push-embed").addEventListener("click",  () => pushEmbedPost(false));
+document.getElementById("btn-draft-embed").addEventListener("click", () => pushEmbedPost(true));
 let selectedSongs = [];
 
 async function mbSearch() {
