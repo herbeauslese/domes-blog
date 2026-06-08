@@ -266,6 +266,13 @@ function render() {
     initSlideshow(el);
   });
 
+  // slideshow aspect ratios — vom ersten Bild ableiten
+  filtered.forEach(p => {
+    if (p.type === "photo" && p.images && p.images.length > 0) {
+      initSlideshowRatio(stablePid(p), p.images[0]);
+    }
+  });
+
   // apply hidden UI state
   requestAnimationFrame(applyHiddenUI);
 }
@@ -448,7 +455,7 @@ function renderPhotoPost(p, pid, dateStr) {
          <div class="slide-overlay-counter" id="${pid}-counter">1 / ${orderedImgs.length}</div>`
       : "";
     slidesHTML = `<div class="slideshow" id="${pid}-slides" data-current="0">
-      <div class="slide-track" style="aspect-ratio:4/3;position:relative">
+      <div class="slide-track" id="${pid}-track" style="position:relative;overflow:hidden;background:#f5f5f5">
         ${tracks}
         ${overlayNav}
       </div>
@@ -767,7 +774,18 @@ function applyHiddenUI() {
   }
 }
 
-// ── SLIDESHOW ─────────────────────────────────────────────────────────────────
+// ── SLIDESHOW ASPECT RATIO ────────────────────────────────────────────────────
+function initSlideshowRatio(pid, firstImgUrl) {
+  const track = document.getElementById(pid + "-track");
+  if (!track) return;
+  const img = new Image();
+  img.onload = () => {
+    const ratio = img.naturalWidth / img.naturalHeight;
+    track.style.aspectRatio = ratio.toFixed(4);
+  };
+  img.onerror = () => { track.style.aspectRatio = "4/3"; };
+  img.src = firstImgUrl;
+}
 function initSlideshow(el) {
   // already initialized
 }
