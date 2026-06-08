@@ -551,6 +551,11 @@ function togglePost(pid) {
   // Kommentare laden wenn aufgeklappt
   if (el.classList.contains("expanded")) {
     initComments(pid);
+    // Slideshow-Ratio setzen
+    const postData = allPosts.find(p => stablePid(p) === pid);
+    if (postData && postData.type === "photo" && postData.images && postData.images.length > 0) {
+      initSlideshowRatio(pid, postData.images[0]);
+    }
   }
 }
 
