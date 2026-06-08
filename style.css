@@ -1522,3 +1522,14 @@ body.dark .slide-dot.active { background: var(--dk-text); }
   .post-title { font-size: 13px; }
   .post.post-reise .post-title { font-size: 14px; }
 }
+
+/* ── EMBED POST ── */
+.post-embed {
+  margin: 8px 0 6px 0;
+  width: 100%;
+}
+.post-embed iframe {
+  width: 100%;
+  display: block;
+  border: none;
+}
