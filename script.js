@@ -404,7 +404,6 @@ function renderPhotoPost(p, pid, dateStr) {
     const extra = imgs.length - MAX_SHOWN;
     const n = shown.length;
 
-    // Grid-Spalten je nach Anzahl — immer vollständig gefüllt
     const cols = n === 1 ? 1 : n === 2 ? 2 : n === 4 ? 2 : 3;
     const rows = Math.ceil(n / cols);
 
@@ -417,7 +416,12 @@ function renderPhotoPost(p, pid, dateStr) {
       return `<div class="collage-cell">${inner}${more}</div>`;
     }).join("");
 
-    collageHTML = `<div class="collage" style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)" onclick="togglePost('${pid}')">${cells}</div>`;
+    const extraClass = n === 1 ? " collage-single" : "";
+    const styleAttr = n === 1
+      ? `style="grid-template-columns:1fr;aspect-ratio:unset"`
+      : `style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)"`;
+
+    collageHTML = `<div class="collage${extraClass}" ${styleAttr} onclick="togglePost('${pid}')">${cells}</div>`;
   }
 
   // ── TEXT: [Bild1]-Verweise → Reihenfolge der images[] anpassen ──
