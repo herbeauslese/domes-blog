@@ -500,8 +500,8 @@ function renderEmbedPost(p, pid, dateStr) {
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
   const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
 
-  // iframe sicher rendern — nur iframe und div tags erlaubt
   const safeEmbed = (p.embed || "").replace(/<(?!\/?(iframe|div)[\s>])/gi, "&lt;");
+  const hasText = p.text && p.text.trim().length > 0;
 
   return `<div class="post${p.draft?' post-draft':''}" id="${pid}" data-type="embed" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
     <div class="post-date-inline">${dateStr}</div>
@@ -513,17 +513,17 @@ function renderEmbedPost(p, pid, dateStr) {
       <span class="post-tag">embed</span>
       ${draftBadge}
     </div>
+    <div class="post-embed">${safeEmbed}</div>
     ${preview ? `<div class="post-preview">${preview}</div>` : ""}
-    <div class="entry-toggle" onclick="togglePost('${pid}')">
-      <span style="flex:1">öffnen</span>
+    ${hasText ? `<div class="entry-toggle" onclick="togglePost('${pid}')">
+      <span style="flex:1">weiterlesen</span>
       <span class="entry-toggle-arrow">▼</span>
     </div>
     <div class="post-body">
-      <div class="post-embed">${safeEmbed}</div>
-      ${p.text ? `<div class="post-fulltext" style="margin-top:8px">${parseText(p.text, pid)}</div>` : ""}
+      <div class="post-fulltext">${parseText(p.text, pid)}</div>
       ${shareBarHTML(pid, p.title)}
       ${commentSectionHTML(pid)}
-    </div>
+    </div>` : `<div style="margin-top:4px">${shareBarHTML(pid, p.title)}</div>`}
     <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
   </div>`;
 }
