@@ -17,7 +17,7 @@ body {
   background: #fff;
   color: #000;
   padding: 16px 14px 60px 14px;
-  max-width: 780px;
+  max-width: 680px;
   margin: 0 auto;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -168,7 +168,7 @@ body.dark #controls-filters      { border-color: var(--dk-border-s); }
 #header-inner {
   display: block;
 }
-#header-me {
+#header-me, #header-me-album {
   height: 82px;
   width: auto;
   position: absolute;
@@ -177,7 +177,8 @@ body.dark #controls-filters      { border-color: var(--dk-border-s); }
   display: block;
   pointer-events: none;
 }
-body.dark #header-me { filter: invert(1); }
+body.dark #header-me,
+body.dark #header-me-album { filter: invert(1); }
 h1 {
   font-family: var(--font-display);
   font-size: 28px;
@@ -1624,11 +1625,11 @@ body.dark .album-grid-controls select { border-color: #333; }
 /* Grid */
 .album-grid-items {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
 }
 @media (max-width: 480px) {
-  .album-grid-items { grid-template-columns: repeat(5, 1fr); gap: 3px; }
+  .album-grid-items { grid-template-columns: repeat(5, 1fr); gap: 2px; }
 }
 
 /* Grid Item */
@@ -1637,7 +1638,7 @@ body.dark .album-grid-controls select { border-color: #333; }
   position: relative;
   aspect-ratio: 1;
   overflow: hidden;
-  background: #eee;
+  background: #e8e8e8;
 }
 body.dark .album-grid-item { background: #1a1a1a; }
 .album-grid-item canvas {
@@ -1646,6 +1647,8 @@ body.dark .album-grid-item { background: #1a1a1a; }
   height: 100%;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  position: absolute;
+  inset: 0;
 }
 .album-grid-item:hover .album-grid-overlay { opacity: 1; }
 .album-grid-overlay {
