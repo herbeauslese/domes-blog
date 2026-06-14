@@ -929,7 +929,7 @@ function loadCoverFull(canvasId, url, cacheKeyStr) {
   if (!canvas || canvas.dataset.loaded) return;
   const w = canvas.width;
   const h = canvas.height;
-  const ck = CACHE_PREFIX + "full_" + cacheKeyStr.replace(/[^a-zA-Z0-9|]/g,"").slice(0,60);
+  const ck = CACHE_PREFIX + "full_" + w + "x" + h + "_" + cacheKeyStr.replace(/[^a-zA-Z0-9|]/g,"").slice(0,55);
   const cached = localStorage.getItem(ck);
   if (cached && cached !== "data:,") {
     const img = new Image();
