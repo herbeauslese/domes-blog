@@ -214,6 +214,8 @@ function render() {
   const q = searchQ.toLowerCase();
 
   let filtered = allPosts.filter(p => {
+    // Alben nur im Album-Grid, nicht im Blog-Feed
+    if (p.type === "album") return false;
     // Entwürfe nur für Admin sichtbar
     if (p.draft && !unlocked) return false;
     // type filter
@@ -922,7 +924,41 @@ function loadCover(canvasId, url, cacheKeyStr) {
   canvas.dataset.loaded = "1";
 }
 
-// ── CONTROLS ─────────────────────────────────────────────────────────────────
+function loadCoverFull(canvasId, url, cacheKeyStr) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || canvas.dataset.loaded) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  const ck = CACHE_PREFIX + "full_" + cacheKeyStr.replace(/[^a-zA-Z0-9|]/g,"").slice(0,60);
+  const cached = localStorage.getItem(ck);
+  if (cached && cached !== "data:,") {
+    const img = new Image();
+    img.onload = () => {
+      const ctx = canvas.getContext("2d");
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, 0, 0, w, h);
+    };
+    img.src = cached;
+    canvas.dataset.loaded = "1";
+    return;
+  }
+  const img = new Image();
+  img.crossOrigin = !url.startsWith("http") ? undefined : "anonymous";
+  img.onload = () => {
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(img, 0, 0, w, h);
+    try {
+      const full = document.createElement("canvas");
+      full.width = w; full.height = h;
+      full.getContext("2d").drawImage(img, 0, 0, w, h);
+      const data = full.toDataURL();
+      if (data && data !== "data:,") localStorage.setItem(ck, data);
+    } catch(e) {}
+  };
+  img.src = url;
+  canvas.dataset.loaded = "1";
+}
 document.getElementById("search").addEventListener("input", e => {
   searchQ = e.target.value;
   render();
@@ -1808,7 +1844,7 @@ function renderAlbumGrid() {
   requestAnimationFrame(() => {
     list.forEach(a => {
       const cid = "agcv-" + safeid(a.artist + a.album);
-      if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
+      if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
     });
   });
 }
