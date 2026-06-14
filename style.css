@@ -182,8 +182,8 @@ body.dark #header-me-album { filter: invert(1); }
 
 @media (max-width: 480px) {
   #header-me, #header-me-album {
-    height: 70px; /* 15% kleiner: 82 * 0.85 ≈ 70 */
-    right: 2px;   /* weiter rechts */
+    height: 70px;
+    right: 30px;
   }
 }
 h1 {
