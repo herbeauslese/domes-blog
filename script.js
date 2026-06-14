@@ -1809,57 +1809,62 @@ function renderAlbumGrid() {
     return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
   });
 
-  // Sortierung
-  if (albumGridSort === "artist")  list.sort((a,b) => a.artist.localeCompare(b.artist));
-  if (albumGridSort === "rating")  list.sort((a,b) => b.rating - a.rating);
-  if (albumGridSort === "year")    list.sort((a,b) => b.year - a.year);
+  // Alphabetisch nach Artist
+  list.sort((a, b) => a.artist.localeCompare(b.artist));
+
+  // Gruppieren nach Artist
+  const groups = [];
+  const groupMap = {};
+  for (const a of list) {
+    const key = a.artist.toLowerCase();
+    if (!groupMap[key]) {
+      groupMap[key] = { artist: a.artist, albums: [] };
+      groups.push(groupMap[key]);
+    }
+    groupMap[key].albums.push(a);
+  }
 
   const grid = document.getElementById("album-grid");
   grid.innerHTML = `
     <div class="album-grid-controls">
       <input type="text" id="ag-search" placeholder="suche..." value="${albumGridSearch}"
         oninput="albumGridSearch=this.value;renderAlbumGrid()">
-      <select id="ag-sort" onchange="albumGridSort=this.value;renderAlbumGrid()">
-        <option value="artist" ${albumGridSort==='artist'?'selected':''}>↑ artist</option>
-        <option value="rating" ${albumGridSort==='rating'?'selected':''}>↓ wertung</option>
-        <option value="year"   ${albumGridSort==='year'  ?'selected':''}>↓ jahr</option>
-      </select>
-      <span class="album-grid-count">${list.length} alben</span>
+      <span class="album-grid-count">${list.length} alben · ${groups.length} künstler</span>
     </div>
-    <div class="album-grid-items">
-      ${list.map((a, i) => {
-        const cid = "agcv-" + safeid(a.artist + a.album);
-        return `<div class="album-grid-item" onclick="openAlbumPopup(${i},'${albumGridSort}','${q}')">
-          <canvas id="${cid}" width="16" height="16"></canvas>
-          <div class="album-grid-overlay">
-            <div class="album-grid-overlay-artist">${a.artist}</div>
-            <div class="album-grid-overlay-title">${a.album}</div>
-            <div class="album-grid-overlay-rating">${Number(a.rating)}/10</div>
-          </div>
-        </div>`;
-      }).join("")}
+    <div class="album-list">
+      ${groups.map(g => `
+        <div class="album-list-artist">${g.artist}</div>
+        ${g.albums.map(a => {
+          const cid = "agcv-" + safeid(a.artist + a.album);
+          const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
+          return `<div class="album-list-row" onclick="openAlbumPopup(list.indexOf(a),'artist','${q}')">
+            <canvas class="album-list-canvas" id="${cid}" width="16" height="16"></canvas>
+            <div class="album-list-info">
+              <span class="album-list-title">${a.album}</span>
+              <span class="album-list-meta">${a.year||""}${genres ? " · " + genres : ""}</span>
+            </div>
+            <span class="album-list-rating">${Number(a.rating)}<span>/10</span></span>
+          </div>`;
+        }).join("")}
+      `).join("")}
     </div>`;
 
-  // Cover laden
+  // Covers laden
   requestAnimationFrame(() => {
     list.forEach(a => {
       const cid = "agcv-" + safeid(a.artist + a.album);
       if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
     });
   });
+
+  // openAlbumPopup braucht den Index in der gefilterten Liste
+  window._albumListFiltered = list;
 }
 
 function openAlbumPopup(idx, sort, q) {
-  // gleiche Liste wie im Grid
-  let list = albums.filter(a => {
-    if (!q) return true;
-    return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
-  });
-  if (sort === "artist") list.sort((a,b) => a.artist.localeCompare(b.artist));
-  if (sort === "rating") list.sort((a,b) => b.rating - a.rating);
-  if (sort === "year")   list.sort((a,b) => b.year - a.year);
-
-  const a = list[idx];
+  // Gefilterte Liste nutzen falls vorhanden
+  const list = window._albumListFiltered || albums;
+  const a = typeof idx === "number" ? list[idx] : null;
   if (!a) return;
 
   const genres = (a.genre||"").split(",").map(g=>g.trim()).filter(Boolean).join(" · ");
