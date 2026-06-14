@@ -1794,7 +1794,7 @@ function renderAlbumGrid() {
       ${list.map((a, i) => {
         const cid = "agcv-" + safeid(a.artist + a.album);
         return `<div class="album-grid-item" onclick="openAlbumPopup(${i},'${albumGridSort}','${q}')">
-          <canvas id="${cid}" width="8" height="8"></canvas>
+          <canvas id="${cid}" width="16" height="16"></canvas>
           <div class="album-grid-overlay">
             <div class="album-grid-overlay-artist">${a.artist}</div>
             <div class="album-grid-overlay-title">${a.album}</div>
