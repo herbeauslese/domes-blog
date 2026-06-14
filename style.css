@@ -179,6 +179,13 @@ body.dark #controls-filters      { border-color: var(--dk-border-s); }
 }
 body.dark #header-me,
 body.dark #header-me-album { filter: invert(1); }
+
+@media (max-width: 480px) {
+  #header-me, #header-me-album {
+    height: 70px; /* 15% kleiner: 82 * 0.85 ≈ 70 */
+    right: 2px;   /* weiter rechts */
+  }
+}
 h1 {
   font-family: var(--font-display);
   font-size: 28px;
