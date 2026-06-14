@@ -73,6 +73,7 @@
       <p class="sub">ein ganz persönlicher blog</p>
     </div>
     <img id="header-me" src="me.png" alt="" aria-hidden="true">
+    <img id="header-me-album" src="me-album.png" alt="" aria-hidden="true" style="display:none">
   </div>
 </div>
 
@@ -91,6 +92,7 @@
     <button id="btn-filter-toggle" title="Filter" aria-label="Filter">⇅</button>
     <div id="controls-right">
       <span id="post-count"></span>
+      <button id="btn-mode-switch" title="Zur Plattensammlung">◑ platten</button>
     </div>
   </div>
   <div id="controls-filters">
@@ -104,7 +106,6 @@
       <option value="text">text</option>
       <option value="photo">foto</option>
       <option value="reise">reise</option>
-      <option value="album">album</option>
       <option value="embed">embed</option>
     </select>
   </div>
@@ -113,10 +114,21 @@
 <!-- ── FEED ── -->
 <div id="feed"></div>
 
+<!-- ── ALBUM GRID ── -->
+<div id="album-grid" style="display:none"></div>
+
 <!-- ── FOOTER ── -->
 <div id="footer">
   <a href="albums.json" id="footer-albums">albums.json</a>
   <a href="posts.json" id="footer-posts">posts.json</a>
+</div>
+
+<!-- ── ALBUM POPUP ── -->
+<div id="album-popup-overlay" style="display:none">
+  <div id="album-popup-box">
+    <button id="album-popup-close">✕</button>
+    <div id="album-popup-content"></div>
+  </div>
 </div>
 
 <!-- ── POPUP: NEUER BEITRAG ── -->
