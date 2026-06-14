@@ -1838,7 +1838,7 @@ function renderAlbumGrid() {
           const cid = "agcv-" + safeid(a.artist + a.album);
           const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
         return `<div class="album-list-row" onclick="openAlbumPopup(${JSON.stringify(a.artist+a.album)})">
-            <img class="album-list-img" src="${a.cover_url || ''}" alt="" loading="lazy">
+            <canvas class="album-list-img" id="${cid}" width="64" height="16"></canvas>
             <div class="album-list-overlay">
               <div class="album-list-info">
                 <span class="album-list-title">${a.album}</span>
@@ -1851,7 +1851,14 @@ function renderAlbumGrid() {
       `).join("")}
     </div>`;
 
-  // Covers laden via img tags — kein loadCoverFull nötig
+  // Covers laden
+  requestAnimationFrame(() => {
+    list.forEach(a => {
+      const cid = "agcv-" + safeid(a.artist + a.album);
+      if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
+    });
+  });
+
   window._albumListFiltered = list;
 }
 
