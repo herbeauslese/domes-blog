@@ -17,7 +17,7 @@ body {
   background: #fff;
   color: #000;
   padding: 16px 14px 60px 14px;
-  max-width: 680px;
+  max-width: 800px;
   margin: 0 auto;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -1663,8 +1663,8 @@ body.dark .album-list-row { border-color: #1a1a1a; }
   inset: 0;
   object-fit: cover;
   object-position: center;
-  image-rendering: auto;
-  filter: blur(0.8px);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 /* Dunkles Overlay damit Text lesbar */
