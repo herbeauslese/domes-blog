@@ -1838,7 +1838,7 @@ function renderAlbumGrid() {
           const cid = "agcv-" + safeid(a.artist + a.album);
           const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
         return `<div class="album-list-row" onclick="openAlbumPopup(${JSON.stringify(a.artist+a.album)})">
-            <canvas class="album-list-canvas" id="${cid}" width="128" height="32"></canvas>
+            <canvas class="album-list-canvas" id="${cid}" width="512" height="128"></canvas>
             <div class="album-list-overlay">
               <div class="album-list-info">
                 <span class="album-list-title">${a.album}</span>
