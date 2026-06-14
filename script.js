@@ -1837,13 +1837,15 @@ function renderAlbumGrid() {
         ${g.albums.map(a => {
           const cid = "agcv-" + safeid(a.artist + a.album);
           const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
-          return `<div class="album-list-row" onclick="openAlbumPopup(list.indexOf(a),'artist','${q}')">
-            <canvas class="album-list-canvas" id="${cid}" width="16" height="16"></canvas>
-            <div class="album-list-info">
-              <span class="album-list-title">${a.album}</span>
-              <span class="album-list-meta">${a.year||""}${genres ? " · " + genres : ""}</span>
+        return `<div class="album-list-row" onclick="openAlbumPopup(${JSON.stringify(a.artist+a.album)})">
+            <canvas class="album-list-canvas" id="${cid}" width="32" height="8"></canvas>
+            <div class="album-list-overlay">
+              <div class="album-list-info">
+                <span class="album-list-title">${a.album}</span>
+                <span class="album-list-meta">${a.year||""}${genres ? " · " + genres : ""}</span>
+              </div>
+              <span class="album-list-rating">${Number(a.rating)}<span>/10</span></span>
             </div>
-            <span class="album-list-rating">${Number(a.rating)}<span>/10</span></span>
           </div>`;
         }).join("")}
       `).join("")}
@@ -1861,10 +1863,8 @@ function renderAlbumGrid() {
   window._albumListFiltered = list;
 }
 
-function openAlbumPopup(idx, sort, q) {
-  // Gefilterte Liste nutzen falls vorhanden
-  const list = window._albumListFiltered || albums;
-  const a = typeof idx === "number" ? list[idx] : null;
+function openAlbumPopup(key) {
+  const a = albums.find(x => x.artist + x.album === key);
   if (!a) return;
 
   const genres = (a.genre||"").split(",").map(g=>g.trim()).filter(Boolean).join(" · ");
