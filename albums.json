@@ -657,5 +657,36 @@
       "edginess": 3,
       "harmonie": 5
     }
+  },
+  {
+    "artist": "Sade",
+    "album": "Lovers Live",
+    "year": 2002,
+    "genre": "R&B, Soul",
+    "rating": 9.5,
+    "favorite_song": "Is It a Crime",
+    "songs": [
+      "Cherish the Day",
+      "Somebody Already Broke My Heart",
+      "Smooth Operator",
+      "Jezebel",
+      "Kiss of Life",
+      "Slave Song",
+      "The Sweetest Gift",
+      "The Sweetest Taboo",
+      "Paradise",
+      "No Ordinary Love",
+      "By Your Side",
+      "Flow",
+      "Is It a Crime"
+    ],
+    "review": "Die beste Einzelkünstlerin jemals. Und hier kommt das nochmal voll zur Geltung. Natürlich ist es mehr eine Compilation ihrer besten Songs als ein richtiges Album. Aber die Live Versionen geben die meisten Songs nochmal so viel, wow. \nVorallem \"Jezebel\" und \"Is it a Crime\".\n\nAufgenommen wurde es an zwei aufeinanderfolgenden Abenden im September 2001 in zwei verschiedenen Arenen in Los Angeles – dem Arrowhead Pond in Anaheim und dem Great Western Forum in Inglewood.",
+    "cover_url": "https://upload.wikimedia.org/wikipedia/en/thumb/6/6e/Sade_-_Lovers_Live.png/250px-Sade_-_Lovers_Live.png",
+    "reviewed_at": "2026-06-14T00:00:00.000Z",
+    "sub_ratings": {
+      "hoerspass": 5,
+      "edginess": 4,
+      "harmonie": 5
+    }
   }
 ]
