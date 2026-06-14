@@ -1,4 +1,4 @@
-// ── SUPABASE KOMMENTARE ──────────────────────────────────────────────────────
+// ── SUPABASE KOMMENTARE ───────────────────────────────────────────────────────
 // Werte kommen aus config.js
 const SUPABASE_URL = CONFIG.SUPABASE_URL;
 const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
@@ -1838,7 +1838,7 @@ function renderAlbumGrid() {
           const cid = "agcv-" + safeid(a.artist + a.album);
           const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
         return `<div class="album-list-row" onclick="openAlbumPopup(${JSON.stringify(a.artist+a.album)})">
-            <canvas class="album-list-canvas" id="${cid}" width="2048" height="512"></canvas>
+            <img class="album-list-img" src="${a.cover_url || ''}" alt="" loading="lazy">
             <div class="album-list-overlay">
               <div class="album-list-info">
                 <span class="album-list-title">${a.album}</span>
@@ -1851,15 +1851,7 @@ function renderAlbumGrid() {
       `).join("")}
     </div>`;
 
-  // Covers laden
-  requestAnimationFrame(() => {
-    list.forEach(a => {
-      const cid = "agcv-" + safeid(a.artist + a.album);
-      if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
-    });
-  });
-
-  // openAlbumPopup braucht den Index in der gefilterten Liste
+  // Covers laden via img tags — kein loadCoverFull nötig
   window._albumListFiltered = list;
 }
 
