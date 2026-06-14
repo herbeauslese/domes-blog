@@ -1647,7 +1647,7 @@ body.dark .album-list-artist { color: #e05555; border-color: #222; }
 .album-list-row {
   display: block;
   position: relative;
-  height: 52px;
+  height: 56px;
   overflow: hidden;
   cursor: pointer;
   margin-bottom: 2px;
