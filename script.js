@@ -1725,6 +1725,158 @@ function shareWhatsApp(title) {
   window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 }
 
+// ── ALBUM GRID MODE ───────────────────────────────────────────────────────────
+let albumMode = false;
+let albumGridSearch = "";
+let albumGridSort   = "artist";
+
+function switchToAlbumMode() {
+  albumMode = true;
+  document.body.classList.add("album-mode");
+  document.getElementById("btn-mode-switch").classList.add("active");
+  document.getElementById("btn-mode-switch").textContent = "◑ blog";
+  document.getElementById("feed").style.display = "none";
+  document.getElementById("album-grid").style.display = "block";
+  document.getElementById("controls-filters").style.display = "none";
+  // Header-Figur tauschen
+  document.getElementById("header-me").style.display = "none";
+  const me2 = document.getElementById("header-me-album");
+  if (me2) me2.style.display = "block";
+  // Subtext
+  document.querySelector("p.sub").textContent = "→ plattensammlung";
+  renderAlbumGrid();
+}
+
+function switchToBlogMode() {
+  albumMode = false;
+  document.body.classList.remove("album-mode");
+  document.getElementById("btn-mode-switch").classList.remove("active");
+  document.getElementById("btn-mode-switch").textContent = "◑ platten";
+  document.getElementById("feed").style.display = "block";
+  document.getElementById("album-grid").style.display = "none";
+  document.getElementById("controls-filters").style.display = "";
+  // Header-Figur zurück
+  document.getElementById("header-me").style.display = "block";
+  const me2 = document.getElementById("header-me-album");
+  if (me2) me2.style.display = "none";
+  document.querySelector("p.sub").textContent = "→ ein ganz persönlicher blog";
+}
+
+document.getElementById("btn-mode-switch").addEventListener("click", () => {
+  if (albumMode) switchToBlogMode(); else switchToAlbumMode();
+});
+
+function renderAlbumGrid() {
+  const q = albumGridSearch.toLowerCase();
+  let list = albums.filter(a => {
+    if (!q) return true;
+    return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
+  });
+
+  // Sortierung
+  if (albumGridSort === "artist")  list.sort((a,b) => a.artist.localeCompare(b.artist));
+  if (albumGridSort === "rating")  list.sort((a,b) => b.rating - a.rating);
+  if (albumGridSort === "year")    list.sort((a,b) => b.year - a.year);
+
+  const grid = document.getElementById("album-grid");
+  grid.innerHTML = `
+    <div class="album-grid-controls">
+      <input type="text" id="ag-search" placeholder="suche..." value="${albumGridSearch}"
+        oninput="albumGridSearch=this.value;renderAlbumGrid()">
+      <select id="ag-sort" onchange="albumGridSort=this.value;renderAlbumGrid()">
+        <option value="artist" ${albumGridSort==='artist'?'selected':''}>↑ artist</option>
+        <option value="rating" ${albumGridSort==='rating'?'selected':''}>↓ wertung</option>
+        <option value="year"   ${albumGridSort==='year'  ?'selected':''}>↓ jahr</option>
+      </select>
+      <span class="album-grid-count">${list.length} alben</span>
+    </div>
+    <div class="album-grid-items">
+      ${list.map((a, i) => {
+        const cid = "agcv-" + safeid(a.artist + a.album);
+        return `<div class="album-grid-item" onclick="openAlbumPopup(${i},'${albumGridSort}','${q}')">
+          <canvas id="${cid}" width="8" height="8"></canvas>
+          <div class="album-grid-overlay">
+            <div class="album-grid-overlay-artist">${a.artist}</div>
+            <div class="album-grid-overlay-title">${a.album}</div>
+            <div class="album-grid-overlay-rating">${Number(a.rating)}/10</div>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
+
+  // Cover laden
+  requestAnimationFrame(() => {
+    list.forEach(a => {
+      const cid = "agcv-" + safeid(a.artist + a.album);
+      if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
+    });
+  });
+}
+
+function openAlbumPopup(idx, sort, q) {
+  // gleiche Liste wie im Grid
+  let list = albums.filter(a => {
+    if (!q) return true;
+    return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
+  });
+  if (sort === "artist") list.sort((a,b) => a.artist.localeCompare(b.artist));
+  if (sort === "rating") list.sort((a,b) => b.rating - a.rating);
+  if (sort === "year")   list.sort((a,b) => b.year - a.year);
+
+  const a = list[idx];
+  if (!a) return;
+
+  const genres = (a.genre||"").split(",").map(g=>g.trim()).filter(Boolean).join(" · ");
+  const cid = "ap-cover-canvas";
+
+  // Spotify & Apple Music Suche-Links
+  const q2 = encodeURIComponent(a.artist + " " + a.album);
+  const spotifyUrl  = `https://open.spotify.com/search/${q2}`;
+  const appleUrl    = `https://music.apple.com/search?term=${q2}`;
+
+  // Songs
+  const songsHTML = (a.songs||[]).map(s =>
+    s === a.favorite_song
+      ? `<span class="fav">${s}</span>`
+      : s
+  ).join("  ·  ");
+
+  document.getElementById("album-popup-content").innerHTML = `
+    <div class="ap-header">
+      <canvas class="ap-cover" id="${cid}" width="8" height="8"></canvas>
+      <div class="ap-info">
+        <div class="ap-album">${a.album}</div>
+        <div class="ap-artist">${a.artist}</div>
+        <div class="ap-meta">${a.year || ""}${genres ? " · " + genres : ""}</div>
+        <div class="ap-rating">${Number(a.rating)}<span>/10</span></div>
+      </div>
+    </div>
+    <div class="ap-links">
+      <a class="ap-link spotify" href="${spotifyUrl}" target="_blank" rel="noopener">↗ spotify</a>
+      <a class="ap-link apple"   href="${appleUrl}"   target="_blank" rel="noopener">↗ apple music</a>
+    </div>
+    ${songsHTML ? `<div class="ap-songs">${songsHTML}</div>` : ""}
+    ${a.review ? `<div class="ap-review">${a.review.replace(/\n/g,"<br>")}</div>` : ""}
+    ${a.reviewed_at ? `<div style="font-size:10px;color:#bbb;margin-top:8px;text-align:right">${formatDate(a.reviewed_at)}</div>` : ""}
+  `;
+
+  document.getElementById("album-popup-overlay").style.display = "flex";
+
+  // Cover laden
+  requestAnimationFrame(() => {
+    if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
+  });
+}
+
+document.getElementById("album-popup-close").addEventListener("click", () => {
+  document.getElementById("album-popup-overlay").style.display = "none";
+});
+document.getElementById("album-popup-overlay").addEventListener("click", e => {
+  if (e.target === document.getElementById("album-popup-overlay")) {
+    document.getElementById("album-popup-overlay").style.display = "none";
+  }
+});
+
 // ── SHOW HIDDEN TOGGLE ────────────────────────────────────────────────────────
 document.getElementById("btn-show-hidden").addEventListener("click", () => {
   showHidden = !showHidden;
