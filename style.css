@@ -17,7 +17,7 @@ body {
   background: #fff;
   color: #000;
   padding: 16px 14px 60px 14px;
-  max-width: 680px;
+  max-width: 780px;
   margin: 0 auto;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -1655,15 +1655,16 @@ body.dark .album-list-artist { color: #e05555; border-color: #222; }
 }
 body.dark .album-list-row { border-color: #1a1a1a; }
 
-.album-list-canvas {
+.album-list-img {
   display: block;
   width: 100%;
   height: 100%;
   position: absolute;
   inset: 0;
+  object-fit: cover;
+  object-position: center;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  object-fit: cover;
 }
 
 /* Dunkles Overlay damit Text lesbar */
