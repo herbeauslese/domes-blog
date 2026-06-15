@@ -1819,12 +1819,12 @@ function renderAlbumGrid() {
       <span class="album-grid-count">${list.length} alben · ${groups.length} künstler</span>
     </div>
     <div class="album-list">
-      ${groups.map(g => `
+      ${groups.map((g, gi) => `
         <div class="album-list-artist">${g.artist}</div>
-        ${g.albums.map(a => {
+        ${g.albums.map((a, ai) => {
           const cid = "agcv-" + safeid(a.artist + a.album);
           const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
-        return `<div class="album-list-row" onclick="openAlbumPopup(${JSON.stringify(a.artist+a.album)})">
+        return `<div class="album-list-row" onclick="openAlbumPopup(${gi}, ${ai})">
             <canvas class="album-list-img" id="${cid}" width="76" height="19"></canvas>
             <div class="album-list-overlay">
               <div class="album-list-info">
@@ -1849,8 +1849,24 @@ function renderAlbumGrid() {
   window._albumListFiltered = list;
 }
 
-function openAlbumPopup(key) {
-  const a = albums.find(x => x.artist + x.album === key);
+function openAlbumPopup(groupIdx, albumIdx) {
+  const q = albumGridSearch.toLowerCase();
+  let list = albums.filter(a => {
+    if (!q) return true;
+    return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
+  });
+  list.sort((a, b) => a.artist.localeCompare(b.artist));
+
+  // Gruppe finden
+  const groups = [];
+  const groupMap = {};
+  for (const a of list) {
+    const key = a.artist.toLowerCase();
+    if (!groupMap[key]) { groupMap[key] = { artist: a.artist, albums: [] }; groups.push(groupMap[key]); }
+    groupMap[key].albums.push(a);
+  }
+  const g = groups[groupIdx];
+  const a = g && g.albums[albumIdx];
   if (!a) return;
 
   const genres = (a.genre||"").split(",").map(g=>g.trim()).filter(Boolean).join(" · ");
