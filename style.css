@@ -14,15 +14,15 @@ body {
   font-family: var(--font-main);
   font-size: 16px;
   line-height: 1.5;
-  background: #fff;
-  color: #000;
+  background: #fffff4;
+  color: #111;
   padding: 8px 20px 60px 20px;
   max-width: 800px;
-  margin: 0;
+  margin: 0 auto;
   overflow-x: hidden;
 }
 
-body.dark { background: #000; color: #ccc; }
+body.dark { background: #0d0d0a; color: #ccc; }
 a { color: #0000EE; text-decoration: underline; }
 a:visited { color: #551A8B; }
 a:hover { color: #0000FF; }
@@ -30,8 +30,8 @@ body.dark a { color: #88aaff; }
 
 /* ── HEADER ── */
 #site-header {
-  border-bottom: 2px solid #000;
-  padding: 4px 0 4px 0;
+  border-bottom: 1px solid #ccc;
+  padding: 6px 0 4px 0;
   margin-bottom: 8px;
   position: relative;
 }
@@ -40,8 +40,9 @@ body.dark #site-header { border-color: #ccc; }
 
 h1 {
   font-family: var(--font-main);
-  font-size: 28px; font-weight: bold;
+  font-size: 32px; font-weight: bold;
   line-height: 1.2; display: inline;
+  letter-spacing: -0.5px;
 }
 h1 span { font-weight: bold; text-decoration: underline; }
 body.dark h1, body.dark h1 span { color: #ccc; }
@@ -92,10 +93,10 @@ body.dark #admin-panel { border-color: #ccc; }
   font-size: 13px; margin-bottom: 6px; margin-top: 4px;
   display: flex; flex-wrap: wrap; gap: 6px;
   align-items: center;
-  padding: 3px 0; border-bottom: 1px solid #000;
+  padding: 3px 0; border-bottom: 1px solid #ccc;
   font-family: var(--font-mono);
 }
-body.dark #controls { border-color: #ccc; }
+body.dark #controls { border-color: #555; }
 #controls::before { content: "filter: "; font-size: 12px; }
 #controls-right {
   display: flex; align-items: center; gap: 6px;
@@ -148,13 +149,13 @@ body.dark button:hover { background: #444; }
 body.dark #btn-mode-switch { background: #333; color: #ccc; border-color: #666; }
 
 /* ── FEED ── */
-#feed { border-top: 1px solid #000; }
+#feed { border-top: 1px solid #ccc; margin-top: 4px; }
 body.dark #feed { border-color: #ccc; }
 
 /* ── POSTS ── */
-.post { padding: 8px 0 6px 0; border-bottom: 1px solid #000; }
+.post { padding: 12px 0 10px 0; border-bottom: 1px solid #ccc; position: relative; }
 body.dark .post { border-color: #555; }
-.post:last-child { border-bottom: 2px solid #000; }
+.post:last-child { border-bottom: 1px solid #999; }
 body.dark .post:last-child { border-color: #ccc; }
 
 .post.post-reise {
@@ -168,14 +169,14 @@ body.dark .post:last-child { border-color: #ccc; }
   margin-bottom: 2px; padding-right: 80px; flex-wrap: wrap;
 }
 .post-title {
-  font-size: 16px; font-weight: bold;
-  cursor: pointer; color: #0000EE; text-decoration: underline;
+  font-size: 18px; font-weight: bold;
+  cursor: pointer; color: #0000CC; text-decoration: underline;
   font-family: var(--font-main);
 }
 .post-title:hover { color: #0000FF; }
 body.dark .post-title { color: #88aaff; }
-.post.post-foto .post-title  { font-size: 17px; }
-.post.post-reise .post-title { font-size: 19px; }
+.post.post-foto .post-title  { font-size: 19px; }
+.post.post-reise .post-title { font-size: 21px; }
 
 .post-tag {
   font-size: 10px; font-family: var(--font-mono);
@@ -187,7 +188,7 @@ body.dark .post-tag { color: #777; }
 
 .post-date-inline {
   position: absolute; top: 8px; right: 0;
-  font-size: 11px; color: #555; font-family: var(--font-mono);
+  font-size: 10px; color: #aaa; font-family: var(--font-mono);
 }
 body.dark .post-date-inline { color: #888; }
 
@@ -197,7 +198,7 @@ body.dark .post-date-inline { color: #888; }
 }
 body.dark .post-meta { color: #888; }
 
-.post-preview { font-size: 15px; margin-top: 2px; }
+.post-preview { font-size: 14px; margin-top: 3px; color: #444; }
 body.dark .post-preview { color: #aaa; }
 
 .entry-toggle {
@@ -215,8 +216,8 @@ body.dark .entry-toggle { color: #88aaff; }
 .post.expanded .post-body { display: block; }
 .post.expanded .post-preview { display: none; }
 
-.post-fulltext { font-size: 15px; line-height: 1.65; }
-.post-fulltext p + p { margin-top: 8px; }
+.post-fulltext { font-size: 15px; line-height: 1.75; }
+.post-fulltext p + p { margin-top: 10px; }
 .post-fulltext strong { font-weight: bold; }
 .post-fulltext em { font-style: italic; }
 
@@ -380,7 +381,7 @@ body.dark .comment-empty, body.dark .comment-loading { color: #888; }
 /* ── FOOTER ── */
 #footer {
   margin-top: 10px; font-size: 12px;
-  padding-top: 4px; border-top: 2px solid #000;
+  padding-top: 4px; border-top: 1px solid #ccc;
   display: flex; gap: 10px; font-family: var(--font-mono);
 }
 body.dark #footer { border-color: #ccc; color: #888; }
