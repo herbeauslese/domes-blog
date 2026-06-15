@@ -1886,7 +1886,7 @@ function openAlbumPopup(groupIdx, albumIdx) {
 
   document.getElementById("album-popup-content").innerHTML = `
     <div class="ap-header">
-      <canvas class="ap-cover" id="${cid}" width="8" height="8"></canvas>
+      <canvas class="ap-cover" id="${cid}" width="64" height="64"></canvas>
       <div class="ap-info">
         <div class="ap-album">${a.album}</div>
         <div class="ap-artist">${a.artist}</div>
@@ -1907,7 +1907,7 @@ function openAlbumPopup(groupIdx, albumIdx) {
 
   // Cover laden
   requestAnimationFrame(() => {
-    if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
+    if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
   });
 }
 
