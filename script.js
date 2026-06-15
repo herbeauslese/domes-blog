@@ -1685,12 +1685,12 @@ function editorLink(id) {
   ta.focus();
 }
 
-function editorHeading(id) {  const ta  = document.getElementById(id);
+function editorHeading(id) {
+  const ta  = document.getElementById(id);
   if (!ta) return;
   const start = ta.selectionStart;
   const end   = ta.selectionEnd;
   const sel   = ta.value.slice(start, end) || "Überschrift";
-  // Auf neue Zeile setzen wenn nötig
   const before = ta.value.slice(0, start);
   const prefix = (before.length > 0 && !before.endsWith("\n\n")) ? "\n\n" : "";
   const insert = `${prefix}## ${sel}\n\n`;
@@ -1698,19 +1698,6 @@ function editorHeading(id) {  const ta  = document.getElementById(id);
   ta.focus();
   const newPos = before.length + prefix.length + 3 + sel.length;
   ta.setSelectionRange(newPos, newPos);
-}
-
-function editorLink(id) {
-  const ta  = document.getElementById(id);
-  if (!ta) return;
-  const start = ta.selectionStart;
-  const end   = ta.selectionEnd;
-  const sel   = ta.value.slice(start, end) || "Linktext";
-  const url   = prompt("URL eingeben:", "https://");
-  if (!url) return;
-  const insert = `[${sel}](${url})`;
-  ta.value = ta.value.slice(0, start) + insert + ta.value.slice(end);
-  ta.focus();
 }
 
 function editorInsert(id, text) {
