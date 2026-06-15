@@ -1678,6 +1678,7 @@ body.dark .album-list-row { border-color: #1a1a1a; }
   justify-content: space-between;
   padding: 0 10px;
   transition: background 0.15s;
+  pointer-events: none;
 }
 .album-list-row:hover .album-list-overlay { background: rgba(139,26,26,0.6); }
 
