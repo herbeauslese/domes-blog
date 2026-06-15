@@ -4,28 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="format-detection" content="telephone=no">
+<meta name="description" content="ein ganz persönlicher blog">
 <script>
-  // HTTP → HTTPS redirect
   if (location.protocol === "http:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
     location.replace("https://" + location.href.slice(7));
   }
 </script>
 <title>rotehaare</title>
-<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<style>
-  @keyframes shake {
-    0%,100% { transform: translateX(0); }
-    20%      { transform: translateX(-6px); }
-    40%      { transform: translateX(6px); }
-    60%      { transform: translateX(-4px); }
-    80%      { transform: translateX(4px); }
-  }
-</style>
 </head>
 <body>
 
-<!-- ── LOADING SCREEN ── -->
+<!-- loading -->
 <div id="loading-screen">
   <div id="loading-box">
     <span id="loading-title">rotehaare</span>
@@ -33,111 +23,113 @@
   </div>
 </div>
 
-<!-- ── BACK TO TOP ── -->
-<button id="btn-back-top" title="nach oben" aria-label="nach oben">↑</button>
+<!-- back to top -->
+<button id="btn-back-top" aria-label="nach oben">[^]</button>
 
-<!-- ── ADMIN PASSWORD OVERLAY ── -->
+<!-- admin password -->
 <div id="admin-pw-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150;align-items:center;justify-content:center">
-  <div id="admin-pw-box" style="background:#fff;border:2px solid #000;border-bottom:4px solid #000;padding:18px 20px;font-size:13px;width:260px;font-family:'Courier New',monospace">
-    <b style="display:block;margin-bottom:8px;font-family:'Special Elite','Courier New',monospace;font-size:14px">// admin //</b>
-    <input type="password" id="admin-pw-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="admin-passwort" style="width:140px">
-    <button id="admin-pw-ok" style="margin-left:5px">ok</button>
-    <button id="admin-pw-cancel" style="margin-left:4px;color:#888;border-color:#888">✕</button>
+  <div id="admin-pw-box">
+    <b style="display:block;margin-bottom:8px">-- admin --</b>
+    <input type="password" id="admin-pw-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="admin-passwort" style="width:160px">
+    <button id="admin-pw-ok">ok</button>
+    <button id="admin-pw-cancel" style="margin-left:4px">abbrechen</button>
     <div id="admin-pw-error" style="font-size:11px;margin-top:6px;display:none;color:#c00">falsch.</div>
   </div>
 </div>
 
-<!-- ── PASSWORD OVERLAY ── -->
-<div id="pw-overlay" style="display:none;position:fixed;inset:0;background:#fff;z-index:99;align-items:flex-start;justify-content:center;padding-top:80px">
+<!-- password -->
+<div id="pw-overlay" style="display:none">
   <div id="pw-box" style="pointer-events:all">
-    <b>// rotehaare blog //</b>
-    <div class="pw-hint" style="margin-bottom:10px;line-height:1.7">
-      Zutritt nur für Freunde.<br>
-      <span style="font-size:10px">Kleiner Tipp: Das beste Bier der Welt:</span>
-    </div>
-    <input type="password" id="pw-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="passwort">
-    <button id="pw-ok" type="button" style="touch-action:manipulation">rein</button>
-    <div id="pw-error" style="font-size:11px;margin-top:6px;display:none;color:#c00"></div>
+    <b>rotehaare</b>
+    <p class="pw-hint">
+      Zutritt nur fur Freunde.<br>
+      Tipp: Das beste Bier der Welt:
+    </p>
+    <input type="password" id="pw-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="passwort"><br><br>
+    <button id="pw-ok" type="button" style="touch-action:manipulation">Einloggen</button>
+    <div id="pw-error" style="font-size:12px;margin-top:6px;display:none;color:#c00"></div>
   </div>
 </div>
 
-<!-- ── HEADER ── -->
+<!-- header -->
 <div id="site-header">
   <div id="admin-bar">
-    <button id="btn-darkmode" title="Dark Mode">◑</button>
-    <button id="btn-admin" title="Admin">⚙</button>
+    <button id="btn-darkmode" title="Dark Mode">[dark]</button>
+    <button id="btn-admin" title="Admin">[admin]</button>
   </div>
   <div id="header-inner">
     <div>
       <h1><span>rote</span>haare</h1>
-      <p class="sub">ein ganz persönlicher blog</p>
+      <p class="sub">— ein ganz persönlicher blog</p>
     </div>
     <img id="header-me" src="me.png" alt="" aria-hidden="true">
     <img id="header-me-album" src="me-album.png" alt="" aria-hidden="true" style="display:none">
   </div>
 </div>
 
-<!-- ── ADMIN PANEL ── -->
+<!-- admin panel -->
 <div id="admin-panel">
   <div>
-    <button id="btn-new-post" style="font-size:12px">+ neuer beitrag</button>
-    <button id="btn-show-hidden" style="font-size:12px;display:none">◎ 0</button>
+    <button id="btn-new-post">+ neuer beitrag</button>
+    <button id="btn-show-hidden" style="display:none">versteckte anzeigen</button>
   </div>
 </div>
 
-<!-- ── CONTROLS ── -->
+<!-- controls -->
 <div id="controls">
   <div style="display:contents" id="controls-top">
     <input type="text" id="search" placeholder="suche...">
-    <button id="btn-filter-toggle" title="Filter" aria-label="Filter">⇅</button>
+    <button id="btn-filter-toggle" aria-label="Filter">[filter]</button>
     <div id="controls-right">
       <span id="post-count"></span>
-      <button id="btn-mode-switch" title="Zur Plattensammlung">◑ platten</button>
+      <button id="btn-mode-switch">[platten]</button>
     </div>
   </div>
   <div id="controls-filters">
-    <span style="font-size:11px;color:#888">sort:</span>
+    sort:
     <select id="sort-dir">
-      <option value="1" selected>↑ alt</option>
-      <option value="-1">↓ neu</option>
+      <option value="1" selected>alt zuerst</option>
+      <option value="-1">neu zuerst</option>
     </select>
+    &nbsp;
     <select id="filter-type">
-      <option value="all">alle</option>
-      <option value="text">text</option>
-      <option value="photo">foto</option>
-      <option value="reise">reise</option>
-      <option value="embed">embed</option>
+      <option value="all">alle beiträge</option>
+      <option value="text">nur text</option>
+      <option value="photo">nur fotos</option>
+      <option value="reise">nur reisen</option>
+      <option value="embed">nur embeds</option>
     </select>
   </div>
 </div>
 
-<!-- ── FEED ── -->
+<!-- feed -->
 <div id="feed"></div>
 
-<!-- ── ALBUM GRID ── -->
+<!-- album grid -->
 <div id="album-grid" style="display:none"></div>
 
-<!-- ── FOOTER ── -->
+<!-- footer -->
+<hr style="margin-top:12px">
 <div id="footer">
-  <a href="albums.json" id="footer-albums">albums.json</a>
-  <a href="posts.json" id="footer-posts">posts.json</a>
+  <a href="albums.json">albums.json</a> &middot;
+  <a href="posts.json">posts.json</a> &middot;
+  <a href="hidden.json">hidden.json</a>
 </div>
 
-<!-- ── ALBUM POPUP ── -->
+<!-- album popup -->
 <div id="album-popup-overlay" style="display:none">
   <div id="album-popup-box">
-    <button id="album-popup-close">✕</button>
+    <button id="album-popup-close">[x]</button>
     <div id="album-popup-content"></div>
   </div>
 </div>
 
-<!-- ── POPUP: NEUER BEITRAG ── -->
+<!-- neuer beitrag popup -->
 <div id="popup-overlay">
   <div id="popup-box">
-    <button id="popup-close">✕</button>
-    <b>// neuer beitrag //</b><br><br>
+    <button id="popup-close">[x]</button>
+    <b>-- neuer beitrag --</b><br><br>
 
-    <!-- GitHub Settings -->
     <details>
       <summary>github einstellungen</summary>
       <div style="margin-top:8px">
@@ -150,7 +142,6 @@
     </details>
     <br>
 
-    <!-- Type Tabs -->
     <div class="type-tabs">
       <button class="type-tab active" data-tab="text">text</button>
       <button class="type-tab" data-tab="photo">foto / reise</button>
@@ -158,18 +149,18 @@
       <button class="type-tab" data-tab="embed">embed</button>
     </div>
 
-    <!-- ── TEXT FORM ── -->
+    <!-- text form -->
     <div class="form-panel active" id="form-text">
       <div class="row"><label>titel:</label><input type="text" id="f-text-title" placeholder="überschrift"></div>
       <div class="row" style="align-items:flex-start">
         <label style="padding-top:3px">text:</label>
         <div style="flex:1;min-width:0">
           <div class="editor-toolbar">
-            <button type="button" onclick="editorWrap('f-text-body','**','**')" title="Fett">B</button>
-            <button type="button" onclick="editorWrap('f-text-body','*','*')" title="Kursiv" style="font-style:italic">I</button>
-            <button type="button" onclick="editorHeading('f-text-body')" title="Überschrift">H</button>
-            <button type="button" onclick="editorLink('f-text-body')" title="Link">🔗</button>
-            <button type="button" onclick="editorInsert('f-text-body','[Bild1]')" title="Bildverweis">📷</button>
+            <button type="button" onclick="editorWrap('f-text-body','**','**')">B</button>
+            <button type="button" onclick="editorWrap('f-text-body','*','*')" style="font-style:italic">I</button>
+            <button type="button" onclick="editorHeading('f-text-body')">H</button>
+            <button type="button" onclick="editorLink('f-text-body')">link</button>
+            <button type="button" onclick="editorInsert('f-text-body','[Bild1]')">bild-ref</button>
             <span class="editor-hint">**fett** · *kursiv* · ## titel · [Text](url) · [Bild2]</span>
           </div>
           <textarea id="f-text-body" rows="7" placeholder="doppelte leerzeile = neuer absatz"></textarea>
@@ -178,11 +169,11 @@
       <div class="row"><label>datum:</label><input type="date" id="f-text-date"></div>
       <br>
       <button id="btn-push-text">speichern + push</button>
-      <button id="btn-draft-text" style="margin-left:6px;color:#888;border-color:#ccc">als entwurf</button>
+      <button id="btn-draft-text" style="margin-left:6px">als entwurf</button>
       <div id="ps-text" style="font-size:11px;margin-top:5px"></div>
     </div>
 
-    <!-- ── PHOTO FORM ── -->
+    <!-- foto form -->
     <div class="form-panel" id="form-photo">
       <div class="row"><label>titel:</label><input type="text" id="f-photo-title" placeholder="überschrift"></div>
       <div class="row">
@@ -192,30 +183,30 @@
           <option value="reise">reise</option>
         </select>
       </div>
-      <div style="margin:6px 0 3px 0;font-size:11px;color:#666">bilder:</div>
+      <div style="margin:6px 0 3px 0;font-size:12px">bilder (URLs):</div>
       <div id="photo-url-list">
         <div class="photo-url-row">
-          <input type="url" placeholder="https://... (URL)">
-          <button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button>
+          <input type="url" placeholder="https://...">
+          <button onclick="this.parentElement.remove()" style="color:#c00">[x]</button>
         </div>
       </div>
-      <div style="display:flex;gap:6px;margin:4px 0 8px 0;flex-wrap:wrap">
-        <button onclick="addPhotoUrlRow()" style="font-size:11px;color:#666;border-color:#999">+ URL</button>
-        <label id="btn-upload-img" style="font-size:11px;color:#666;border:1px solid #999;padding:2px 8px;cursor:pointer;font-family:'Courier New',monospace">
-          ↑ bild hochladen
+      <div style="margin:4px 0 8px 0;display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="addPhotoUrlRow()" type="button">+ url</button>
+        <label style="cursor:pointer;border:1px solid #000;padding:1px 6px;font-family:var(--font-mono);font-size:12px">
+          bild hochladen
           <input type="file" id="img-upload-input" accept="image/*" multiple style="display:none">
         </label>
-        <span id="upload-status" style="font-size:11px;color:#888;align-self:center"></span>
+        <span id="upload-status" style="font-size:11px;align-self:center"></span>
       </div>
       <div class="row" style="align-items:flex-start">
         <label style="padding-top:3px">text:</label>
         <div style="flex:1;min-width:0">
           <div class="editor-toolbar">
-            <button type="button" onclick="editorWrap('f-photo-text','**','**')" title="Fett">B</button>
-            <button type="button" onclick="editorWrap('f-photo-text','*','*')" title="Kursiv" style="font-style:italic">I</button>
-            <button type="button" onclick="editorHeading('f-photo-text')" title="Überschrift">H</button>
-            <button type="button" onclick="editorLink('f-photo-text')" title="Link">🔗</button>
-            <button type="button" onclick="editorInsert('f-photo-text','[Bild1]')" title="Bildverweis">📷</button>
+            <button type="button" onclick="editorWrap('f-photo-text','**','**')">B</button>
+            <button type="button" onclick="editorWrap('f-photo-text','*','*')" style="font-style:italic">I</button>
+            <button type="button" onclick="editorHeading('f-photo-text')">H</button>
+            <button type="button" onclick="editorLink('f-photo-text')">link</button>
+            <button type="button" onclick="editorInsert('f-photo-text','[Bild1]')">bild-ref</button>
             <span class="editor-hint">**fett** · *kursiv* · ## titel · [Text](url) · [Bild2]</span>
           </div>
           <textarea id="f-photo-text" rows="4" placeholder="beschreibung / bericht"></textarea>
@@ -224,46 +215,45 @@
       <div class="row"><label>datum:</label><input type="date" id="f-photo-date"></div>
       <br>
       <button id="btn-push-photo">speichern + push</button>
-      <button id="btn-draft-photo" style="margin-left:6px;color:#888;border-color:#ccc">als entwurf</button>
+      <button id="btn-draft-photo" style="margin-left:6px">als entwurf</button>
       <div id="ps-photo" style="font-size:11px;margin-top:5px"></div>
     </div>
 
-    <!-- ── ALBUM FORM ── -->
+    <!-- album form -->
     <div class="form-panel" id="form-album">
       <b style="font-size:12px">1. album suchen</b><br><br>
       <div class="row"><label>künstler:</label><input type="text" id="q-artist"></div>
       <div class="row"><label>album:</label><input type="text" id="q-album"></div>
-      <button id="btn-mb-search" style="margin-top:6px">suchen</button>
-      <button id="btn-mb-manual" style="margin-top:6px;margin-left:6px;color:#888;border-color:#888">manuell</button>
+      <button id="btn-mb-search">suchen</button>
+      <button id="btn-mb-manual" style="margin-left:6px">manuell eingeben</button>
       <div id="status"></div>
       <div id="mb-results"></div>
 
       <div id="form-album-details" style="display:none">
         <br><b style="font-size:12px">2. details</b><br><br>
-        <div class="row"><label>künstler:</label><input type="text" id="fa-artist" style="background:#f2f2f2"></div>
-        <div class="row"><label>album:</label><input type="text" id="fa-album" style="background:#f2f2f2"></div>
-        <div class="row"><label>jahr:</label><input type="text" id="fa-year" style="background:#f2f2f2;max-width:70px"></div>
-        <div class="row"><label>genre:</label><input type="text" id="fa-genre" placeholder="anpassen"></div>
+        <div class="row"><label>künstler:</label><input type="text" id="fa-artist"></div>
+        <div class="row"><label>album:</label><input type="text" id="fa-album"></div>
+        <div class="row"><label>jahr:</label><input type="text" id="fa-year" style="max-width:70px"></div>
+        <div class="row"><label>genre:</label><input type="text" id="fa-genre"></div>
         <div class="row"><label>wertung (1-10):</label><input type="number" id="fa-rating" min="1" max="10" step="0.5" style="max-width:60px"></div>
-        <div class="row"><label>hörspaß (1-5):</label><input type="number" id="fa-hoerspass" min="1" max="5" step="1" style="max-width:45px" placeholder="1-5"></div>
-        <div class="row"><label>edginess (1-5):</label><input type="number" id="fa-edginess" min="1" max="5" step="1" style="max-width:45px" placeholder="1-5"></div>
-        <div class="row"><label>harmonie (1-5):</label><input type="number" id="fa-harmonie" min="1" max="5" step="1" style="max-width:45px" placeholder="1-5"></div>
-        <div class="row"><label>cover url:</label><input type="text" id="fa-cover" placeholder="direkte bild-url (pflicht)"></div>
+        <div class="row"><label>hörspaß (1-5):</label><input type="number" id="fa-hoerspass" min="1" max="5" style="max-width:45px"></div>
+        <div class="row"><label>edginess (1-5):</label><input type="number" id="fa-edginess" min="1" max="5" style="max-width:45px"></div>
+        <div class="row"><label>harmonie (1-5):</label><input type="number" id="fa-harmonie" min="1" max="5" style="max-width:45px"></div>
+        <div class="row"><label>cover url:</label><input type="text" id="fa-cover" placeholder="direkte bild-url"></div>
         <div class="row"><label>datum:</label><input type="date" id="fa-date"></div>
         <br>
         <div id="song-section" style="display:none">
-          <span style="font-size:12px">lieblingssong:</span><br>
+          lieblingssong:<br>
           <div id="song-radios"></div>
         </div>
         <div id="song-manual" style="display:none">
-          <span style="font-size:12px">songs (kommagetrennt):</span><br>
-          <textarea id="fa-songs-manual" rows="2" placeholder="Song 1, Song 2, ..."></textarea>
-          <br><br>
-          <span style="font-size:12px">lieblingssong:</span><br>
-          <input type="text" id="fa-fav-manual" placeholder="exakt wie oben eingegeben"><br>
+          songs (kommagetrennt):<br>
+          <textarea id="fa-songs-manual" rows="2" placeholder="Song 1, Song 2, ..."></textarea><br><br>
+          lieblingssong:<br>
+          <input type="text" id="fa-fav-manual"><br>
         </div>
         <br>
-        <span style="font-size:12px">rezension:</span><br>
+        rezension:<br>
         <textarea id="fa-review" rows="4"></textarea>
         <br><br>
         <button id="btn-push-album">speichern + push</button>
@@ -271,7 +261,7 @@
       </div>
     </div>
 
-    <!-- ── EMBED FORM ── -->
+    <!-- embed form -->
     <div class="form-panel" id="form-embed">
       <div class="row"><label>titel:</label><input type="text" id="f-embed-title" placeholder="z.B. Live @ H15 Festival"></div>
       <div class="row" style="align-items:flex-start">
@@ -282,8 +272,8 @@
         <label style="padding-top:3px">text:</label>
         <div style="flex:1;min-width:0">
           <div class="editor-toolbar">
-            <button type="button" onclick="editorWrap('f-embed-text','**','**')" title="Fett">B</button>
-            <button type="button" onclick="editorWrap('f-embed-text','*','*')" title="Kursiv" style="font-style:italic">I</button>
+            <button type="button" onclick="editorWrap('f-embed-text','**','**')">B</button>
+            <button type="button" onclick="editorWrap('f-embed-text','*','*')" style="font-style:italic">I</button>
           </div>
           <textarea id="f-embed-text" rows="3" placeholder="beschreibung (optional)"></textarea>
         </div>
@@ -291,7 +281,7 @@
       <div class="row"><label>datum:</label><input type="date" id="f-embed-date"></div>
       <br>
       <button id="btn-push-embed">speichern + push</button>
-      <button id="btn-draft-embed" style="margin-left:6px;color:#888;border-color:#ccc">als entwurf</button>
+      <button id="btn-draft-embed" style="margin-left:6px">als entwurf</button>
       <div id="ps-embed" style="font-size:11px;margin-top:5px"></div>
     </div>
 
