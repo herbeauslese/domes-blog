@@ -60,11 +60,9 @@ body.dark #header-me,
 body.dark #header-me-album { filter: invert(1); }
 @media (max-width: 480px) {
   #header-me, #header-me-album {
-    height: 55px;
-    right: 0;
-    bottom: auto;
-    top: 0;
-    z-index: 1;
+    height: 60px;
+    right: 80px;
+    z-index: 3;
   }
   #header-inner { padding-right: 100px; }
   #admin-bar { top: 48px; }
@@ -114,16 +112,19 @@ body.dark #post-count { color: #888; }
 #btn-filter-toggle { display: none; }
 
 @media (max-width: 480px) {
+  body { padding: 8px 12px 60px 12px; }
   #controls {
-    flex-direction: row; flex-wrap: wrap; gap: 4px;
-    align-items: center;
+    flex-direction: row; flex-wrap: wrap; gap: 3px;
+    align-items: center; padding-right: 0;
   }
   #controls::before { display: none; }
-  #search { width: 120px; flex-shrink: 1; min-width: 0; }
+  #search { flex: 1; min-width: 80px; }
   #controls-right { margin-left: 0; gap: 4px; }
-  #controls-filters { gap: 4px; }
-  #controls-filters select { font-size: 11px; }
-  #post-count { display: none; } /* Platz sparen */
+  #controls-filters { display: flex; flex-wrap: wrap; gap: 3px; }
+  #controls-filters select { font-size: 11px; max-width: 110px; }
+  #post-count { display: none; }
+  #controls-filters.hidden { display: none; }
+  #btn-filter-toggle { display: inline-block; }
 }
 
 /* inputs — retro */
