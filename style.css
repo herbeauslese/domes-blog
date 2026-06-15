@@ -69,20 +69,21 @@ body.dark p.sub { color: #ccc; }
 
 /* figur */
 #header-me, #header-me-album {
-  height: 82px; width: auto;
-  position: absolute; bottom: 0; right: 80px;
+  height: 72px; width: auto;
+  position: absolute; bottom: 0; right: 85px;
   display: block; pointer-events: none;
 }
 body.dark #header-me,
 body.dark #header-me-album { filter: invert(1); }
 @media (max-width: 480px) {
-  #header-me, #header-me-album { height: 70px; right: 30px; }
+  #header-me, #header-me-album { display: none; }
 }
 
 /* admin bar */
 #admin-bar {
   position: absolute; top: 4px; right: 0;
   display: flex; align-items: center; gap: 4px;
+  z-index: 2;
 }
 #admin-bar button {
   background: #fff; border: 1px solid #000;
@@ -109,7 +110,7 @@ body.dark #admin-panel { border-color: #ccc; }
 #controls {
   font-size: 13px; margin-bottom: 4px;
   display: flex; flex-wrap: wrap; gap: 6px;
-  align-items: center; border: none;
+  align-items: center;
   padding: 3px 0; border-bottom: 1px solid #000;
   position: relative; padding-right: 120px;
   font-family: var(--font-mono);
@@ -123,6 +124,23 @@ body.dark #controls::before { color: #ccc; }
   font-size: 12px; color: #000; font-family: var(--font-mono);
 }
 #controls-filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+#btn-filter-toggle { display: none; }
+
+@media (max-width: 480px) {
+  #controls {
+    padding-right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  #controls::before { display: none; }
+  #controls-right { position: static; margin-top: 2px; }
+  #controls-filters { flex-direction: column; gap: 3px; }
+  #controls-filters.hidden { display: none; }
+  #btn-filter-toggle { display: inline-block; }
+  #search { width: 100%; }
+}
 
 select, input[type=text], input[type=number], input[type=password],
 input[type=date], input[type=url], textarea {
