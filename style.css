@@ -59,8 +59,15 @@ body.dark p.sub { color: #aaa; }
 body.dark #header-me,
 body.dark #header-me-album { filter: invert(1); }
 @media (max-width: 480px) {
-  #header-me, #header-me-album { height: 60px; right: 80px; }
-  #header-inner { padding-right: 120px; }
+  #header-me, #header-me-album {
+    height: 55px;
+    right: 0;
+    bottom: auto;
+    top: 0;
+    z-index: 1;
+  }
+  #header-inner { padding-right: 100px; }
+  #admin-bar { top: 48px; }
 }
 
 /* admin bar — retro style */
@@ -107,12 +114,16 @@ body.dark #post-count { color: #888; }
 #btn-filter-toggle { display: none; }
 
 @media (max-width: 480px) {
-  #controls { flex-direction: column; align-items: stretch; gap: 4px; }
+  #controls {
+    flex-direction: row; flex-wrap: wrap; gap: 4px;
+    align-items: center;
+  }
   #controls::before { display: none; }
-  #controls-right { margin-left: 0; }
-  #controls-filters.hidden { display: none; }
-  #btn-filter-toggle { display: inline-block; }
-  #search { width: 100%; }
+  #search { width: 120px; flex-shrink: 1; min-width: 0; }
+  #controls-right { margin-left: 0; gap: 4px; }
+  #controls-filters { gap: 4px; }
+  #controls-filters select { font-size: 11px; }
+  #post-count { display: none; } /* Platz sparen */
 }
 
 /* inputs — retro */
