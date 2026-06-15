@@ -373,7 +373,7 @@ function renderTextPost(p, pid, dateStr) {
     <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">weiterlesen</span>
-      <span class="entry-toggle-arrow">▼</span>
+      <span class="entry-toggle-arrow">v</span>
     </div>
     <div class="post-body">
       <div class="post-fulltext">${fullText}</div>
@@ -484,7 +484,7 @@ function renderPhotoPost(p, pid, dateStr) {
     <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">weiterlesen</span>
-      <span class="entry-toggle-arrow">▼</span>
+      <span class="entry-toggle-arrow">v</span>
     </div>
     <div class="post-body">
       ${slidesHTML}
@@ -519,7 +519,7 @@ function renderEmbedPost(p, pid, dateStr) {
     ${preview ? `<div class="post-preview">${preview}</div>` : ""}
     ${hasText ? `<div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">weiterlesen</span>
-      <span class="entry-toggle-arrow">▼</span>
+      <span class="entry-toggle-arrow">v</span>
     </div>
     <div class="post-body">
       <div class="post-fulltext">${parseText(p.text, pid)}</div>
@@ -570,7 +570,7 @@ function renderAlbumPost(p, pid, dateStr) {
     </div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">${a.review ? "rezension lesen" : "details"}</span>
-      <span class="entry-toggle-arrow">▼</span>
+      <span class="entry-toggle-arrow">v</span>
     </div>
     <div class="post-body">
       ${songsListHTML}
