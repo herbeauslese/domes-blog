@@ -582,12 +582,12 @@ body.dark .album-list-artist { border-color: #ccc; }
   pointer-events: none;
 }
 .album-list-overlay {
-  position: absolute; inset: 0; background: rgba(0,0,80,0.5);
+  position: absolute; inset: 0; background: rgba(0,0,0,0.45);
   display: flex; align-items: center;
   justify-content: space-between; padding: 0 10px;
   transition: background 0.1s; pointer-events: none;
 }
-.album-list-row:hover .album-list-overlay { background: rgba(0,0,120,0.7); }
+.album-list-row:hover .album-list-overlay { background: rgba(0,0,0,0.6); }
 .album-list-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .album-list-title { font-size: 14px; font-weight: bold; color: #fff; font-family: var(--font-main); }
 .album-list-meta { font-size: 11px; color: rgba(255,255,255,0.7); font-family: var(--font-mono); margin-top: 1px; }
