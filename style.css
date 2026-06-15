@@ -55,6 +55,7 @@ body.dark p.sub { color: #aaa; }
   height: 80px; width: auto;
   position: absolute; bottom: 0; right: 90px;
   display: block; pointer-events: none;
+  background: #fffff4; /* verdeckt buttons dahinter */
 }
 body.dark #header-me,
 body.dark #header-me-album { filter: invert(1); }
