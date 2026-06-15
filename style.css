@@ -16,7 +16,7 @@ body {
   background: #fff;
   color: #000;
   padding: 8px 24px 60px 24px;
-  max-width: 780px;
+  max-width: 800px;
   margin: 0 auto;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
@@ -70,13 +70,16 @@ body.dark p.sub { color: #ccc; }
 /* figur */
 #header-me, #header-me-album {
   height: 72px; width: auto;
-  position: absolute; bottom: 0; right: 85px;
+  position: absolute; bottom: 0; right: 120px;
   display: block; pointer-events: none;
 }
 body.dark #header-me,
 body.dark #header-me-album { filter: invert(1); }
 @media (max-width: 480px) {
-  #header-me, #header-me-album { display: none; }
+  #header-me, #header-me-album {
+    height: 60px;
+    right: 105px;
+  }
 }
 
 /* admin bar */
