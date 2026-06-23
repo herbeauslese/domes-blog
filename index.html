@@ -75,34 +75,32 @@
   </div>
 </div>
 
-<!-- controls -->
-<div id="controls">
-  <div style="display:contents" id="controls-top">
-    <input type="text" id="search" placeholder="suche...">
-    <button id="btn-filter-toggle" aria-label="Filter">[filter]</button>
-    <div id="controls-right">
-      <span id="post-count"></span>
-    </div>
-  </div>
-  <div id="controls-filters">
-    sort:
-    <select id="sort-dir">
-      <option value="1" selected>alt zuerst</option>
-      <option value="-1">neu zuerst</option>
-    </select>
-    <select id="filter-type">
-      <option value="all">alle</option>
-      <option value="text">text</option>
-      <option value="photo">foto</option>
-      <option value="reise">reise</option>
-      <option value="embed">embed</option>
-    </select>
-  </div>
-</div>
-
 <div id="main-layout">
-  <!-- feed -->
+  <!-- feed + controls -->
   <div>
+    <div id="controls">
+      <div style="display:contents" id="controls-top">
+        <input type="text" id="search" placeholder="suche...">
+        <button id="btn-filter-toggle" aria-label="Filter">[filter]</button>
+        <div id="controls-right">
+          <span id="post-count"></span>
+        </div>
+      </div>
+      <div id="controls-filters">
+        sort:
+        <select id="sort-dir">
+          <option value="1" selected>alt zuerst</option>
+          <option value="-1">neu zuerst</option>
+        </select>
+        <select id="filter-type">
+          <option value="all">alle</option>
+          <option value="text">text</option>
+          <option value="photo">foto</option>
+          <option value="reise">reise</option>
+          <option value="embed">embed</option>
+        </select>
+      </div>
+    </div>
     <div id="feed"></div>
     <div id="album-grid" style="display:none"></div>
   </div>
@@ -117,7 +115,6 @@
 </div>
 
 <!-- footer -->
-<hr style="margin-top:12px">
 <div id="footer">
   <a href="albums.json">albums.json</a> &middot;
   <a href="posts.json">posts.json</a> &middot;
