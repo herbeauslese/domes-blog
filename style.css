@@ -36,6 +36,7 @@ body {
   max-width: 820px;
   margin: 0 auto;
   padding: 0;
+  overflow-x: clip;
 }
 
 body.dark {
@@ -142,6 +143,7 @@ body.dark #header-me-album { filter: brightness(0.6); }
   padding: 14px 12px 60px 12px;
   align-items: start;
 }
+#main-layout > * { min-width: 0; }
 @media (max-width: 580px) {
   #main-layout { grid-template-columns: 1fr; }
   #sidebar { display: none; }
