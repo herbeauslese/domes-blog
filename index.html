@@ -90,22 +90,31 @@
       <option value="1" selected>alt zuerst</option>
       <option value="-1">neu zuerst</option>
     </select>
-    &nbsp;
     <select id="filter-type">
-      <option value="all">alle beiträge</option>
-      <option value="text">nur text</option>
-      <option value="photo">nur fotos</option>
-      <option value="reise">nur reisen</option>
-      <option value="embed">nur embeds</option>
+      <option value="all">alle</option>
+      <option value="text">text</option>
+      <option value="photo">foto</option>
+      <option value="reise">reise</option>
+      <option value="embed">embed</option>
     </select>
   </div>
 </div>
 
-<!-- feed -->
-<div id="feed"></div>
+<div id="main-layout">
+  <!-- feed -->
+  <div>
+    <div id="feed"></div>
+    <div id="album-grid" style="display:none"></div>
+  </div>
 
-<!-- album grid -->
-<div id="album-grid" style="display:none"></div>
+  <!-- sidebar -->
+  <div id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Plattensammlung</div>
+      <div class="sidebar-albums" id="sidebar-albums"></div>
+    </div>
+  </div>
+</div>
 
 <!-- footer -->
 <hr style="margin-top:12px">
