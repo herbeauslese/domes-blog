@@ -1752,7 +1752,12 @@ function shareWhatsApp(title) {
 // ── SIDEBAR ALBEN ────────────────────────────────────────────────────────────
 function renderSidebar() {
   const el = document.getElementById("sidebar-albums");
-  if (!el || !albums.length) return;
+  if (!el) return;
+
+  if (!albums.length) {
+    el.innerHTML = `<div style="font-size:9px;color:#aaa;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;padding:8px 10px">noch keine alben.</div>`;
+    return;
+  }
 
   const sorted = [...albums].sort((a, b) => b.rating - a.rating);
 
