@@ -1,7 +1,7 @@
 // ── SUPABASE KOMMENTARE ───────────────────────────────────────────────────────
 // Werte kommen aus config.js
 const SUPABASE_URL = CONFIG.SUPABASE_URL;
-const SUPABASE_KEY = CONFIG.SUPABASE_KEY; 
+const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
 
 async function loadComments(pid) {
   try {
@@ -165,7 +165,6 @@ async function loadData() {
   mergePosts();
   applyDark();
   render();
-  renderSidebar();
   hideLoadingScreen();
   // nach dem Laden: Hash-Anker scrollen + highlighten
   handleHashOnLoad();
@@ -222,6 +221,7 @@ function render() {
     // type filter
     if (filterType === "text"  && p.type !== "text")  return false;
     if (filterType === "photo" && p.type !== "photo") return false;
+    if (filterType === "album" && p.type !== "album") return false;
     if (filterType === "embed" && p.type !== "embed") return false;
     if (filterType === "reise" && !(p.type === "photo" && p.tag === "reise")) return false;
     // search
@@ -361,7 +361,6 @@ function renderTextPost(p, pid, dateStr) {
   const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
 
   return `<div class="post${p.draft ? ' post-draft' : ''}" id="${pid}" data-type="text" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
-    <div class="post-header-box">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -371,7 +370,6 @@ function renderTextPost(p, pid, dateStr) {
       <span class="post-tag">text</span>
       ${draftBadge}
     </div>
-    </div><!-- /post-header-box -->
     <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">weiterlesen</span>
@@ -473,8 +471,7 @@ function renderPhotoPost(p, pid, dateStr) {
     </div>`;
   }
 
-  return `<div class="${'post' + (isReise ? ' post-reise' : ' post-foto')}" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${encodeURIComponent(JSON.stringify(p.images||[]))}" data-date="${p.posted_at||''}">
-    <div class="post-header-box">
+  return `<div class="${'post' + (isReise ? ' post-reise' : ' post-foto')}" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${JSON.stringify(p.images||[]).replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -483,7 +480,6 @@ function renderPhotoPost(p, pid, dateStr) {
       </span>
       <span class="post-tag ${tagClass}">${tagLabel}</span>
     </div>
-    </div><!-- /post-header-box -->
     ${collageHTML}
     <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
@@ -510,7 +506,6 @@ function renderEmbedPost(p, pid, dateStr) {
   const hasText = p.text && p.text.trim().length > 0;
 
   return `<div class="post${p.draft?' post-draft':''}" id="${pid}" data-type="embed" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
-    <div class="post-header-box">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -550,7 +545,7 @@ function renderAlbumPost(p, pid, dateStr) {
     : "";
 
   const reviewHTML = a.review
-    ? `<div class="post-fulltext" style="margin-top:10px">${escapeHtml(a.review).replace(/\n/g,"<br>")}</div>`
+    ? `<div class="post-fulltext" style="margin-top:10px">${a.review.replace(/\n/g,"<br>")}</div>`
     : "";
   const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditAlbum('${safeid(a.artist+a.album)}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" title="ausblenden" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
@@ -964,11 +959,9 @@ function loadCoverFull(canvasId, url, cacheKeyStr) {
   img.src = url;
   canvas.dataset.loaded = "1";
 }
-let searchDebounceTimer = null;
 document.getElementById("search").addEventListener("input", e => {
   searchQ = e.target.value;
-  clearTimeout(searchDebounceTimer);
-  searchDebounceTimer = setTimeout(render, 150);
+  render();
 });
 document.getElementById("sort-dir").addEventListener("change", e => {
   sortDir = parseInt(e.target.value);
@@ -1736,9 +1729,15 @@ function copyPostLink(pid, btn) {
     btn.textContent = "✓ kopiert";
     setTimeout(() => btn.textContent = orig, 2000);
   }).catch(() => {
-    // Clipboard nicht verfügbar (z.B. non-HTTPS) — URL im Titel anzeigen
+    // Fallback für ältere Browser
+    const ta = document.createElement("textarea");
+    ta.value = window.location.origin + window.location.pathname + "#" + pid;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
     const orig = btn.textContent;
-    btn.textContent = "! kein zugriff";
+    btn.textContent = "✓ kopiert";
     setTimeout(() => btn.textContent = orig, 2000);
   });
 }
@@ -1749,55 +1748,125 @@ function shareWhatsApp(title) {
   window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 }
 
-// ── SIDEBAR ALBEN ────────────────────────────────────────────────────────────
-function renderSidebar() {
-  const el = document.getElementById("sidebar-albums");
-  if (!el) return;
+// ── ALBUM GRID MODE ───────────────────────────────────────────────────────────
+let albumMode = false;
+let albumGridSearch = "";
+let albumGridSort   = "artist";
 
-  if (!albums.length) {
-    el.innerHTML = `<div style="font-size:9px;color:#aaa;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;padding:8px 10px">noch keine alben.</div>`;
-    return;
+function switchToAlbumMode() {
+  albumMode = true;
+  document.body.classList.add("album-mode");
+  document.getElementById("btn-mode-switch").classList.add("active");
+  document.getElementById("btn-mode-switch").textContent = "◑ blog";
+  document.getElementById("feed").style.display = "none";
+  document.getElementById("album-grid").style.display = "block";
+  document.getElementById("controls-filters").style.display = "none";
+  // Header-Figur tauschen
+  document.getElementById("header-me").style.display = "none";
+  const me2 = document.getElementById("header-me-album");
+  if (me2) me2.style.display = "block";
+  // Subtext
+  document.querySelector("p.sub").textContent = "→ plattensammlung";
+  renderAlbumGrid();
+}
+
+function switchToBlogMode() {
+  albumMode = false;
+  document.body.classList.remove("album-mode");
+  document.getElementById("btn-mode-switch").classList.remove("active");
+  document.getElementById("btn-mode-switch").textContent = "◑ platten";
+  document.getElementById("feed").style.display = "block";
+  document.getElementById("album-grid").style.display = "none";
+  document.getElementById("controls-filters").style.display = "";
+  // Header-Figur zurück
+  document.getElementById("header-me").style.display = "block";
+  const me2 = document.getElementById("header-me-album");
+  if (me2) me2.style.display = "none";
+  document.querySelector("p.sub").textContent = "→ ein ganz persönlicher blog";
+}
+
+document.getElementById("btn-mode-switch").addEventListener("click", () => {
+  if (albumMode) switchToBlogMode(); else switchToAlbumMode();
+});
+
+function renderAlbumGrid() {
+  const q = albumGridSearch.toLowerCase();
+  let list = albums.filter(a => {
+    if (!q) return true;
+    return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
+  });
+
+  // Alphabetisch nach Artist
+  list.sort((a, b) => a.artist.localeCompare(b.artist));
+
+  // Gruppieren nach Artist
+  const groups = [];
+  const groupMap = {};
+  for (const a of list) {
+    const key = a.artist.toLowerCase();
+    if (!groupMap[key]) {
+      groupMap[key] = { artist: a.artist, albums: [] };
+      groups.push(groupMap[key]);
+    }
+    groupMap[key].albums.push(a);
   }
 
-  const sorted = [...albums].sort((a, b) => b.rating - a.rating);
-
-  el.innerHTML = sorted.map((a, i) => {
-    const cid = "sbcv-" + safeid(a.artist + a.album);
-    return `<div class="sidebar-album-row" onclick="openAlbumPopup(${i}, 0, true)">
-      <canvas class="sidebar-album-canvas" id="${cid}" width="16" height="16"></canvas>
-      <div class="sidebar-album-info">
-        <div class="sidebar-album-title">${a.album}</div>
-        <div class="sidebar-album-artist">${a.artist}</div>
-      </div>
-      <span class="sidebar-album-rating">${Number(a.rating)}</span>
+  const grid = document.getElementById("album-grid");
+  grid.innerHTML = `
+    <div class="album-grid-controls">
+      <input type="text" id="ag-search" placeholder="suche..." value="${albumGridSearch}"
+        oninput="albumGridSearch=this.value;renderAlbumGrid()">
+      <span class="album-grid-count">${list.length} alben · ${groups.length} künstler</span>
+    </div>
+    <div class="album-list">
+      ${groups.map((g, gi) => `
+        <div class="album-list-artist">${g.artist}</div>
+        ${g.albums.map((a, ai) => {
+          const cid = "agcv-" + safeid(a.artist + a.album);
+          const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
+        return `<div class="album-list-row" onclick="openAlbumPopup(${gi}, ${ai})">
+            <canvas class="album-list-img" id="${cid}" width="76" height="19"></canvas>
+            <div class="album-list-overlay">
+              <div class="album-list-info">
+                <span class="album-list-title">${a.album}</span>
+                <span class="album-list-meta">${a.year||""}${genres ? " · " + genres : ""}</span>
+              </div>
+              <span class="album-list-rating">${Number(a.rating)}<span>/10</span></span>
+            </div>
+          </div>`;
+        }).join("")}
+      `).join("")}
     </div>`;
-  }).join("");
 
+  // Covers laden
   requestAnimationFrame(() => {
-    sorted.forEach(a => {
-      const cid = "sbcv-" + safeid(a.artist + a.album);
+    list.forEach(a => {
+      const cid = "agcv-" + safeid(a.artist + a.album);
       if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
     });
   });
+
+  window._albumListFiltered = list;
 }
 
-function openAlbumPopup(groupIdx, albumIdx, fromSidebar) {
-  let a;
-  if (fromSidebar) {
-    const sorted = [...albums].sort((a, b) => b.rating - a.rating);
-    a = sorted[groupIdx];
-  } else {
-    let list = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
-    const groups = [];
-    const groupMap = {};
-    for (const x of list) {
-      const key = x.artist.toLowerCase();
-      if (!groupMap[key]) { groupMap[key] = { artist: x.artist, albums: [] }; groups.push(groupMap[key]); }
-      groupMap[key].albums.push(x);
-    }
-    const g = groups[groupIdx];
-    a = g && g.albums[albumIdx];
+function openAlbumPopup(groupIdx, albumIdx) {
+  const q = albumGridSearch.toLowerCase();
+  let list = albums.filter(a => {
+    if (!q) return true;
+    return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
+  });
+  list.sort((a, b) => a.artist.localeCompare(b.artist));
+
+  // Gruppe finden
+  const groups = [];
+  const groupMap = {};
+  for (const a of list) {
+    const key = a.artist.toLowerCase();
+    if (!groupMap[key]) { groupMap[key] = { artist: a.artist, albums: [] }; groups.push(groupMap[key]); }
+    groupMap[key].albums.push(a);
   }
+  const g = groups[groupIdx];
+  const a = g && g.albums[albumIdx];
   if (!a) return;
 
   const genres = (a.genre||"").split(",").map(g=>g.trim()).filter(Boolean).join(" · ");
@@ -1830,7 +1899,7 @@ function openAlbumPopup(groupIdx, albumIdx, fromSidebar) {
       <a class="ap-link apple"   href="${appleUrl}"   target="_blank" rel="noopener">↗ apple music</a>
     </div>
     ${songsHTML ? `<div class="ap-songs">${songsHTML}</div>` : ""}
-    ${a.review ? `<div class="ap-review">${escapeHtml(a.review).replace(/\n/g,"<br>")}</div>` : ""}
+    ${a.review ? `<div class="ap-review">${a.review.replace(/\n/g,"<br>")}</div>` : ""}
     ${a.reviewed_at ? `<div style="font-size:10px;color:#bbb;margin-top:8px;text-align:right">${formatDate(a.reviewed_at)}</div>` : ""}
   `;
 
