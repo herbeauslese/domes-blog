@@ -165,6 +165,7 @@ async function loadData() {
   mergePosts();
   applyDark();
   render();
+  renderSidebar();
   hideLoadingScreen();
   // nach dem Laden: Hash-Anker scrollen + highlighten
   handleHashOnLoad();
@@ -361,6 +362,7 @@ function renderTextPost(p, pid, dateStr) {
   const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
 
   return `<div class="post${p.draft ? ' post-draft' : ''}" id="${pid}" data-type="text" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
+    <div class="post-header-box">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -370,6 +372,7 @@ function renderTextPost(p, pid, dateStr) {
       <span class="post-tag">text</span>
       ${draftBadge}
     </div>
+    </div><!-- /post-header-box -->
     <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
       <span style="flex:1">weiterlesen</span>
@@ -472,6 +475,7 @@ function renderPhotoPost(p, pid, dateStr) {
   }
 
   return `<div class="${'post' + (isReise ? ' post-reise' : ' post-foto')}" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${JSON.stringify(p.images||[]).replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
+    <div class="post-header-box">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -480,6 +484,7 @@ function renderPhotoPost(p, pid, dateStr) {
       </span>
       <span class="post-tag ${tagClass}">${tagLabel}</span>
     </div>
+    </div><!-- /post-header-box -->
     ${collageHTML}
     <div class="post-preview">${preview}</div>
     <div class="entry-toggle" onclick="togglePost('${pid}')">
@@ -506,6 +511,7 @@ function renderEmbedPost(p, pid, dateStr) {
   const hasText = p.text && p.text.trim().length > 0;
 
   return `<div class="post${p.draft?' post-draft':''}" id="${pid}" data-type="embed" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
+    <div class="post-header-box">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
@@ -1748,7 +1754,32 @@ function shareWhatsApp(title) {
   window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 }
 
-// ── ALBUM GRID MODE ───────────────────────────────────────────────────────────
+// ── SIDEBAR ALBEN ────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const el = document.getElementById("sidebar-albums");
+  if (!el || !albums.length) return;
+
+  const sorted = [...albums].sort((a, b) => b.rating - a.rating);
+
+  el.innerHTML = sorted.map((a, i) => {
+    const cid = "sbcv-" + safeid(a.artist + a.album);
+    return `<div class="sidebar-album-row" onclick="openAlbumPopup(${i}, 0, true)">
+      <canvas class="sidebar-album-canvas" id="${cid}" width="16" height="16"></canvas>
+      <div class="sidebar-album-info">
+        <div class="sidebar-album-title">${a.album}</div>
+        <div class="sidebar-album-artist">${a.artist}</div>
+      </div>
+      <span class="sidebar-album-rating">${Number(a.rating)}</span>
+    </div>`;
+  }).join("");
+
+  requestAnimationFrame(() => {
+    sorted.forEach(a => {
+      const cid = "sbcv-" + safeid(a.artist + a.album);
+      if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
+    });
+  });
+}
 let albumMode = false;
 let albumGridSearch = "";
 let albumGridSort   = "artist";
@@ -1849,24 +1880,29 @@ function renderAlbumGrid() {
   window._albumListFiltered = list;
 }
 
-function openAlbumPopup(groupIdx, albumIdx) {
-  const q = albumGridSearch.toLowerCase();
-  let list = albums.filter(a => {
-    if (!q) return true;
-    return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
-  });
-  list.sort((a, b) => a.artist.localeCompare(b.artist));
-
-  // Gruppe finden
-  const groups = [];
-  const groupMap = {};
-  for (const a of list) {
-    const key = a.artist.toLowerCase();
-    if (!groupMap[key]) { groupMap[key] = { artist: a.artist, albums: [] }; groups.push(groupMap[key]); }
-    groupMap[key].albums.push(a);
+function openAlbumPopup(groupIdx, albumIdx, fromSidebar) {
+  let a;
+  if (fromSidebar) {
+    // Sidebar: nach Rating sortiert, direkter Index
+    const sorted = [...albums].sort((a, b) => b.rating - a.rating);
+    a = sorted[groupIdx];
+  } else {
+    const q = albumGridSearch.toLowerCase();
+    let list = albums.filter(x => {
+      if (!q) return true;
+      return (x.artist + x.album + x.genre + x.year).toLowerCase().includes(q);
+    });
+    list.sort((a, b) => a.artist.localeCompare(b.artist));
+    const groups = [];
+    const groupMap = {};
+    for (const x of list) {
+      const key = x.artist.toLowerCase();
+      if (!groupMap[key]) { groupMap[key] = { artist: x.artist, albums: [] }; groups.push(groupMap[key]); }
+      groupMap[key].albums.push(x);
+    }
+    const g = groups[groupIdx];
+    a = g && g.albums[albumIdx];
   }
-  const g = groups[groupIdx];
-  const a = g && g.albums[albumIdx];
   if (!a) return;
 
   const genres = (a.genre||"").split(",").map(g=>g.trim()).filter(Boolean).join(" · ");
