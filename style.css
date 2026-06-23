@@ -5,7 +5,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { overflow-x: hidden; }
+html {
+  overflow-x: hidden;
+  background: #f0ee8a;
+}
 
 :root {
   --yellow:  #f0ee8a;
@@ -44,6 +47,7 @@ body.dark {
   --shadow: 4px 4px 0 var(--yellow);
   --shadow2: 6px 6px 0 var(--yellow);
 }
+html:has(body.dark) { background: #111; }
 
 a { color: var(--black); text-decoration: underline; }
 a:hover { opacity: 0.7; }
@@ -137,10 +141,6 @@ body.dark #header-me-album { filter: brightness(0.6); }
   gap: 14px;
   padding: 14px 12px 60px 12px;
   align-items: start;
-}
-#sidebar {
-  min-width: var(--col-side);
-  width: var(--col-side);
 }
 @media (max-width: 580px) {
   #main-layout { grid-template-columns: 1fr; }
@@ -422,7 +422,7 @@ body.dark .share-bar { border-color: #333; }
 .comment-submit { align-self: flex-start; }
 
 /* ── SIDEBAR ── */
-#sidebar { position: sticky; top: 14px; max-height: calc(100vh - 28px); overflow-y: auto; }
+#sidebar { position: sticky; top: 14px; }
 
 .sidebar-section {
   background: var(--white);
