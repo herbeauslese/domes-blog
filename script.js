@@ -1780,119 +1780,14 @@ function renderSidebar() {
     });
   });
 }
-let albumMode = false;
-let albumGridSearch = "";
-let albumGridSort   = "artist";
-
-function switchToAlbumMode() {
-  albumMode = true;
-  document.body.classList.add("album-mode");
-  document.getElementById("btn-mode-switch").classList.add("active");
-  document.getElementById("btn-mode-switch").textContent = "◑ blog";
-  document.getElementById("feed").style.display = "none";
-  document.getElementById("album-grid").style.display = "block";
-  document.getElementById("controls-filters").style.display = "none";
-  // Header-Figur tauschen
-  document.getElementById("header-me").style.display = "none";
-  const me2 = document.getElementById("header-me-album");
-  if (me2) me2.style.display = "block";
-  // Subtext
-  document.querySelector("p.sub").textContent = "→ plattensammlung";
-  renderAlbumGrid();
-}
-
-function switchToBlogMode() {
-  albumMode = false;
-  document.body.classList.remove("album-mode");
-  document.getElementById("btn-mode-switch").classList.remove("active");
-  document.getElementById("btn-mode-switch").textContent = "◑ platten";
-  document.getElementById("feed").style.display = "block";
-  document.getElementById("album-grid").style.display = "none";
-  document.getElementById("controls-filters").style.display = "";
-  // Header-Figur zurück
-  document.getElementById("header-me").style.display = "block";
-  const me2 = document.getElementById("header-me-album");
-  if (me2) me2.style.display = "none";
-  document.querySelector("p.sub").textContent = "→ ein ganz persönlicher blog";
-}
-
-document.getElementById("btn-mode-switch").addEventListener("click", () => {
-  if (albumMode) switchToBlogMode(); else switchToAlbumMode();
-});
-
-function renderAlbumGrid() {
-  const q = albumGridSearch.toLowerCase();
-  let list = albums.filter(a => {
-    if (!q) return true;
-    return (a.artist + a.album + a.genre + a.year).toLowerCase().includes(q);
-  });
-
-  // Alphabetisch nach Artist
-  list.sort((a, b) => a.artist.localeCompare(b.artist));
-
-  // Gruppieren nach Artist
-  const groups = [];
-  const groupMap = {};
-  for (const a of list) {
-    const key = a.artist.toLowerCase();
-    if (!groupMap[key]) {
-      groupMap[key] = { artist: a.artist, albums: [] };
-      groups.push(groupMap[key]);
-    }
-    groupMap[key].albums.push(a);
-  }
-
-  const grid = document.getElementById("album-grid");
-  grid.innerHTML = `
-    <div class="album-grid-controls">
-      <input type="text" id="ag-search" placeholder="suche..." value="${albumGridSearch}"
-        oninput="albumGridSearch=this.value;renderAlbumGrid()">
-      <span class="album-grid-count">${list.length} alben · ${groups.length} künstler</span>
-    </div>
-    <div class="album-list">
-      ${groups.map((g, gi) => `
-        <div class="album-list-artist">${g.artist}</div>
-        ${g.albums.map((a, ai) => {
-          const cid = "agcv-" + safeid(a.artist + a.album);
-          const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
-        return `<div class="album-list-row" onclick="openAlbumPopup(${gi}, ${ai})">
-            <canvas class="album-list-img" id="${cid}" width="76" height="19"></canvas>
-            <div class="album-list-overlay">
-              <div class="album-list-info">
-                <span class="album-list-title">${a.album}</span>
-                <span class="album-list-meta">${a.year||""}${genres ? " · " + genres : ""}</span>
-              </div>
-              <span class="album-list-rating">${Number(a.rating)}<span>/10</span></span>
-            </div>
-          </div>`;
-        }).join("")}
-      `).join("")}
-    </div>`;
-
-  // Covers laden
-  requestAnimationFrame(() => {
-    list.forEach(a => {
-      const cid = "agcv-" + safeid(a.artist + a.album);
-      if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
-    });
-  });
-
-  window._albumListFiltered = list;
-}
 
 function openAlbumPopup(groupIdx, albumIdx, fromSidebar) {
   let a;
   if (fromSidebar) {
-    // Sidebar: nach Rating sortiert, direkter Index
     const sorted = [...albums].sort((a, b) => b.rating - a.rating);
     a = sorted[groupIdx];
   } else {
-    const q = albumGridSearch.toLowerCase();
-    let list = albums.filter(x => {
-      if (!q) return true;
-      return (x.artist + x.album + x.genre + x.year).toLowerCase().includes(q);
-    });
-    list.sort((a, b) => a.artist.localeCompare(b.artist));
+    let list = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
     const groups = [];
     const groupMap = {};
     for (const x of list) {
