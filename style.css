@@ -63,12 +63,12 @@ body.dark a { color: #edeacc; }
    MASTHEAD — black is correct here only
 ════════════════════════════════════════ */
 #site-header {
-  background: var(--black);
-  color: var(--yellow);
+  background: var(--card);
+  color: var(--black);
   position: relative;
   border-bottom: var(--border);
 }
-body.dark #site-header { background: #000; }
+body.dark #site-header { background: var(--card); }
 
 #header-inner {
   display: flex;
@@ -85,30 +85,35 @@ h1 {
   line-height: 0.82;
   text-transform: uppercase;
   letter-spacing: 4px;
-  color: var(--yellow);
+  color: var(--black);
 }
-h1 span { color: #fff; -webkit-text-stroke: 1.5px var(--yellow); }
+h1 span {
+  color: var(--black);
+  -webkit-text-stroke: 0;
+}
+body.dark h1 { color: #edeacc; }
+body.dark h1 span { color: #edeacc; }
 
 p.sub {
   font-family: var(--mono);
   font-size: 8px;
   text-transform: uppercase;
   letter-spacing: 5px;
-  color: #555;
-  background: var(--black);
+  color: var(--mid);
+  background: transparent;
   padding: 8px 24px;
-  border-top: 2px solid #222;
+  border-top: var(--border2);
 }
-body.dark p.sub { color: #444; }
+body.dark p.sub { color: #666; border-color: rgba(237,234,204,0.2); }
 
 #header-me, #header-me-album {
   height: 100px; width: auto;
   position: absolute; bottom: 0; right: 168px;
   display: block; pointer-events: none;
-  filter: invert(1) brightness(0.75);
+  filter: none;
 }
 body.dark #header-me,
-body.dark #header-me-album { filter: brightness(0.5); }
+body.dark #header-me-album { filter: invert(1) brightness(0.7); }
 
 #admin-bar {
   position: absolute; top: 14px; right: 14px;
@@ -116,20 +121,23 @@ body.dark #header-me-album { filter: brightness(0.5); }
 }
 #admin-bar button {
   font-family: var(--mono); font-size: 8px;
-  border: 1px solid var(--yellow); background: transparent; color: var(--yellow);
+  border: 1px solid var(--black); background: transparent; color: var(--black);
   cursor: pointer; padding: 3px 8px;
   text-transform: uppercase; letter-spacing: 2px;
   border-radius: 6px; box-shadow: none;
 }
-#admin-bar button:hover { background: var(--yellow); color: var(--black); }
+#admin-bar button:hover { background: var(--black); color: var(--card); }
 #admin-bar button.active { background: var(--red); border-color: var(--red); color: #fff; }
+body.dark #admin-bar button { border-color: #edeacc; color: #edeacc; }
+body.dark #admin-bar button:hover { background: #edeacc; color: var(--black); }
 
 #admin-panel {
   display: none; padding: 8px 24px;
-  background: #111; color: var(--yellow);
+  background: var(--light); color: var(--black);
   font-size: 11px; font-family: var(--mono);
   border-bottom: var(--border);
 }
+body.dark #admin-panel { background: #1a1a14; color: #edeacc; }
 #admin-panel > div { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
 @media (max-width: 480px) {
