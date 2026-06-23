@@ -42,7 +42,7 @@
   <div id="pw-box" style="pointer-events:all">
     <b>rotehaare</b>
     <p class="pw-hint">
-      Zutritt nur für Freunde.<br>
+      Zutritt nur fur Freunde.<br>
       Tipp: Das beste Bier der Welt:
     </p>
     <input type="password" id="pw-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="passwort"><br><br>
@@ -54,6 +54,7 @@
 <!-- header -->
 <div id="site-header">
   <div id="admin-bar" style="flex-direction:column;align-items:stretch">
+    <button id="btn-mode-switch">[platten]</button>
     <button id="btn-darkmode" title="Dark Mode">[dark]</button>
   </div>
   <div id="header-inner">
@@ -62,6 +63,7 @@
       <p class="sub">— ein ganz persönlicher blog</p>
     </div>
     <img id="header-me" src="me.png" alt="" aria-hidden="true">
+    <img id="header-me-album" src="me-album.png" alt="" aria-hidden="true" style="display:none">
   </div>
 </div>
 
@@ -73,45 +75,40 @@
   </div>
 </div>
 
-<div id="main-layout">
-  <!-- feed + controls -->
-  <div>
-    <div id="controls">
-      <div style="display:contents" id="controls-top">
-        <input type="text" id="search" placeholder="suche...">
-        <button id="btn-filter-toggle" aria-label="Filter">[filter]</button>
-        <div id="controls-right">
-          <span id="post-count"></span>
-        </div>
-      </div>
-      <div id="controls-filters">
-        sort:
-        <select id="sort-dir">
-          <option value="1" selected>alt zuerst</option>
-          <option value="-1">neu zuerst</option>
-        </select>
-        <select id="filter-type">
-          <option value="all">alle</option>
-          <option value="text">text</option>
-          <option value="photo">foto</option>
-          <option value="reise">reise</option>
-          <option value="embed">embed</option>
-        </select>
-      </div>
+<!-- controls -->
+<div id="controls">
+  <div style="display:contents" id="controls-top">
+    <input type="text" id="search" placeholder="suche...">
+    <button id="btn-filter-toggle" aria-label="Filter">[filter]</button>
+    <div id="controls-right">
+      <span id="post-count"></span>
     </div>
-    <div id="feed"></div>
   </div>
-
-  <!-- sidebar -->
-  <div id="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-title">Plattensammlung</div>
-      <div class="sidebar-albums" id="sidebar-albums"></div>
-    </div>
+  <div id="controls-filters">
+    sort:
+    <select id="sort-dir">
+      <option value="1" selected>alt zuerst</option>
+      <option value="-1">neu zuerst</option>
+    </select>
+    &nbsp;
+    <select id="filter-type">
+      <option value="all">alle beiträge</option>
+      <option value="text">nur text</option>
+      <option value="photo">nur fotos</option>
+      <option value="reise">nur reisen</option>
+      <option value="embed">nur embeds</option>
+    </select>
   </div>
 </div>
 
+<!-- feed -->
+<div id="feed"></div>
+
+<!-- album grid -->
+<div id="album-grid" style="display:none"></div>
+
 <!-- footer -->
+<hr style="margin-top:12px">
 <div id="footer">
   <a href="albums.json">albums.json</a> &middot;
   <a href="posts.json">posts.json</a> &middot;
