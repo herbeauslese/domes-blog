@@ -221,33 +221,42 @@ body.dark button { background: #1e1c14; color: #edeacc; border-color: #edeacc; b
 body.dark button:hover { background: #edeacc; color: var(--black); }
 
 /* ════════════════════════════════════════
-   POST CARDS — LIGHT, OPEN, EDITORIAL
+   FEED BLOCK — one unified container
 ════════════════════════════════════════ */
-.post {
+#feed {
   background: var(--card);
   border: var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow2);
-  margin-bottom: 28px;
+  overflow: hidden;
+}
+body.dark #feed { background: var(--card); }
+
+/* ── INDIVIDUAL POSTS — divided by lines, not separate cards ── */
+.post {
+  background: transparent;
+  border: none;
+  border-bottom: var(--border2);
+  border-radius: 0;
+  box-shadow: none;
+  margin-bottom: 0;
   position: relative;
   overflow: hidden;
 }
-body.dark .post { background: var(--card); }
+.post:last-child { border-bottom: none; }
+body.dark .post { background: transparent; }
 
-.post.post-reise {
-  border-color: var(--red);
-  box-shadow: 7px 7px 0 var(--red);
-}
+.post.post-reise { border-bottom-color: var(--red); }
 
-/* ── CARD HEADER — light background, dark typography ── */
+/* ── POST HEADER — light bg, dark type ── */
 .post-header-box {
-  background: var(--card);
+  background: transparent;
   padding: 20px 22px 14px;
   border-bottom: var(--border2);
-  border-radius: calc(var(--radius) - 5px) calc(var(--radius) - 5px) 0 0;
+  border-radius: 0;
   position: relative;
 }
-body.dark .post-header-box { background: var(--card); border-color: rgba(237,234,204,0.2); }
+body.dark .post-header-box { border-color: rgba(237,234,204,0.2); }
 .post.post-reise .post-header-box {
   background: var(--red);
   border-bottom-color: var(--red);
@@ -326,7 +335,7 @@ body.dark .post-preview { color: #999; border-color: rgba(237,234,204,0.1); }
   padding: 9px 22px;
   background: var(--light);
   border-top: 1px solid #dbd8c3;
-  border-radius: 0 0 calc(var(--radius) - 5px) calc(var(--radius) - 5px);
+  border-radius: 0;
   cursor: pointer;
 }
 .entry-toggle:hover { background: var(--black); color: var(--yellow); border-top-color: var(--black); }
@@ -337,7 +346,6 @@ body.dark .entry-toggle:hover { background: #edeacc; color: var(--black); }
 .post-body { display: none; padding: 20px 22px 22px; }
 .post.expanded .post-body { display: block; }
 .post.expanded .post-preview { display: none; }
-.post.expanded .entry-toggle { border-radius: 0; }
 
 .post-fulltext { font-size: 15px; line-height: 1.85; }
 .post-fulltext p + p { margin-top: 14px; }
