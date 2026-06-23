@@ -222,7 +222,6 @@ function render() {
     // type filter
     if (filterType === "text"  && p.type !== "text")  return false;
     if (filterType === "photo" && p.type !== "photo") return false;
-    if (filterType === "album" && p.type !== "album") return false;
     if (filterType === "embed" && p.type !== "embed") return false;
     if (filterType === "reise" && !(p.type === "photo" && p.tag === "reise")) return false;
     // search
@@ -474,7 +473,7 @@ function renderPhotoPost(p, pid, dateStr) {
     </div>`;
   }
 
-  return `<div class="${'post' + (isReise ? ' post-reise' : ' post-foto')}" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${JSON.stringify(p.images||[]).replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
+  return `<div class="${'post' + (isReise ? ' post-reise' : ' post-foto')}" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${encodeURIComponent(JSON.stringify(p.images||[]))}" data-date="${p.posted_at||''}">
     <div class="post-header-box">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
@@ -551,7 +550,7 @@ function renderAlbumPost(p, pid, dateStr) {
     : "";
 
   const reviewHTML = a.review
-    ? `<div class="post-fulltext" style="margin-top:10px">${a.review.replace(/\n/g,"<br>")}</div>`
+    ? `<div class="post-fulltext" style="margin-top:10px">${escapeHtml(a.review).replace(/\n/g,"<br>")}</div>`
     : "";
   const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditAlbum('${safeid(a.artist+a.album)}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" title="ausblenden" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
@@ -965,9 +964,11 @@ function loadCoverFull(canvasId, url, cacheKeyStr) {
   img.src = url;
   canvas.dataset.loaded = "1";
 }
+let searchDebounceTimer = null;
 document.getElementById("search").addEventListener("input", e => {
   searchQ = e.target.value;
-  render();
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(render, 150);
 });
 document.getElementById("sort-dir").addEventListener("change", e => {
   sortDir = parseInt(e.target.value);
@@ -1735,15 +1736,9 @@ function copyPostLink(pid, btn) {
     btn.textContent = "✓ kopiert";
     setTimeout(() => btn.textContent = orig, 2000);
   }).catch(() => {
-    // Fallback für ältere Browser
-    const ta = document.createElement("textarea");
-    ta.value = window.location.origin + window.location.pathname + "#" + pid;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
+    // Clipboard nicht verfügbar (z.B. non-HTTPS) — URL im Titel anzeigen
     const orig = btn.textContent;
-    btn.textContent = "✓ kopiert";
+    btn.textContent = "! kein zugriff";
     setTimeout(() => btn.textContent = orig, 2000);
   });
 }
@@ -1830,7 +1825,7 @@ function openAlbumPopup(groupIdx, albumIdx, fromSidebar) {
       <a class="ap-link apple"   href="${appleUrl}"   target="_blank" rel="noopener">↗ apple music</a>
     </div>
     ${songsHTML ? `<div class="ap-songs">${songsHTML}</div>` : ""}
-    ${a.review ? `<div class="ap-review">${a.review.replace(/\n/g,"<br>")}</div>` : ""}
+    ${a.review ? `<div class="ap-review">${escapeHtml(a.review).replace(/\n/g,"<br>")}</div>` : ""}
     ${a.reviewed_at ? `<div style="font-size:10px;color:#bbb;margin-top:8px;text-align:right">${formatDate(a.reviewed_at)}</div>` : ""}
   `;
 
