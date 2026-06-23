@@ -1,7 +1,7 @@
 // ── SUPABASE KOMMENTARE ───────────────────────────────────────────────────────
 // Werte kommen aus config.js
 const SUPABASE_URL = CONFIG.SUPABASE_URL;
-const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
+const SUPABASE_KEY = CONFIG.SUPABASE_KEY; 
 
 async function loadComments(pid) {
   try {
