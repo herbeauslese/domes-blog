@@ -138,6 +138,10 @@ body.dark #header-me-album { filter: brightness(0.6); }
   padding: 14px 12px 60px 12px;
   align-items: start;
 }
+#sidebar {
+  min-width: var(--col-side);
+  width: var(--col-side);
+}
 @media (max-width: 580px) {
   #main-layout { grid-template-columns: 1fr; }
   #sidebar { display: none; }
