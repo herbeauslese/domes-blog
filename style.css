@@ -33,7 +33,6 @@ body {
   max-width: 820px;
   margin: 0 auto;
   padding: 0;
-  overflow-x: hidden;
 }
 
 body.dark {
@@ -419,7 +418,7 @@ body.dark .share-bar { border-color: #333; }
 .comment-submit { align-self: flex-start; }
 
 /* ── SIDEBAR ── */
-#sidebar { position: sticky; top: 14px; }
+#sidebar { position: sticky; top: 14px; max-height: calc(100vh - 28px); overflow-y: auto; }
 
 .sidebar-section {
   background: var(--white);
