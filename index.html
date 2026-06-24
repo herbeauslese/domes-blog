@@ -57,7 +57,7 @@
 <!-- header -->
 <div id="site-header">
   <div id="admin-bar">
-    <button id="btn-mode-switch">[platten]</button>
+    <button id="btn-mode-switch" style="display:none">[platten]</button>
     <button id="btn-darkmode" title="Dark Mode">[dark]</button>
   </div>
   <div id="header-inner">
@@ -75,7 +75,6 @@
   <button class="nav-btn" data-filter="photo" onclick="setNavFilter(this,'photo')">Foto</button>
   <button class="nav-btn" data-filter="reise" onclick="setNavFilter(this,'reise')">Reise</button>
   <button class="nav-btn" data-filter="embed" onclick="setNavFilter(this,'embed')">Embeds</button>
-  <button class="nav-btn" data-filter="platten" onclick="setNavFilter(this,'platten')">Platten</button>
   <div id="nav-search-wrap">
     <input type="text" id="search" placeholder="suchen...">
   </div>
@@ -127,19 +126,11 @@
 
   </div><!-- /main-column -->
 
-  <!-- sidebar -->
+  <!-- sidebar: album list -->
   <aside id="sidebar">
-    <div class="sidebar-box">
-      <h3 class="sidebar-title">über den blog</h3>
-      <p>rotehaare ist Domeniks persönliches Tagebuch — Reisen, Musik, Alltag. Für Freunde.</p>
-    </div>
-    <div class="sidebar-box">
-      <h3 class="sidebar-title">kontakt</h3>
-      <p><a href="mailto:leetzdomenik@posteo.de">leetzdomenik@posteo.de</a></p>
-    </div>
-    <div class="sidebar-box">
-      <h3 class="sidebar-title">archiv</h3>
-      <p id="sidebar-post-count" style="font-size:12px;color:#888;font-family:monospace"></p>
+    <div class="sidebar-albums-wrap">
+      <h3 class="sidebar-title">Platten</h3>
+      <div id="sidebar-albums"></div>
     </div>
   </aside>
 

@@ -165,6 +165,7 @@ async function loadData() {
   mergePosts();
   applyDark();
   render();
+  renderSidebarAlbums();
   hideLoadingScreen();
   // nach dem Laden: Hash-Anker scrollen + highlighten
   handleHashOnLoad();
@@ -1925,3 +1926,71 @@ document.getElementById("btn-show-hidden").addEventListener("click", () => {
   showHidden = !showHidden;
   render();
 });
+
+// ── SIDEBAR ALBUM LIST ────────────────────────────────────────────────────────
+function renderSidebarAlbums() {
+  const container = document.getElementById("sidebar-albums");
+  if (!container || !albums.length) return;
+
+  const sorted = [...albums].sort((a, b) => b.rating - a.rating);
+
+  container.innerHTML = sorted.map(a => {
+    const cid = "sav-" + safeid(a.artist + a.album);
+    const key = safeid(a.artist + a.album);
+    return `<div class="sidebar-album-row" data-akey="${key}">
+      <canvas class="sidebar-album-cover" id="${cid}" width="4" height="4"></canvas>
+      <div class="sidebar-album-info">
+        <div class="sidebar-album-name">${a.album}</div>
+        <div class="sidebar-album-artist">${a.artist}</div>
+      </div>
+      <div class="sidebar-album-rating">${Number(a.rating)}</div>
+    </div>`;
+  }).join("");
+
+  container.querySelectorAll(".sidebar-album-row").forEach(row => {
+    row.addEventListener("click", () => {
+      const a = sorted.find(x => safeid(x.artist + x.album) === row.dataset.akey);
+      if (a) openAlbumDirect(a);
+    });
+  });
+
+  requestAnimationFrame(() => {
+    sorted.forEach(a => {
+      const cid = "sav-" + safeid(a.artist + a.album);
+      if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
+    });
+  });
+}
+
+function openAlbumDirect(a) {
+  const genres = (a.genre || "").split(",").map(g => g.trim()).filter(Boolean).join(" · ");
+  const cid    = "ap-cover-canvas";
+  const q      = encodeURIComponent(a.artist + " " + a.album);
+  const songsHTML = (a.songs || []).map(s =>
+    s === a.favorite_song ? `<span class="fav">${s}</span>` : s
+  ).join("  ·  ");
+
+  document.getElementById("album-popup-content").innerHTML = `
+    <div class="ap-header">
+      <canvas class="ap-cover" id="${cid}" width="64" height="64"></canvas>
+      <div class="ap-info">
+        <div class="ap-album">${a.album}</div>
+        <div class="ap-artist">${a.artist}</div>
+        <div class="ap-meta">${a.year || ""}${genres ? " · " + genres : ""}</div>
+        <div class="ap-rating">${Number(a.rating)}<span>/10</span></div>
+      </div>
+    </div>
+    <div class="ap-links">
+      <a class="ap-link" href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener">↗ spotify</a>
+      <a class="ap-link" href="https://music.apple.com/search?term=${q}" target="_blank" rel="noopener">↗ apple music</a>
+    </div>
+    ${songsHTML ? `<div class="ap-songs">${songsHTML}</div>` : ""}
+    ${a.review ? `<div class="ap-review">${a.review.replace(/\n/g, "<br>")}</div>` : ""}
+    ${a.reviewed_at ? `<div style="font-size:10px;color:#aaa;margin-top:8px;text-align:right;font-family:var(--font-mono)">${formatDate(a.reviewed_at)}</div>` : ""}
+  `;
+
+  document.getElementById("album-popup-overlay").style.display = "flex";
+  requestAnimationFrame(() => {
+    if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
+  });
+}
