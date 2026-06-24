@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="format-detection" content="telephone=no"> 
+<meta name="format-detection" content="telephone=no">
 <meta name="description" content="ein ganz persönlicher blog">
 <script>
   if (location.protocol === "http:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
@@ -11,6 +11,9 @@
   }
 </script>
 <title>rotehaare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -24,12 +27,12 @@
 </div>
 
 <!-- back to top -->
-<button id="btn-back-top" aria-label="nach oben">[^]</button>
+<button id="btn-back-top" aria-label="nach oben">↑</button>
 
 <!-- admin password -->
 <div id="admin-pw-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150;align-items:center;justify-content:center">
   <div id="admin-pw-box">
-    <b style="display:block;margin-bottom:8px">-- admin --</b>
+    <b style="display:block;margin-bottom:8px">— admin —</b>
     <input type="password" id="admin-pw-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="admin-passwort" style="width:160px">
     <button id="admin-pw-ok">ok</button>
     <button id="admin-pw-cancel" style="margin-left:4px">abbrechen</button>
@@ -42,7 +45,7 @@
   <div id="pw-box" style="pointer-events:all">
     <b>rotehaare</b>
     <p class="pw-hint">
-      Zutritt nur fur Freunde.<br>
+      Zutritt nur für Freunde.<br>
       Tipp: Das beste Bier der Welt:
     </p>
     <input type="password" id="pw-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="passwort"><br><br>
@@ -53,19 +56,30 @@
 
 <!-- header -->
 <div id="site-header">
-  <div id="admin-bar" style="flex-direction:column;align-items:stretch">
+  <div id="admin-bar">
     <button id="btn-mode-switch">[platten]</button>
     <button id="btn-darkmode" title="Dark Mode">[dark]</button>
   </div>
   <div id="header-inner">
-    <div>
-      <h1><span>rote</span>haare</h1>
-      <p class="sub">— ein ganz persönlicher blog</p>
-    </div>
-    <img id="header-me" src="me.png" alt="" aria-hidden="true">
-    <img id="header-me-album" src="me-album.png" alt="" aria-hidden="true" style="display:none">
+    <h1><span>rote</span>haare</h1>
+    <p class="sub">— ein ganz persönlicher blog</p>
   </div>
+  <img id="header-me" src="me.png" alt="" aria-hidden="true">
+  <img id="header-me-album" src="me-album.png" alt="" aria-hidden="true" style="display:none">
 </div>
+
+<!-- main navigation -->
+<nav id="main-nav">
+  <button class="nav-btn active" data-filter="all" onclick="setNavFilter(this,'all')">Alle</button>
+  <button class="nav-btn" data-filter="text" onclick="setNavFilter(this,'text')">Text</button>
+  <button class="nav-btn" data-filter="photo" onclick="setNavFilter(this,'photo')">Foto</button>
+  <button class="nav-btn" data-filter="reise" onclick="setNavFilter(this,'reise')">Reise</button>
+  <button class="nav-btn" data-filter="embed" onclick="setNavFilter(this,'embed')">Embeds</button>
+  <button class="nav-btn" data-filter="platten" onclick="setNavFilter(this,'platten')">Platten</button>
+  <div id="nav-search-wrap">
+    <input type="text" id="search" placeholder="suchen...">
+  </div>
+</nav>
 
 <!-- admin panel -->
 <div id="admin-panel">
@@ -75,45 +89,69 @@
   </div>
 </div>
 
-<!-- controls -->
-<div id="controls">
-  <div style="display:contents" id="controls-top">
-    <input type="text" id="search" placeholder="suche...">
-    <button id="btn-filter-toggle" aria-label="Filter">[filter]</button>
-    <div id="controls-right">
-      <span id="post-count"></span>
+<!-- page layout -->
+<div id="page-layout">
+
+  <!-- main column -->
+  <div id="main-column">
+
+    <!-- controls -->
+    <div id="controls">
+      <div style="display:contents" id="controls-top">
+        <button id="btn-filter-toggle" aria-label="Filter" style="display:none">[filter]</button>
+        <div id="controls-right">
+          <span id="post-count"></span>
+        </div>
+      </div>
+      <div id="controls-filters">
+        sort:
+        <select id="sort-dir">
+          <option value="1" selected>alt zuerst</option>
+          <option value="-1">neu zuerst</option>
+        </select>
+        <select id="filter-type" style="display:none">
+          <option value="all">alle beiträge</option>
+          <option value="text">nur text</option>
+          <option value="photo">nur fotos</option>
+          <option value="reise">nur reisen</option>
+          <option value="embed">nur embeds</option>
+        </select>
+      </div>
     </div>
-  </div>
-  <div id="controls-filters">
-    sort:
-    <select id="sort-dir">
-      <option value="1" selected>alt zuerst</option>
-      <option value="-1">neu zuerst</option>
-    </select>
-    &nbsp;
-    <select id="filter-type">
-      <option value="all">alle beiträge</option>
-      <option value="text">nur text</option>
-      <option value="photo">nur fotos</option>
-      <option value="reise">nur reisen</option>
-      <option value="embed">nur embeds</option>
-    </select>
-  </div>
-</div>
 
-<!-- feed -->
-<div id="feed"></div>
+    <!-- feed -->
+    <div id="feed"></div>
 
-<!-- album grid -->
-<div id="album-grid" style="display:none"></div>
+    <!-- album grid -->
+    <div id="album-grid" style="display:none"></div>
+
+  </div><!-- /main-column -->
+
+  <!-- sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-box">
+      <h3 class="sidebar-title">über den blog</h3>
+      <p>rotehaare ist Domeniks persönliches Tagebuch — Reisen, Musik, Alltag. Für Freunde.</p>
+    </div>
+    <div class="sidebar-box">
+      <h3 class="sidebar-title">kontakt</h3>
+      <p><a href="mailto:leetzdomenik@posteo.de">leetzdomenik@posteo.de</a></p>
+    </div>
+    <div class="sidebar-box">
+      <h3 class="sidebar-title">archiv</h3>
+      <p id="sidebar-post-count" style="font-size:12px;color:#888;font-family:monospace"></p>
+    </div>
+  </aside>
+
+</div><!-- /page-layout -->
 
 <!-- footer -->
-<hr style="margin-top:12px">
+<hr>
 <div id="footer">
   <a href="albums.json">albums.json</a> &middot;
   <a href="posts.json">posts.json</a> &middot;
   <a href="hidden.json">hidden.json</a> &middot;
-  <button id="btn-admin" style="font-size:11px;border:none;background:none;color:#888;text-decoration:underline;cursor:pointer;padding:0;font-family:var(--font-mono)">[admin]</button>
+  <button id="btn-admin">[admin]</button>
 </div>
 
 <!-- album popup -->
@@ -128,7 +166,7 @@
 <div id="popup-overlay">
   <div id="popup-box">
     <button id="popup-close">[x]</button>
-    <b>-- neuer beitrag --</b><br><br>
+    <b>— neuer beitrag —</b><br><br>
 
     <details>
       <summary>github einstellungen</summary>
@@ -288,6 +326,34 @@
   </div>
 </div>
 
+<script>
+function setNavFilter(btn, val) {
+  const modeSwitchBtn = document.getElementById('btn-mode-switch');
+  const isAlbumMode = modeSwitchBtn && modeSwitchBtn.classList.contains('active');
+
+  if (val === 'platten') {
+    if (isAlbumMode) {
+      switchToBlogMode();
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const allBtn = document.querySelector('.nav-btn[data-filter="all"]');
+      if (allBtn) allBtn.classList.add('active');
+    } else {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      switchToAlbumMode();
+    }
+    return;
+  }
+
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const sel = document.getElementById('filter-type');
+  if (sel) { sel.value = val; sel.dispatchEvent(new Event('change')); }
+
+  if (isAlbumMode) switchToBlogMode();
+}
+</script>
 <script src="config.js"></script>
 <script src="script.js"></script>
 </body>
