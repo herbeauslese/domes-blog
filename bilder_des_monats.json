@@ -1,8 +1,17 @@
 {
   "month": "Juni 2026",
   "photos": [
-    { "url": "img/IMG_3610.jpg", "caption": "" },
-    { "url": "img/IMG_3615.jpg", "caption": "" },
-    { "url": "img/IMG_3619.jpg", "caption": "" }
+    {
+      "url": "https://herbeauslese.github.io/domes-blog/img/WhatsApp_Image_2026-06-21_at_21.46.27.jpg",
+      "caption": "Fete mit der Musik oder so"
+    },
+    {
+      "url": "https://herbeauslese.github.io/domes-blog/img/WhatsApp_Image_2026-06-21_at_01.27.41_1_.jpg",
+      "caption": "Kenne Karte besser als der Kellner da"
+    },
+    {
+      "url": "https://herbeauslese.github.io/domes-blog/img/WhatsApp_Image_2026-06-19_at_22.49.49.jpg",
+      "caption": "Lecker Leberwursttorte"
+    }
   ]
 }
