@@ -213,7 +213,7 @@ body.dark #admin-panel { background: #1c1800; border-color: #554400; }
 /* ── DESKTOP WÄSCHELEINE ── */
 #desktop-leine {
   position: relative;
-  margin-top: 12px;
+  margin-top: 0;
   margin-bottom: -60px;
   z-index: 5;
   overflow: visible;
@@ -221,8 +221,49 @@ body.dark #admin-panel { background: #1c1800; border-color: #554400; }
 #desktop-leine:empty { margin: 0; }
 .desktop-leine-section {
   position: relative;
-  padding-top: 37px;
+  padding-top: 32px;
   overflow: visible;
+}
+/* Zettel "Bilder des Monats" links am Seil */
+.desktop-leine-label {
+  position: absolute;
+  top: 27px;
+  left: 0;
+  background: #fff;
+  padding: 8px 12px 14px;
+  box-shadow: 2px 4px 12px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.1);
+  transform: rotate(-4deg);
+  transform-origin: top center;
+  z-index: 2;
+}
+body.dark .desktop-leine-label { background: #2a2810; }
+.desktop-leine-label::before {
+  content: "";
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 11px;
+  height: 24px;
+  background: #c4956a;
+  border-radius: 3px 3px 1px 1px;
+  box-shadow: inset -2px 0 3px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.2);
+}
+.desktop-leine-label-title {
+  font-family: 'Caveat', cursive;
+  font-size: 17px;
+  color: #222;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+}
+body.dark .desktop-leine-label-title { color: #ddd; }
+.desktop-leine-label-month {
+  font-family: 'Caveat', cursive;
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  margin-top: 3px;
 }
 .desktop-leine-rope {
   position: absolute;
