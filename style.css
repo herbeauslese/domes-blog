@@ -5,7 +5,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-x: hidden; }
 
-:root {
+:root { 
   --bg: #B7CBE1; 
   --accent: #B7CBE1; /* bleibt im dark mode gleich → gelb als Akzentfarbe */
   --card: #ffffff; 
