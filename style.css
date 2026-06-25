@@ -1300,6 +1300,7 @@ body.dark .polaroid-caption { color: #999; }
   #mobile-platten {
     display: block;
     margin-top: 12px;
+    margin-bottom: 16px;
     background: var(--card);
     border: var(--border);
     border-radius: var(--radius);
