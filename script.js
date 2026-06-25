@@ -2119,31 +2119,24 @@ function renderMobileBdmStickers() {
   const photos = bilderDesMonats.photos || [];
   if (!photos.length) return;
 
-  const rotations = ["-9deg", "6deg", "-5deg"];
+  const rotations = [-4, 2, -2, 5, -3];
 
-  // Sticker 1: unten-links im Header, überlappt in die Nav
-  const header = document.getElementById("site-header");
-  if (header && photos[0]) {
-    const s = document.createElement("div");
-    s.className = "bdm-mobile-sticker bdm-mobile-sticker-header";
-    s.innerHTML = `<div class="bdm-polaroid-sticker" style="transform:rotate(${rotations[0]})">
-      <img src="${photos[0].url}" alt="${photos[0].caption || ""}">
-    </div>`;
-    s.querySelector(".bdm-polaroid-sticker").addEventListener("click", () => openBdmPhoto(photos[0]));
-    header.appendChild(s);
-  }
+  const photosHTML = photos.map((p, i) =>
+    `<div class="bdm-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg)">
+      <img src="${p.url}" alt="${p.caption || ""}">
+    </div>`
+  ).join("");
 
-  // Sticker 2: zwischen Platten-Strip und Feed, rechts
+  const wrap = document.createElement("div");
+  wrap.className = "bdm-mobile-sticker bdm-leine-wrap";
+  wrap.innerHTML = `<div class="bdm-leine-section"><div class="bdm-leine-photos">${photosHTML}</div></div>`;
+
+  wrap.querySelectorAll(".bdm-hanging-photo").forEach((el, i) => {
+    el.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });
+  });
+
   const platten = document.getElementById("mobile-platten");
-  if (platten && photos[1]) {
-    const s = document.createElement("div");
-    s.className = "bdm-mobile-sticker bdm-mobile-sticker-mid";
-    s.innerHTML = `<div class="bdm-polaroid-sticker" style="transform:rotate(${rotations[1]})">
-      <img src="${photos[1].url}" alt="${photos[1].caption || ""}">
-    </div>`;
-    s.querySelector(".bdm-polaroid-sticker").addEventListener("click", () => openBdmPhoto(photos[1]));
-    platten.insertAdjacentElement("afterend", s);
-  }
+  if (platten) platten.insertAdjacentElement("afterend", wrap);
 }
 
 function renderBilderDesMonats() {
