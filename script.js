@@ -2221,6 +2221,7 @@ function renderMobileBdmStickers() {
   const photosHTML = photos.map((p, i) =>
     `<div class="bdm-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg);margin-top:${sagOffsets[i]}px">
       <img src="${p.url}" alt="${p.caption || ""}">
+      ${p.caption ? `<div class="bdm-hanging-caption">${p.caption}</div>` : ""}
     </div>`
   ).join("");
 

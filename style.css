@@ -1204,6 +1204,9 @@ body.dark .polaroid { background: #2a2810; }
   line-height: 1.3;
   padding: 0 2px;
   min-height: 16px;
+  width: 100px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 body.dark .polaroid-caption { color: #999; }
 
@@ -1243,12 +1246,23 @@ body.dark .polaroid-caption { color: #999; }
   }
   .bdm-hanging-photo {
     background: #fff;
-    padding: 6px 6px 24px;
+    padding: 6px 6px 6px;
     box-shadow: 1px 3px 10px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.1);
     position: relative;
     cursor: pointer;
     transform-origin: top center;
     flex-shrink: 0;
+  }
+  .bdm-hanging-caption {
+    margin-top: 4px;
+    font-size: 11px;
+    font-family: 'Caveat', cursive;
+    text-align: center;
+    color: #555;
+    line-height: 1.2;
+    width: 78px;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
   .bdm-hanging-photo::before {
     content: "";
