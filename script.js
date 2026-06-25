@@ -3,7 +3,7 @@
 const SUPABASE_URL = CONFIG.SUPABASE_URL;
 const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
 
-async function loadComments(pid) {
+async function loadComments(pid) { 
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/comments?post_id=eq.${encodeURIComponent(pid)}&order=created_at.asc`,
