@@ -2029,7 +2029,7 @@ function renderFeaturedReise() {
   const reisePosts = posts.filter(p => p.type === "photo" && p.tag === "reise" && !p.draft);
   reisePosts.sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
 
-  ["featured-reise", "featured-reise-mobile"].forEach(id => {
+  ["featured-reise", "featured-reise-mobile", "hero-reise"].forEach(id => {
     const container = document.getElementById(id);
     if (!container) return;
     if (!reisePosts.length) { container.innerHTML = ""; return; }
@@ -2241,35 +2241,39 @@ function renderMobileBdmStickers() {
 }
 
 function renderBilderDesMonats() {
-  const container = document.getElementById("bilder-des-monats");
-  if (!container) return;
   const photos = bilderDesMonats.photos || [];
-  if (!photos.length) { container.innerHTML = ""; return; }
 
-  // Deterministische Kippwinkel — sieht aus wie hingepinnt
-  const rotations = [-5, 3.5, -2, 4.5, -6, 2.5, -3.5, 5];
+  // Desktop: Wäscheleine zwischen Nav und Hero-Row
+  const leineEl = document.getElementById("desktop-leine");
+  if (leineEl) {
+    if (!photos.length) {
+      leineEl.innerHTML = "";
+    } else {
+      const rotations = [-4, 2, -3, 5, -2, 3, -5, 4];
+      const ropeYfn = t => (1-t)*(1-t)*8 + 2*t*(1-t)*26 + t*t*12;
+      const positions = photos.map((_, i) => (2*i+1) / (2*photos.length));
+      const ys = positions.map(t => ropeYfn(t));
+      const minY = Math.min(...ys);
+      const sagOffsets = ys.map(y => Math.round(y - minY));
 
-  const photosHTML = photos.map((p, i) => {
-    const rot = rotations[i % rotations.length];
-    return `<div class="polaroid" style="transform: rotate(${rot}deg)" title="${p.caption || ""}">
-      <img class="polaroid-img" src="${p.url}" alt="${p.caption || ""}">
-      ${p.caption ? `<div class="polaroid-caption">${p.caption}</div>` : '<div class="polaroid-caption"></div>'}
-    </div>`;
-  }).join("");
+      const photosHTML = photos.map((p, i) =>
+        `<div class="desktop-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg);margin-top:${sagOffsets[i]}px">
+          <img src="${p.url}" alt="${p.caption || ""}">
+          ${p.caption ? `<div class="desktop-hanging-caption">${p.caption}</div>` : ""}
+        </div>`
+      ).join("");
 
-  const monthLabel = bilderDesMonats.month
-    ? `<span class="bdm-month">${bilderDesMonats.month}</span>`
-    : "";
+      const ropeSvg = `<svg class="desktop-leine-rope" viewBox="0 0 100 37" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 0,8 Q 50,26 100,12" stroke="#7a5c38" stroke-width="1.5" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.85"/>
+      </svg>`;
 
-  container.innerHTML = `
-    <div class="bdm-wrap">
-      <div class="bdm-header">Bilder des Monats ${monthLabel}</div>
-      <div class="bdm-photos">${photosHTML}</div>
-    </div>`;
+      leineEl.innerHTML = `<div class="desktop-leine-section">${ropeSvg}<div class="desktop-leine-photos">${photosHTML}</div></div>`;
 
-  container.querySelectorAll(".polaroid").forEach((card, i) => {
-    card.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });
-  });
+      leineEl.querySelectorAll(".desktop-hanging-photo").forEach((el, i) => {
+        el.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });
+      });
+    }
+  }
 
   renderMobileBdmStickers();
 }
