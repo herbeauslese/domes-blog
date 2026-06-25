@@ -8,7 +8,7 @@ html { overflow-x: hidden; }
 :root {
   --bg: #E2EAF3; 
   --accent: #E2EAF3; /* bleibt im dark mode gleich → gelb als Akzentfarbe */
-  --card: #ffffff;
+  --card: #ffffff; 
   --fg: #000000;
   --muted: #777;
   --border: 2px solid #000;
