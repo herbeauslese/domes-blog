@@ -2114,6 +2114,96 @@ function openBdmPhoto(p) {
   overlay.style.display = "flex";
 }
 
+// ── BILDER DES MONATS EDITOR ──────────────────────────────────────────────────
+
+document.getElementById("btn-bdm-toggle").addEventListener("click", () => {
+  const ed = document.getElementById("bdm-editor");
+  if (ed.style.display !== "none") { ed.style.display = "none"; return; }
+  document.getElementById("bdm-month").value = bilderDesMonats.month || "";
+  const list = document.getElementById("bdm-photo-list");
+  list.innerHTML = "";
+  (bilderDesMonats.photos || []).forEach(p => addBdmPhotoSlot(p.url, p.caption || ""));
+  if (!list.children.length) addBdmPhotoSlot("", "");
+  ed.style.display = "";
+});
+
+function addBdmPhotoSlot(url, caption) {
+  const list = document.getElementById("bdm-photo-list");
+  const slot = document.createElement("div");
+  slot.className = "bdm-photo-slot";
+  slot.style.cssText = "display:flex;gap:6px;align-items:center;margin-bottom:5px";
+  slot.innerHTML = `
+    <img class="bdm-slot-preview" src="${url}" style="width:40px;height:40px;object-fit:cover;border:1px solid #ddd;border-radius:3px;flex-shrink:0${url ? "" : ";display:none"}" onerror="this.style.display='none'">
+    <label class="editor-upload-label" style="white-space:nowrap;flex-shrink:0">↑ foto<input type="file" accept="image/*" style="display:none" class="bdm-slot-file"></label>
+    <input type="hidden" class="bdm-slot-url" value="${url}">
+    <input type="text" class="bdm-slot-caption" placeholder="bildunterschrift..." value="${caption}" style="flex:1;min-width:0">
+    <span class="bdm-slot-status" style="font-size:10px;color:#888;white-space:nowrap"></span>
+    <button class="bdm-slot-remove" style="color:#c00;border-color:#c00;flex-shrink:0">–</button>
+  `;
+  slot.querySelector(".bdm-slot-remove").addEventListener("click", () => slot.remove());
+  slot.querySelector(".bdm-slot-file").addEventListener("change", async function() {
+    const file = this.files[0];
+    if (!file) return;
+    const st     = slot.querySelector(".bdm-slot-status");
+    const token  = localStorage.getItem("gh_token");
+    const repo   = localStorage.getItem("gh_repo");
+    const branch = localStorage.getItem("gh_branch") || "main";
+    if (!token || !repo) { st.textContent = "github fehlt!"; return; }
+    st.textContent = "lädt...";
+    try {
+      const { url: newUrl } = await uploadImageToRepo(file, token, repo, branch);
+      slot.querySelector(".bdm-slot-url").value = newUrl;
+      const preview = slot.querySelector(".bdm-slot-preview");
+      preview.src = newUrl;
+      preview.style.display = "";
+      st.textContent = "✓";
+    } catch(e) { st.textContent = "fehler: " + e.message; }
+    this.value = "";
+  });
+  list.appendChild(slot);
+}
+
+document.getElementById("btn-bdm-add-photo").addEventListener("click", () => addBdmPhotoSlot("", ""));
+
+async function saveBdm() {
+  const st     = document.getElementById("bdm-status");
+  const token  = localStorage.getItem("gh_token");
+  const repo   = localStorage.getItem("gh_repo");
+  const branch = localStorage.getItem("gh_branch") || "main";
+  if (!token || !repo) { st.textContent = "fehler: github einstellungen fehlen."; return; }
+
+  const month  = document.getElementById("bdm-month").value.trim();
+  const photos = [...document.querySelectorAll(".bdm-photo-slot")].map(s => {
+    const url     = s.querySelector(".bdm-slot-url").value.trim();
+    const caption = s.querySelector(".bdm-slot-caption").value.trim();
+    return url ? { url, caption } : null;
+  }).filter(Boolean);
+
+  const data    = { month, photos };
+  const content = btoa([...new TextEncoder().encode(JSON.stringify(data, null, 2))].map(b => String.fromCharCode(b)).join(""));
+  st.textContent = "speichere...";
+  try {
+    let sha = null;
+    const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/bilder_des_monats.json?ref=${branch}`,
+      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+    if (shaRes.ok) sha = (await shaRes.json()).sha;
+    const body = { message: "bdm: update Bilder des Monats", content, branch };
+    if (sha) body.sha = sha;
+    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/bilder_des_monats.json`, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!putRes.ok) { const e = await putRes.json(); throw new Error(e.message || putRes.status); }
+    bilderDesMonats = data;
+    render();
+    renderMobileBdmStickers();
+    st.textContent = "✓ gespeichert. ~30 sek bis live.";
+  } catch(e) { st.textContent = "fehler: " + e.message; }
+}
+
+document.getElementById("btn-bdm-save").addEventListener("click", saveBdm);
+
 function renderMobileBdmStickers() {
   document.querySelectorAll(".bdm-mobile-sticker").forEach(el => el.remove());
   const photos = bilderDesMonats.photos || [];
@@ -2121,15 +2211,25 @@ function renderMobileBdmStickers() {
 
   const rotations = [-4, 2, -2, 5, -3];
 
+  // Berechne die Durchhängung pro Foto entsprechend der Leinenkurve (Bezier M 0,5 Q 50,23 100,8)
+  const ropeY = t => (1-t)*(1-t)*5 + 2*t*(1-t)*23 + t*t*8;
+  const positions = photos.map((_, i) => (2*i+1) / (2*photos.length));
+  const ys = positions.map(t => ropeY(t));
+  const minY = Math.min(...ys);
+  const sagOffsets = ys.map(y => Math.round(y - minY));
+
   const photosHTML = photos.map((p, i) =>
-    `<div class="bdm-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg)">
+    `<div class="bdm-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg);margin-top:${sagOffsets[i]}px">
       <img src="${p.url}" alt="${p.caption || ""}">
     </div>`
   ).join("");
 
   const wrap = document.createElement("div");
   wrap.className = "bdm-mobile-sticker bdm-leine-wrap";
-  wrap.innerHTML = `<div class="bdm-leine-section"><div class="bdm-leine-photos">${photosHTML}</div></div>`;
+  const ropeSvg = `<svg class="bdm-leine-rope" viewBox="0 0 100 32" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 0,5 Q 50,23 100,8" stroke="#7a5c38" stroke-width="1.8" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.9"/>
+  </svg>`;
+  wrap.innerHTML = `<div class="bdm-leine-section">${ropeSvg}<div class="bdm-leine-photos">${photosHTML}</div></div>`;
 
   wrap.querySelectorAll(".bdm-hanging-photo").forEach((el, i) => {
     el.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });

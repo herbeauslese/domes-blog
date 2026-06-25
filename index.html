@@ -88,7 +88,21 @@
 <div id="admin-panel">
   <div>
     <button id="btn-new-post">+ neuer beitrag</button>
+    <button id="btn-bdm-toggle">bilder des monats</button>
     <button id="btn-show-hidden" style="display:none">versteckte anzeigen</button>
+  </div>
+  <div id="bdm-editor" style="display:none;margin-top:8px;border-top:1px solid #f0c000;padding-top:8px">
+    <b style="display:block;margin-bottom:6px">Bilder des Monats</b>
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+      <label style="white-space:nowrap">Monat:</label>
+      <input type="text" id="bdm-month" placeholder="z.B. Juni 2026" style="flex:1;max-width:180px">
+    </div>
+    <div id="bdm-photo-list"></div>
+    <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+      <button id="btn-bdm-add-photo">+ foto hinzufügen</button>
+      <button id="btn-bdm-save">speichern + push</button>
+      <span id="bdm-status" style="font-size:11px;color:var(--muted)"></span>
+    </div>
   </div>
 </div>
 

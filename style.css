@@ -1215,27 +1215,32 @@ body.dark .polaroid-caption { color: #999; }
 @media (max-width: 680px) {
 
   /* ── WÄSCHELEINE: Bilder des Monats ── */
-  .bdm-leine-wrap { display: block; margin: 14px 0 4px; }
+  .bdm-leine-wrap {
+    display: block;
+    margin: 14px -8px -30px;
+    position: relative;
+    z-index: 5;
+    overflow: visible;
+  }
   .bdm-leine-section {
     position: relative;
-    padding-top: 30px;
+    padding-top: 32px;
+    overflow: visible;
   }
-  .bdm-leine-section::before {
-    content: "";
+  .bdm-leine-rope {
     position: absolute;
-    top: 10px;
-    left: 6px;
-    right: 6px;
-    height: 2px;
-    background: linear-gradient(90deg, #a08060, #7a5c38, #a08060);
-    border-radius: 1px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 32px;
+    overflow: visible;
   }
   .bdm-leine-photos {
     display: flex;
     justify-content: space-around;
     align-items: flex-start;
-    padding: 0 6px;
+    padding: 0 12px;
+    overflow: visible;
   }
   .bdm-hanging-photo {
     background: #fff;
@@ -1275,7 +1280,7 @@ body.dark .polaroid-caption { color: #999; }
   #feed-below { display: none; }
 
   /* Nav: kein Scrollen, kein Sort, kein Search */
-  #main-nav { overflow: visible; }
+  #main-nav { overflow: visible; justify-content: center; }
   #nav-search-wrap { display: none; }
   .nav-btn { font-size: 12px; padding: 10px 13px; }
 
