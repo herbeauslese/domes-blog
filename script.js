@@ -2236,8 +2236,8 @@ function renderMobileBdmStickers() {
     el.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });
   });
 
-  const platten = document.getElementById("mobile-platten");
-  if (platten) platten.insertAdjacentElement("afterend", wrap);
+  const leineContainer = document.getElementById("mobile-leine");
+  if (leineContainer) leineContainer.appendChild(wrap);
 }
 
 function renderBilderDesMonats() {
