@@ -2104,6 +2104,48 @@ function renderAlbumStrip() {
   });
 }
 
+function openBdmPhoto(p) {
+  const box     = document.getElementById("popup-box");
+  const overlay = document.getElementById("popup-overlay");
+  if (!box || !overlay) return;
+  box.innerHTML = `<button id="popup-close" onclick="document.getElementById('popup-overlay').style.display='none'">[x]</button>
+    <img src="${p.url}" style="max-width:100%;max-height:80vh;display:block;margin:0 auto" alt="${p.caption || ""}">
+    ${p.caption ? `<p style="text-align:center;margin-top:8px;font-style:italic;font-size:12px;color:var(--muted)">${p.caption}</p>` : ""}`;
+  overlay.style.display = "flex";
+}
+
+function renderMobileBdmStickers() {
+  document.querySelectorAll(".bdm-mobile-sticker").forEach(el => el.remove());
+  const photos = bilderDesMonats.photos || [];
+  if (!photos.length) return;
+
+  const rotations = ["-9deg", "6deg", "-5deg"];
+
+  // Sticker 1: unten-links im Header, überlappt in die Nav
+  const header = document.getElementById("site-header");
+  if (header && photos[0]) {
+    const s = document.createElement("div");
+    s.className = "bdm-mobile-sticker bdm-mobile-sticker-header";
+    s.innerHTML = `<div class="bdm-polaroid-sticker" style="transform:rotate(${rotations[0]})">
+      <img src="${photos[0].url}" alt="${photos[0].caption || ""}">
+    </div>`;
+    s.querySelector(".bdm-polaroid-sticker").addEventListener("click", () => openBdmPhoto(photos[0]));
+    header.appendChild(s);
+  }
+
+  // Sticker 2: zwischen Platten-Strip und Feed, rechts
+  const platten = document.getElementById("mobile-platten");
+  if (platten && photos[1]) {
+    const s = document.createElement("div");
+    s.className = "bdm-mobile-sticker bdm-mobile-sticker-mid";
+    s.innerHTML = `<div class="bdm-polaroid-sticker" style="transform:rotate(${rotations[1]})">
+      <img src="${photos[1].url}" alt="${photos[1].caption || ""}">
+    </div>`;
+    s.querySelector(".bdm-polaroid-sticker").addEventListener("click", () => openBdmPhoto(photos[1]));
+    platten.insertAdjacentElement("afterend", s);
+  }
+}
+
 function renderBilderDesMonats() {
   const container = document.getElementById("bilder-des-monats");
   if (!container) return;
@@ -2131,20 +2173,11 @@ function renderBilderDesMonats() {
       <div class="bdm-photos">${photosHTML}</div>
     </div>`;
 
-  // Klick öffnet Bild in Lightbox (nutzt vorhandenen #popup-box)
   container.querySelectorAll(".polaroid").forEach((card, i) => {
-    card.addEventListener("click", () => {
-      const p = photos[i];
-      if (!p) return;
-      const box = document.getElementById("popup-box");
-      const overlay = document.getElementById("popup-overlay");
-      if (!box || !overlay) return;
-      box.innerHTML = `<button id="popup-close" onclick="document.getElementById('popup-overlay').style.display='none'">[x]</button>
-        <img src="${p.url}" style="max-width:100%;max-height:80vh;display:block;margin:0 auto" alt="${p.caption || ""}">
-        ${p.caption ? `<p style="text-align:center;margin-top:8px;font-style:italic;font-size:12px;color:var(--muted)">${p.caption}</p>` : ""}`;
-      overlay.style.display = "flex";
-    });
+    card.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });
   });
+
+  renderMobileBdmStickers();
 }
 
 function openAlbumDirect(a) {

@@ -1208,8 +1208,58 @@ body.dark .polaroid { background: #2a2810; }
 }
 body.dark .polaroid-caption { color: #999; }
 
+/* ── MOBILE BDM STICKER ── */
+.bdm-mobile-sticker { display: none; }
+
 /* ── MOBILE ── */
 @media (max-width: 680px) {
+
+  /* Polaroids die auf der Seite kleben */
+  .bdm-mobile-sticker-header {
+    display: block;
+    position: absolute;
+    left: 6px;
+    bottom: -28px;
+    z-index: 15;
+  }
+  .bdm-mobile-sticker-mid {
+    display: block;
+    position: relative;
+    height: 0;
+    overflow: visible;
+    z-index: 15;
+  }
+  .bdm-mobile-sticker-mid .bdm-polaroid-sticker {
+    position: absolute;
+    top: -58px;
+    right: 8px;
+  }
+  .bdm-polaroid-sticker {
+    background: #fff;
+    padding: 7px 7px 28px;
+    box-shadow: 2px 5px 16px rgba(0,0,0,0.32), 0 1px 3px rgba(0,0,0,0.1);
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+  }
+  .bdm-polaroid-sticker::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 44px;
+    height: 18px;
+    background: rgba(255,235,130,0.82);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 2px;
+  }
+  .bdm-polaroid-sticker img {
+    display: block;
+    width: 82px;
+    height: 82px;
+    object-fit: cover;
+  }
   body { padding: 0 8px 60px; font-size: 14px; }
   h1 { font-size: 54px; }
 
