@@ -1231,7 +1231,7 @@ body.dark .polaroid-caption { color: #999; }
   }
   .bdm-mobile-sticker-mid .bdm-polaroid-sticker {
     position: absolute;
-    top: -58px;
+    top: -14px;
     right: 8px;
   }
   .bdm-polaroid-sticker {
@@ -1259,6 +1259,14 @@ body.dark .polaroid-caption { color: #999; }
     width: 82px;
     height: 82px;
     object-fit: cover;
+  }
+  /* Header-Sticker: 20% kleiner */
+  .bdm-mobile-sticker-header .bdm-polaroid-sticker img {
+    width: 66px;
+    height: 66px;
+  }
+  .bdm-mobile-sticker-header .bdm-polaroid-sticker {
+    padding: 6px 6px 22px;
   }
   body { padding: 0 8px 60px; font-size: 14px; }
   h1 { font-size: 54px; }
