@@ -77,6 +77,10 @@
   <button class="nav-btn" data-filter="embed" onclick="setNavFilter(this,'embed')">Embeds</button>
   <div id="nav-search-wrap">
     <input type="text" id="search" placeholder="suchen...">
+    <select id="sort-dir" class="nav-sort">
+      <option value="1" selected>↑ alt</option>
+      <option value="-1">↓ neu</option>
+    </select>
   </div>
 </nav>
 
@@ -88,10 +92,22 @@
   </div>
 </div>
 
-<!-- page layout -->
-<div id="page-layout">
+<!-- mobile: platten strip (nur auf Handy sichtbar) -->
+<div id="mobile-platten">
+  <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span></h3>
+  <div class="album-strip" id="album-strip-mobile"></div>
+</div>
 
-  <!-- main column -->
+<!-- Hero-Zeile: erster Post (60%) + BdM (40%), gleiche Höhe -->
+<div id="hero-row" style="display:none">
+  <div id="hero-post"></div>
+  <div id="bilder-des-monats"></div>
+</div>
+
+<!-- 2-Spalten-Layout: links Feed (~77%), rechts schmale Sidebar -->
+<div id="feed-section">
+
+  <!-- main column: Posts 2-N neben Sidebar -->
   <div id="main-column">
 
     <!-- controls -->
@@ -103,11 +119,6 @@
         </div>
       </div>
       <div id="controls-filters">
-        sort:
-        <select id="sort-dir">
-          <option value="1" selected>alt zuerst</option>
-          <option value="-1">neu zuerst</option>
-        </select>
         <select id="filter-type" style="display:none">
           <option value="all">alle beiträge</option>
           <option value="text">nur text</option>
@@ -118,7 +129,10 @@
       </div>
     </div>
 
-    <!-- feed -->
+    <!-- featured reise (nur mobile) -->
+    <div id="featured-reise-mobile"></div>
+
+    <!-- feed: Posts neben Sidebar -->
     <div id="feed"></div>
 
     <!-- album grid -->
@@ -126,15 +140,19 @@
 
   </div><!-- /main-column -->
 
-  <!-- sidebar: album list -->
+  <!-- sidebar: Aktuelle Reise + Platten, natürliche Höhe -->
   <aside id="sidebar">
+    <div id="featured-reise"></div>
     <div class="sidebar-albums-wrap">
-      <h3 class="sidebar-title">Platten</h3>
+      <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span></h3>
       <div id="sidebar-albums"></div>
     </div>
   </aside>
 
-</div><!-- /page-layout -->
+</div><!-- /feed-section -->
+
+<!-- Posts nach Sidebar-Ende: volle Breite -->
+<div id="feed-below"></div>
 
 <!-- footer -->
 <hr>

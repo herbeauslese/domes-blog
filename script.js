@@ -127,6 +127,7 @@ function hideLoadingScreen() {
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let posts   = [];  // from posts.json  (type: text | photo | album)
 let albums  = [];  // from albums.json (legacy, injected as album-posts)
+let bilderDesMonats = { month: "", photos: [] };
 let allPosts = []; // merged + sorted feed
 
 let sortDir    = 1; // 1 = oldest first, -1 = newest first
@@ -156,6 +157,7 @@ async function loadData() {
   try { posts  = await (await fetch("posts.json?_="  + Date.now())).json(); } catch(e) { posts  = []; }
   setLoadingProgress(40);
   try { albums = await (await fetch("albums.json?_=" + Date.now())).json(); } catch(e) { albums = []; }
+  try { bilderDesMonats = await (await fetch("bilder_des_monats.json?_=" + Date.now())).json(); } catch(e) { bilderDesMonats = { month: "", photos: [] }; }
   setLoadingProgress(70);
   try {
     const h = await (await fetch("hidden.json?_=" + Date.now())).json();
@@ -166,6 +168,9 @@ async function loadData() {
   applyDark();
   render();
   renderSidebarAlbums();
+  renderAlbumStrip();
+  renderFeaturedReise();
+  renderBilderDesMonats();
   hideLoadingScreen();
   // nach dem Laden: Hash-Anker scrollen + highlighten
   handleHashOnLoad();
@@ -246,12 +251,30 @@ function render() {
   document.getElementById("post-count").textContent = filtered.length + " beiträge";
 
   if (!filtered.length) {
+    const hr = document.getElementById("hero-row");
+    if (hr) hr.style.display = "none";
     document.getElementById("feed").innerHTML =
       `<div class="post" style="color:#aaa;font-style:italic;padding:10px 0;border-top:1px solid #000;border-bottom:1px solid #000">keine beiträge.</div>`;
     return;
   }
 
-  document.getElementById("feed").innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
+  const heroRow   = document.getElementById("hero-row");
+  const heroPost  = document.getElementById("hero-post");
+  const feedBelow = document.getElementById("feed-below");
+  if (feedBelow) feedBelow.innerHTML = "";
+
+  const isMobile = window.innerWidth <= 680;
+  const hasBdM   = bilderDesMonats.photos && bilderDesMonats.photos.length > 0;
+  const useHero  = heroRow && heroPost && hasBdM && !isMobile && filtered.length > 0;
+
+  if (useHero) {
+    heroRow.style.display = "";
+    heroPost.innerHTML = renderPost(filtered[0], 0);
+    document.getElementById("feed").innerHTML = filtered.slice(1).map((p, i) => renderPost(p, i + 1)).join("");
+  } else {
+    if (heroRow) heroRow.style.display = "none";
+    document.getElementById("feed").innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
+  }
 
   // init album covers
   filtered.forEach(p => {
@@ -279,6 +302,45 @@ function render() {
 
   // apply hidden UI state
   requestAnimationFrame(applyHiddenUI);
+
+  // Posts nach Sidebar aufteilen
+  requestAnimationFrame(() => requestAnimationFrame(splitFeedAtSidebarHeight));
+}
+
+function splitFeedAtSidebarHeight() {
+  const sidebar   = document.getElementById("sidebar");
+  const feed      = document.getElementById("feed");
+  const feedBelow = document.getElementById("feed-below");
+  if (!sidebar || !feed || !feedBelow) return;
+  if (getComputedStyle(sidebar).display === "none") return;
+
+  // Natürliche Sidebar-Höhe lesen (Stil-Höhe zurücksetzen)
+  sidebar.style.height = "";
+  const naturalH = sidebar.scrollHeight;
+
+  const posts = Array.from(feed.children);
+  if (!posts.length) return;
+
+  // Posts akkumulieren bis sidebar-Höhe überschritten wird
+  let cumH     = 0;
+  let splitIdx = posts.length;
+
+  for (let i = 0; i < posts.length; i++) {
+    const gap = i > 0 ? 16 : 0; // margin-bottom des Vorgängers
+    cumH += gap + posts[i].offsetHeight;
+    if (cumH > naturalH) {
+      splitIdx = i;
+      cumH -= gap + posts[i].offsetHeight; // diesen Post herausrechnen
+      break;
+    }
+  }
+
+  // Sidebar auf exakte Post-Grenze snappen
+  sidebar.style.height = (cumH || naturalH) + "px";
+  sidebar.style.overflow = "hidden";
+
+  // Übrige Posts in feed-below verschieben
+  posts.slice(splitIdx).forEach(p => feedBelow.appendChild(p));
 }
 
 function safeid(s) { return s.replace(/[^a-zA-Z0-9]/g, ""); }
@@ -1958,6 +2020,129 @@ function renderSidebarAlbums() {
     sorted.forEach(a => {
       const cid = "sav-" + safeid(a.artist + a.album);
       if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
+    });
+  });
+}
+
+// ── FEATURED REISE ────────────────────────────────────────────────────────────
+function renderFeaturedReise() {
+  const reisePosts = posts.filter(p => p.type === "photo" && p.tag === "reise" && !p.draft);
+  reisePosts.sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+
+  ["featured-reise", "featured-reise-mobile"].forEach(id => {
+    const container = document.getElementById(id);
+    if (!container) return;
+    if (!reisePosts.length) { container.innerHTML = ""; return; }
+    const p = reisePosts[0];
+    const pid = stablePid(p);
+    const firstImg = (p.images && p.images.length) ? p.images[0] : "";
+    const dateStr = formatDate(p.posted_at);
+    container.innerHTML = `
+      <div class="featured-reise-wrap">
+        <div class="featured-reise-label">Aktuelle Reise</div>
+        <div class="featured-reise-card">
+          ${firstImg ? `<div class="featured-reise-img-wrap"><img class="featured-reise-img" src="${firstImg}" alt=""></div>` : ""}
+          <div class="featured-reise-body">
+            <div class="featured-reise-meta">${dateStr}</div>
+            <div class="featured-reise-title">${p.title || ""}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    container.querySelector(".featured-reise-card").addEventListener("click", () => {
+      const allBtn = document.querySelector(".nav-btn[data-filter=\"all\"]");
+      if (allBtn && !allBtn.classList.contains("active")) setNavFilter(allBtn, "all");
+      setTimeout(() => {
+        const el = document.getElementById(pid);
+        if (!el) return;
+        if (!el.classList.contains("expanded")) togglePost(pid);
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.classList.add("post-highlight");
+          setTimeout(() => el.classList.remove("post-highlight"), 2000);
+        }, 100);
+      }, 80);
+    });
+  });
+}
+
+// ── MOBILE ALBUM STRIP ────────────────────────────────────────────────────────
+function ratingBadgeColor(rating) {
+  // hsl(50, 100%, 69%) = #ffe063 bei Rating 5 (Mitte)
+  // Richtung 10: heller, Richtung 0: dunkler — sehr sanfte Abstufung
+  const L = Math.round(55 + (rating / 10) * 27); // 55% bei 0, ~69% bei 5, 82% bei 10
+  const S = Math.round(100 - (rating / 10) * 15); // leicht entsättigt nach oben
+  return `hsl(50,${S}%,${L}%)`;
+}
+
+function renderAlbumStrip() {
+  const container = document.getElementById("album-strip-mobile");
+  if (!container || !albums.length) return;
+  const sorted = [...albums].sort((a, b) => b.rating - a.rating);
+  container.innerHTML = sorted.map(a => {
+    const cid = "asv-" + safeid(a.artist + a.album);
+    const key = safeid(a.artist + a.album);
+    const badgeColor = ratingBadgeColor(Number(a.rating));
+    return `<div class="album-strip-item" data-akey="${key}" title="${a.album} – ${a.artist}">
+      <div class="album-strip-cover-wrap">
+        <canvas class="album-strip-cover" id="${cid}" width="4" height="4"></canvas>
+        <div class="album-strip-badge-outer"><div class="album-strip-badge" style="background:${badgeColor}">${Number(a.rating)}</div></div>
+      </div>
+    </div>`;
+  }).join("");
+  container.querySelectorAll(".album-strip-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const a = sorted.find(x => safeid(x.artist + x.album) === item.dataset.akey);
+      if (a) openAlbumDirect(a);
+    });
+  });
+  requestAnimationFrame(() => {
+    sorted.forEach(a => {
+      const cid = "asv-" + safeid(a.artist + a.album);
+      if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
+    });
+  });
+}
+
+function renderBilderDesMonats() {
+  const container = document.getElementById("bilder-des-monats");
+  if (!container) return;
+  const photos = bilderDesMonats.photos || [];
+  if (!photos.length) { container.innerHTML = ""; return; }
+
+  // Deterministische Kippwinkel — sieht aus wie hingepinnt
+  const rotations = [-5, 3.5, -2, 4.5, -6, 2.5, -3.5, 5];
+
+  const photosHTML = photos.map((p, i) => {
+    const rot = rotations[i % rotations.length];
+    return `<div class="polaroid" style="transform: rotate(${rot}deg)" title="${p.caption || ""}">
+      <img class="polaroid-img" src="${p.url}" alt="${p.caption || ""}">
+      ${p.caption ? `<div class="polaroid-caption">${p.caption}</div>` : '<div class="polaroid-caption"></div>'}
+    </div>`;
+  }).join("");
+
+  const monthLabel = bilderDesMonats.month
+    ? `<span class="bdm-month">${bilderDesMonats.month}</span>`
+    : "";
+
+  container.innerHTML = `
+    <div class="bdm-wrap">
+      <div class="bdm-header">Bilder des Monats ${monthLabel}</div>
+      <div class="bdm-photos">${photosHTML}</div>
+    </div>`;
+
+  // Klick öffnet Bild in Lightbox (nutzt vorhandenen #popup-box)
+  container.querySelectorAll(".polaroid").forEach((card, i) => {
+    card.addEventListener("click", () => {
+      const p = photos[i];
+      if (!p) return;
+      const box = document.getElementById("popup-box");
+      const overlay = document.getElementById("popup-overlay");
+      if (!box || !overlay) return;
+      box.innerHTML = `<button id="popup-close" onclick="document.getElementById('popup-overlay').style.display='none'">[x]</button>
+        <img src="${p.url}" style="max-width:100%;max-height:80vh;display:block;margin:0 auto" alt="${p.caption || ""}">
+        ${p.caption ? `<p style="text-align:center;margin-top:8px;font-style:italic;font-size:12px;color:var(--muted)">${p.caption}</p>` : ""}`;
+      overlay.style.display = "flex";
     });
   });
 }
