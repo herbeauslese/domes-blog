@@ -303,6 +303,7 @@ function render() {
 }
 
 function splitFeedAtSidebarHeight() {
+  if (window.innerWidth <= 680) return;
   const sidebar   = document.getElementById("sidebar");
   const feed      = document.getElementById("feed");
   const feedBelow = document.getElementById("feed-below");

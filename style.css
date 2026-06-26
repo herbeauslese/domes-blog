@@ -1299,7 +1299,6 @@ body.dark .album-strip-cover { background: #222; }
   #hero-row { display: none !important; }
   #feed-section { grid-template-columns: 1fr; }
   #sidebar { display: none; }
-  #feed-below { display: none; }
 
   /* Nav: kein Scrollen, kein Sort, kein Search */
   #main-nav { overflow: visible; justify-content: center; }
