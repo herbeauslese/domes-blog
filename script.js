@@ -288,11 +288,6 @@ function render() {
   // init song tickers
   requestAnimationFrame(() => requestAnimationFrame(initTickers));
 
-  // init slideshows
-  document.querySelectorAll(".slideshow[data-slides]").forEach(el => {
-    initSlideshow(el);
-  });
-
   // slideshow aspect ratios — vom ersten Bild ableiten
   filtered.forEach(p => {
     if (p.type === "photo" && p.images && p.images.length > 0) {
@@ -427,7 +422,7 @@ function renderTextPost(p, pid, dateStr) {
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
-        <span class="post-title" onclick="togglePost('${pid}')">${p.title || "(ohne titel)"}</span>
+        <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
         ${editBtn}${hideBtn}
       </span>
       <span class="post-tag">text</span>
@@ -538,7 +533,7 @@ function renderPhotoPost(p, pid, dateStr) {
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
-        <span class="post-title" onclick="togglePost('${pid}')">${p.title || "(ohne titel)"}</span>
+        <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
         ${editBtn}${hideBtn}
       </span>
       <span class="post-tag ${tagClass}">${tagLabel}</span>
@@ -565,14 +560,16 @@ function renderEmbedPost(p, pid, dateStr) {
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
   const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
 
-  const safeEmbed = (p.embed || "").replace(/<(?!\/?(iframe|div)[\s>])/gi, "&lt;");
+  const safeEmbed = (p.embed || "")
+    .replace(/<(?!\/?(iframe|div)[\s>])/gi, "&lt;")
+    .replace(/\bon\w+\s*=/gi, "data-blocked=");
   const hasText = p.text && p.text.trim().length > 0;
 
   return `<div class="post${p.draft?' post-draft':''}" id="${pid}" data-type="embed" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
     <div class="post-date-inline">${dateStr}</div>
     <div class="post-header">
       <span class="post-title-wrap">
-        <span class="post-title" onclick="togglePost('${pid}')">${p.title || "(ohne titel)"}</span>
+        <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
         ${editBtn}${hideBtn}
       </span>
       <span class="post-tag">embed</span>
@@ -602,13 +599,13 @@ function renderAlbumPost(p, pid, dateStr) {
   const songsListHTML = (a.songs||[]).length
     ? `<div class="album-songs-list">${(a.songs||[]).map(s =>
         s === a.favorite_song
-          ? `<span class="album-song fav">${s}</span>`
-          : `<span class="album-song">${s}</span>`
+          ? `<span class="album-song fav">${escapeHtml(s)}</span>`
+          : `<span class="album-song">${escapeHtml(s)}</span>`
       ).join("")}</div>`
     : "";
 
   const reviewHTML = a.review
-    ? `<div class="post-fulltext" style="margin-top:10px">${a.review.replace(/\n/g,"<br>")}</div>`
+    ? `<div class="post-fulltext" style="margin-top:10px">${escapeHtml(a.review).replace(/\n/g,"<br>")}</div>`
     : "";
   const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditAlbum('${safeid(a.artist+a.album)}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" title="ausblenden" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
@@ -617,7 +614,7 @@ function renderAlbumPost(p, pid, dateStr) {
     <div style="position:relative">
       <div class="post-header" style="padding-right:52px">
         <span class="post-title-wrap">
-          <span class="post-title" onclick="togglePost('${pid}')">${a.album}</span>
+          <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(a.album)}</span>
           ${editBtn}${hideBtn}
         </span>
         <span class="post-tag album">album</span>
@@ -626,7 +623,7 @@ function renderAlbumPost(p, pid, dateStr) {
       <div class="album-row" style="margin-top:4px">
         <canvas class="album-cover-canvas" id="${cid}" width="4" height="4"></canvas>
         <div class="album-info">
-          <div class="post-meta">${a.artist}${a.year ? " · "+a.year : ""}${genres ? " · "+genres : ""}</div>
+          <div class="post-meta">${escapeHtml(a.artist)}${a.year ? " · "+escapeHtml(a.year) : ""}${genres ? " · "+escapeHtml(genres) : ""}</div>
         </div>
       </div>
       <div class="post-date-inline album-date" style="top:0">${dateStr}</div>
@@ -763,6 +760,8 @@ async function saveEditPost(pid) {
   const postEl  = document.getElementById(pid);
   const type    = postEl.dataset.type;
   const st      = document.getElementById("ef-status-" + pid);
+  const saveBtn = document.querySelector(`#edit-form-${pid} button[onclick*="saveEditPost"]`);
+  if (saveBtn?.disabled) return;
   const title   = document.getElementById("ef-title-" + pid).value.trim();
   const text    = document.getElementById("ef-text-"  + pid).value;
   const dateVal = document.getElementById("ef-date-"  + pid).value;
@@ -795,6 +794,7 @@ async function saveEditPost(pid) {
   if (!token || !repo) { st.textContent = "fehler: github einstellungen fehlen."; return; }
 
   st.textContent = "speichere...";
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "..."; }
   try {
     const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/posts.json?ref=${branch}`,
       { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
@@ -802,7 +802,7 @@ async function saveEditPost(pid) {
     const { sha } = await shaRes.json();
     const newPosts = [...posts];
     newPosts[idx] = updated;
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(newPosts, null, 2))));
+    const content = btoa([...new TextEncoder().encode(JSON.stringify(newPosts, null, 2))].map(b => String.fromCharCode(b)).join(""));
     const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/posts.json`, {
       method: "PUT",
       headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
@@ -813,7 +813,10 @@ async function saveEditPost(pid) {
     posts[idx] = updated;
     mergePosts();
     render();
-  } catch(err) { st.textContent = "fehler: " + err.message; }
+  } catch(err) {
+    st.textContent = "fehler: " + err.message;
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "speichern"; }
+  }
 }
 
 // ── HIDE / SHOW POSTS ─────────────────────────────────────────────────────────
@@ -827,7 +830,7 @@ async function saveHidden() {
   if (!token || !repo) return; // kein push wenn keine gh-einstellungen
 
   const data = JSON.stringify([...hiddenPosts], null, 2);
-  const content = btoa(unescape(encodeURIComponent(data)));
+  const content = btoa([...new TextEncoder().encode(data)].map(b => String.fromCharCode(b)).join(""));
 
   // SHA holen (Datei existiert evtl. noch nicht)
   let sha = null;
@@ -895,9 +898,6 @@ function initSlideshowRatio(pid, firstImgUrl) {
   };
   img.onerror = () => { track.style.aspectRatio = "4/3"; };
   img.src = firstImgUrl;
-}
-function initSlideshow(el) {
-  // already initialized
 }
 function goSlide(pid, idx) {
   const wrap = document.getElementById(pid + "-slides");
@@ -1258,17 +1258,18 @@ function addPhotoUrlRow() {
   list.appendChild(row);
 }
 
-document.getElementById("btn-push-photo").addEventListener("click", async () => {
+async function pushPhotoPost(isDraft) {
   const ps      = document.getElementById("ps-photo");
   const title   = document.getElementById("f-photo-title").value.trim();
   const text    = document.getElementById("f-photo-text").value.trim();
   const tag     = document.getElementById("f-photo-tag").value;
   const dateVal = document.getElementById("f-photo-date").value;
   const images  = [...document.querySelectorAll("#photo-url-list input")].map(i => i.value.trim()).filter(Boolean);
-  if (!title)         { ps.textContent = "fehler: titel fehlt.";  return; }
-  if (!images.length) { ps.textContent = "fehler: keine bilder."; return; }
+  if (!title)                   { ps.textContent = "fehler: titel fehlt.";  return; }
+  if (!isDraft && !images.length) { ps.textContent = "fehler: keine bilder."; return; }
   const posted_at = dateVal ? new Date(dateVal).toISOString() : new Date().toISOString();
   const entry = { type: "photo", title, images, text, posted_at };
+  if (isDraft) entry.draft = true;
   if (tag) entry.tag = tag;
   const ok = await pushToGithub(entry, posts, "posts.json", ps);
   if (ok) {
@@ -1276,21 +1277,9 @@ document.getElementById("btn-push-photo").addEventListener("click", async () => 
     ["f-photo-title","f-photo-text","f-photo-date"].forEach(id => document.getElementById(id).value = "");
     document.getElementById("photo-url-list").innerHTML = `<div class="photo-url-row"><input type="url" placeholder="https://..."><button onclick="this.parentElement.remove()" style="color:#c00;border-color:#c00">–</button></div>`;
   }
-});
-document.getElementById("btn-draft-photo").addEventListener("click", async () => {
-  const ps      = document.getElementById("ps-photo");
-  const title   = document.getElementById("f-photo-title").value.trim();
-  const text    = document.getElementById("f-photo-text").value.trim();
-  const tag     = document.getElementById("f-photo-tag").value;
-  const dateVal = document.getElementById("f-photo-date").value;
-  const images  = [...document.querySelectorAll("#photo-url-list input")].map(i => i.value.trim()).filter(Boolean);
-  if (!title) { ps.textContent = "fehler: titel fehlt."; return; }
-  const posted_at = dateVal ? new Date(dateVal).toISOString() : new Date().toISOString();
-  const entry = { type: "photo", title, images, text, posted_at, draft: true };
-  if (tag) entry.tag = tag;
-  const ok = await pushToGithub(entry, posts, "posts.json", ps);
-  if (ok) { posts.push(entry); mergePosts(); render(); }
-});
+}
+document.getElementById("btn-push-photo").addEventListener("click",  () => pushPhotoPost(false));
+document.getElementById("btn-draft-photo").addEventListener("click", () => pushPhotoPost(true));
 
 // ── SUBMIT EMBED POST ─────────────────────────────────────────────────────────
 async function pushEmbedPost(isDraft) {
@@ -1328,6 +1317,7 @@ async function mbSearch() {
       `https://musicbrainz.org/ws/2/release/?query=${encodeURIComponent(query)}&fmt=json&limit=20`,
       { headers: { "User-Agent": "leetzschreib/1.0" } }
     )).json();
+    if (!data.releases) { st.textContent = "nichts gefunden."; return; }
     st.textContent = data.releases.length ? `${data.releases.length} treffer:` : "nichts gefunden.";
     document.getElementById("mb-results").innerHTML = data.releases.map(r => {
       const a  = (r["artist-credit"]?.[0]?.name || "?").replace(/"/g,"&quot;");
@@ -1499,7 +1489,7 @@ async function saveEditAlbum(eid, idx) {
       { headers:{ Authorization:`token ${token}`, Accept:"application/vnd.github+json" }});
     if (!shaRes.ok) throw new Error(shaRes.status);
     const { sha } = await shaRes.json();
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(albums, null, 2))));
+    const content = btoa([...new TextEncoder().encode(JSON.stringify(albums, null, 2))].map(b => String.fromCharCode(b)).join(""));
     const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
       method: "PUT",
       headers: { Authorization:`token ${token}`, Accept:"application/vnd.github+json", "Content-Type":"application/json" },
@@ -1705,7 +1695,7 @@ async function editUploadImages(input, pid) {
       const next = existing.length ? Math.max(...existing) + 1 : 1;
       const ref  = `[Bild${next}]`;
       // Cursor-Position jetzt lesen (nach vorherigem Insert aktuell)
-      const pos  = ta.selectionStart !== ta.selectionEnd ? ta.selectionStart : ta.selectionStart ?? ta.value.length;
+      const pos  = (document.activeElement === ta) ? ta.selectionStart : ta.value.length;
       ta.value   = ta.value.slice(0, pos) + ref + ta.value.slice(pos);
       // Cursor hinter den eingefügten Text setzen
       const newPos = pos + ref.length;
@@ -1763,10 +1753,10 @@ function editorHeading(id) {
   ta.setSelectionRange(newPos, newPos);
 }
 
-function editorInsert(id, text) {
+function editorInsert(id) {
   const ta = document.getElementById(id);
   if (!ta) return;
-  const pos = ta.selectionStart;
+  const pos = (document.activeElement === ta) ? ta.selectionStart : ta.value.length;
   // Bildnummer: nächste freie Nummer vorschlagen
   const existing = [...ta.value.matchAll(/\[Bild(\d+)\]/gi)].map(m => parseInt(m[1]));
   const next = existing.length ? Math.max(...existing) + 1 : 1;
@@ -1778,10 +1768,10 @@ function editorInsert(id, text) {
 
 // ── SHARE BAR ─────────────────────────────────────────────────────────────────
 function shareBarHTML(pid, title) {
-  const t = (title || "").replace(/'/g, "\\'");
+  const encoded = encodeURIComponent(title || "");
   return `<div class="share-bar">
     <button class="share-btn" onclick="copyPostLink('${pid}', this)" title="Link kopieren">🔗 link</button>
-    <button class="share-btn" onclick="shareWhatsApp('${t}')" title="Per WhatsApp teilen">↗ whatsapp</button>
+    <button class="share-btn" onclick="shareWhatsApp(decodeURIComponent('${encoded}'))" title="Per WhatsApp teilen">↗ whatsapp</button>
   </div>`;
 }
 
@@ -1814,7 +1804,6 @@ function shareWhatsApp(title) {
 // ── ALBUM GRID MODE ───────────────────────────────────────────────────────────
 let albumMode = false;
 let albumGridSearch = "";
-let albumGridSort   = "artist";
 
 function switchToAlbumMode() {
   albumMode = true;
@@ -1883,7 +1872,7 @@ function renderAlbumGrid() {
     </div>
     <div class="album-list">
       ${groups.map((g, gi) => `
-        <div class="album-list-artist">${g.artist}</div>
+        <div class="album-list-artist">${escapeHtml(g.artist)}</div>
         ${g.albums.map((a, ai) => {
           const cid = "agcv-" + safeid(a.artist + a.album);
           const genres = (a.genre||"").split(",").map(x=>x.trim()).filter(Boolean).join(" · ");
@@ -1891,8 +1880,8 @@ function renderAlbumGrid() {
             <canvas class="album-list-img" id="${cid}" width="76" height="19"></canvas>
             <div class="album-list-overlay">
               <div class="album-list-info">
-                <span class="album-list-title">${a.album}</span>
-                <span class="album-list-meta">${a.year||""}${genres ? " · " + genres : ""}</span>
+                <span class="album-list-title">${escapeHtml(a.album)}</span>
+                <span class="album-list-meta">${escapeHtml(a.year||"")}${genres ? " · " + escapeHtml(genres) : ""}</span>
               </div>
               <span class="album-list-rating">${Number(a.rating)}<span>/10</span></span>
             </div>
@@ -1943,17 +1932,17 @@ function openAlbumPopup(groupIdx, albumIdx) {
   // Songs
   const songsHTML = (a.songs||[]).map(s =>
     s === a.favorite_song
-      ? `<span class="fav">${s}</span>`
-      : s
+      ? `<span class="fav">${escapeHtml(s)}</span>`
+      : escapeHtml(s)
   ).join("  ·  ");
 
   document.getElementById("album-popup-content").innerHTML = `
     <div class="ap-header">
       <canvas class="ap-cover" id="${cid}" width="64" height="64"></canvas>
       <div class="ap-info">
-        <div class="ap-album">${a.album}</div>
-        <div class="ap-artist">${a.artist}</div>
-        <div class="ap-meta">${a.year || ""}${genres ? " · " + genres : ""}</div>
+        <div class="ap-album">${escapeHtml(a.album)}</div>
+        <div class="ap-artist">${escapeHtml(a.artist)}</div>
+        <div class="ap-meta">${escapeHtml(a.year || "")}${genres ? " · " + escapeHtml(genres) : ""}</div>
         <div class="ap-rating">${Number(a.rating)}<span>/10</span></div>
       </div>
     </div>
@@ -1962,7 +1951,7 @@ function openAlbumPopup(groupIdx, albumIdx) {
       <a class="ap-link apple"   href="${appleUrl}"   target="_blank" rel="noopener">↗ apple music</a>
     </div>
     ${songsHTML ? `<div class="ap-songs">${songsHTML}</div>` : ""}
-    ${a.review ? `<div class="ap-review">${a.review.replace(/\n/g,"<br>")}</div>` : ""}
+    ${a.review ? `<div class="ap-review">${escapeHtml(a.review).replace(/\n/g,"<br>")}</div>` : ""}
     ${a.reviewed_at ? `<div style="font-size:10px;color:#bbb;margin-top:8px;text-align:right">${formatDate(a.reviewed_at)}</div>` : ""}
   `;
 
@@ -2002,8 +1991,8 @@ function renderSidebarAlbums() {
     return `<div class="sidebar-album-row" data-akey="${key}">
       <canvas class="sidebar-album-cover" id="${cid}" width="4" height="4"></canvas>
       <div class="sidebar-album-info">
-        <div class="sidebar-album-name">${a.album}</div>
-        <div class="sidebar-album-artist">${a.artist}</div>
+        <div class="sidebar-album-name">${escapeHtml(a.album)}</div>
+        <div class="sidebar-album-artist">${escapeHtml(a.artist)}</div>
       </div>
       <div class="sidebar-album-rating">${Number(a.rating)}</div>
     </div>`;
@@ -2105,12 +2094,13 @@ function renderAlbumStrip() {
 }
 
 function openBdmPhoto(p) {
-  const box     = document.getElementById("popup-box");
-  const overlay = document.getElementById("popup-overlay");
-  if (!box || !overlay) return;
-  box.innerHTML = `<button id="popup-close" onclick="document.getElementById('popup-overlay').style.display='none'">[x]</button>
-    <img src="${p.url}" style="max-width:100%;max-height:80vh;display:block;margin:0 auto" alt="${p.caption || ""}">
-    ${p.caption ? `<p style="text-align:center;margin-top:8px;font-style:italic;font-size:12px;color:var(--muted)">${p.caption}</p>` : ""}`;
+  const overlay = document.getElementById("album-popup-overlay");
+  const content = document.getElementById("album-popup-content");
+  if (!overlay || !content) return;
+  content.innerHTML = `<div style="text-align:center">
+    <img src="${escapeHtml(p.url)}" style="max-width:100%;max-height:70vh;display:block;margin:0 auto;border-radius:4px" alt="${escapeHtml(p.caption || "")}">
+    ${p.caption ? `<p style="margin-top:10px;font-family:'Caveat',cursive;font-size:16px;color:var(--muted)">${escapeHtml(p.caption)}</p>` : ""}
+  </div>`;
   overlay.style.display = "flex";
 }
 
@@ -2220,8 +2210,8 @@ function renderMobileBdmStickers() {
 
   const photosHTML = photos.map((p, i) =>
     `<div class="bdm-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg);margin-top:${sagOffsets[i]}px">
-      <img src="${p.url}" alt="${p.caption || ""}">
-      ${p.caption ? `<div class="bdm-hanging-caption">${p.caption}</div>` : ""}
+      <img src="${escapeHtml(p.url)}" alt="${escapeHtml(p.caption || "")}">
+      ${p.caption ? `<div class="bdm-hanging-caption">${escapeHtml(p.caption)}</div>` : ""}
     </div>`
   ).join("");
 
@@ -2259,8 +2249,8 @@ function renderBilderDesMonats() {
 
       const photosHTML = photos.map((p, i) =>
         `<div class="desktop-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg);margin-top:${sagOffsets[i]}px">
-          <img src="${p.url}" alt="${p.caption || ""}">
-          ${p.caption ? `<div class="desktop-hanging-caption">${p.caption}</div>` : ""}
+          <img src="${escapeHtml(p.url)}" alt="${escapeHtml(p.caption || "")}">
+          ${p.caption ? `<div class="desktop-hanging-caption">${escapeHtml(p.caption)}</div>` : ""}
         </div>`
       ).join("");
 
@@ -2269,7 +2259,7 @@ function renderBilderDesMonats() {
       </svg>`;
 
       const monthLabel = bilderDesMonats.month
-        ? `<div class="desktop-leine-label-month">${bilderDesMonats.month}</div>` : "";
+        ? `<div class="desktop-leine-label-month">${escapeHtml(bilderDesMonats.month)}</div>` : "";
       const labelHTML = `<div class="desktop-leine-label">
         <div class="desktop-leine-label-title">Bilder<br>des Monats</div>
         ${monthLabel}
@@ -2291,16 +2281,16 @@ function openAlbumDirect(a) {
   const cid    = "ap-cover-canvas";
   const q      = encodeURIComponent(a.artist + " " + a.album);
   const songsHTML = (a.songs || []).map(s =>
-    s === a.favorite_song ? `<span class="fav">${s}</span>` : s
+    s === a.favorite_song ? `<span class="fav">${escapeHtml(s)}</span>` : escapeHtml(s)
   ).join("  ·  ");
 
   document.getElementById("album-popup-content").innerHTML = `
     <div class="ap-header">
       <canvas class="ap-cover" id="${cid}" width="64" height="64"></canvas>
       <div class="ap-info">
-        <div class="ap-album">${a.album}</div>
-        <div class="ap-artist">${a.artist}</div>
-        <div class="ap-meta">${a.year || ""}${genres ? " · " + genres : ""}</div>
+        <div class="ap-album">${escapeHtml(a.album)}</div>
+        <div class="ap-artist">${escapeHtml(a.artist)}</div>
+        <div class="ap-meta">${escapeHtml(a.year || "")}${genres ? " · " + escapeHtml(genres) : ""}</div>
         <div class="ap-rating">${Number(a.rating)}<span>/10</span></div>
       </div>
     </div>
@@ -2309,7 +2299,7 @@ function openAlbumDirect(a) {
       <a class="ap-link" href="https://music.apple.com/search?term=${q}" target="_blank" rel="noopener">↗ apple music</a>
     </div>
     ${songsHTML ? `<div class="ap-songs">${songsHTML}</div>` : ""}
-    ${a.review ? `<div class="ap-review">${a.review.replace(/\n/g, "<br>")}</div>` : ""}
+    ${a.review ? `<div class="ap-review">${escapeHtml(a.review).replace(/\n/g, "<br>")}</div>` : ""}
     ${a.reviewed_at ? `<div style="font-size:10px;color:#aaa;margin-top:8px;text-align:right;font-family:var(--font-mono)">${formatDate(a.reviewed_at)}</div>` : ""}
   `;
 
