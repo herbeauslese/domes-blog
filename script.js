@@ -2241,7 +2241,7 @@ function renderBilderDesMonats() {
     } else {
       const rotations = [-4, 2, -3, 5, -2, 3, -5, 4];
       // Kurve startet und endet oben (y=2) → Leine hängt an den Nav-Ecken
-      const ropeYfn = t => (1-t)*(1-t)*2 + 2*t*(1-t)*22 + t*t*4;
+      const ropeYfn = t => (1-t)*(1-t)*2 + 2*t*(1-t)*75 + t*t*2;
       const positions = photos.map((_, i) => (2*i+1) / (2*photos.length));
       const ys = positions.map(t => ropeYfn(t));
       const minY = Math.min(...ys);
@@ -2254,8 +2254,8 @@ function renderBilderDesMonats() {
         </div>`
       ).join("");
 
-      const ropeSvg = `<svg class="desktop-leine-rope" viewBox="0 0 100 32" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 0,2 Q 50,22 100,4" stroke="#7a5c38" stroke-width="1.5" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.85"/>
+      const ropeSvg = `<svg class="desktop-leine-rope" viewBox="0 0 100 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 0,2 Q 50,75 100,2" stroke="#7a5c38" stroke-width="1.5" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.85"/>
       </svg>`;
 
       const monthLabel = bilderDesMonats.month
