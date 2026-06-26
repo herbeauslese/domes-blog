@@ -211,8 +211,7 @@ body.dark #admin-panel { background: #1c1800; border-color: #554400; }
 /* ── DESKTOP WÄSCHELEINE ── */
 #desktop-leine {
   position: relative;
-  margin-top: 0;
-  margin-bottom: -60px;
+  margin: 0 -16px -60px;
   z-index: 5;
   overflow: visible;
 }
@@ -285,12 +284,6 @@ body.dark .desktop-leine-label-title { color: #ddd; }
   cursor: pointer;
   transform-origin: top center;
   flex-shrink: 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.desktop-hanging-photo:hover {
-  transform: rotate(0deg) scale(1.06) translateY(-4px) !important;
-  box-shadow: 4px 8px 20px rgba(0,0,0,0.28);
-  z-index: 6;
 }
 body.dark .desktop-hanging-photo { background: #2a2810; }
 .desktop-hanging-photo::before {
