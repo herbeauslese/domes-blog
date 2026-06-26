@@ -211,14 +211,14 @@ body.dark #admin-panel { background: #1c1800; border-color: #554400; }
 /* ── DESKTOP WÄSCHELEINE ── */
 #desktop-leine {
   position: relative;
-  margin: 0 -16px -100px;
+  margin: 0 0 -100px;
   z-index: 5;
   overflow: visible;
 }
 #desktop-leine:empty { margin: 0; }
 .desktop-leine-section {
   position: relative;
-  padding-top: 95px;
+  padding-top: 26px;
   overflow: visible;
 }
 /* Zettel "Bilder des Monats" links am Seil */
@@ -275,6 +275,8 @@ body.dark .desktop-leine-label-title { color: #ddd; }
   justify-content: space-around;
   align-items: flex-start;
   overflow: visible;
+  position: relative;
+  z-index: 1;
 }
 .desktop-hanging-photo {
   background: #fff;
