@@ -758,7 +758,85 @@ body.dark .comment-item { border-color: #1e1e10; }
   height: calc(4 * var(--post-slot));
   flex: none;
 }
+.sidebar-albums-wrap.expanded { height: calc(5.2 * var(--post-slot)); }
 body.dark .sidebar-albums-wrap { border-color: #555; box-shadow: 4px 4px 0 #444; }
+
+/* Sort-Buttons */
+.sidebar-albums-sort {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+.sa-sort-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  border-right: 1px solid #e0e0e0;
+  padding: 5px 2px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.sa-sort-btn:last-child { border-right: none; }
+.sa-sort-btn:hover { background: #f5f5f5; color: var(--fg); }
+.sa-sort-btn.active { background: #000; color: #fff; }
+body.dark .sidebar-albums-sort { border-color: #1e1e10; }
+body.dark .sa-sort-btn { border-color: #1e1e10; }
+body.dark .sa-sort-btn.active { background: var(--accent); color: #000; }
+body.dark .sa-sort-btn:hover { background: #1a1a1a; }
+
+/* Gruppen-Trennlinie */
+.sa-separator {
+  padding: 3px 14px 2px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
+  border-top: 1px solid #e0e0e0;
+  margin-top: -1px;
+  flex-shrink: 0;
+}
+.sa-separator span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+body.dark .sa-separator { background: #111; border-color: #1e1e10; }
+
+/* Chevron-Toggle */
+.sidebar-albums-toggle {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--muted);
+  text-align: center;
+  transition: color var(--transition);
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sidebar-albums-toggle:hover { color: var(--fg); }
+body.dark .sidebar-albums-toggle { border-color: #1e1e10; }
+.sidebar-albums-toggle::after {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-right: 2.5px solid currentColor;
+  border-bottom: 2.5px solid currentColor;
+  transform: rotate(45deg);
+  vertical-align: top;
+  margin-top: 1px;
+  transition: transform 0.25s ease;
+}
+.sidebar-albums-wrap.expanded .sidebar-albums-toggle::after {
+  transform: rotate(-135deg);
+  margin-top: 5px;
+}
 
 .sidebar-title {
   font-family: var(--font-head);
