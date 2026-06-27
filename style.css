@@ -17,6 +17,7 @@ html { overflow-x: hidden; }
   --font-mono: 'Courier New', Courier, monospace;
   --img-max: 100%;
   --transition: 0.15s ease;
+  --post-slot: 160px;  /* 1 Platz im Feed-Raster */
 }
 
 body {
@@ -630,11 +631,11 @@ body.dark .album-songs-list { border-color: #333; }
 /* ── FEED-GRID: FESTE PLÄTZE PRO POST-TYP ── */
 /* 1 Platz ≈ Texte (kompakt), Fotos 2 Plätze, Reisen 3 Plätze */
 .post.post-foto:not(.expanded) .collage {
-  height: 160px;
+  height: var(--post-slot);
   aspect-ratio: unset;
 }
 .post.post-reise:not(.expanded) .collage {
-  height: 320px;
+  height: calc(2 * var(--post-slot));
   aspect-ratio: unset;
 }
 /* Einzelbild: cover-Modus bei fixierter Höhe */
@@ -731,8 +732,8 @@ body.dark .comment-item { border-color: #1e1e10; }
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  height: calc(4 * var(--post-slot));
+  flex: none;
 }
 body.dark .sidebar-albums-wrap { border-color: #555; box-shadow: 4px 4px 0 #444; }
 
@@ -833,12 +834,14 @@ body.dark .sidebar-album-cover { background: #222; }
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
-  margin-bottom: 12px;
+  height: calc(3 * var(--post-slot));
+  display: flex;
+  flex-direction: column;
 }
 body.dark .sidebar-top100-wrap { border-color: #555; box-shadow: 4px 4px 0 #444; }
 
 #top100-list {
-  height: 300px;
+  flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #ddd transparent;
