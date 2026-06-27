@@ -509,6 +509,20 @@ body.dark .entry-toggle:hover { border-color: var(--accent); color: var(--accent
 .post.expanded .post-body { display: block; }
 .post.expanded .post-preview { display: none; }
 
+/* Aufgeklappt: body scrollbar, ca. 1 Platz mehr als zugeklappt */
+.post.expanded .post-body {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+.post.expanded .post-body::-webkit-scrollbar { width: 4px; }
+.post.expanded .post-body::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+.post[data-type="text"].expanded .post-body   { max-height: var(--post-slot); }
+.post.post-foto.expanded .post-body           { max-height: calc(2 * var(--post-slot)); }
+.post.post-reise.expanded .post-body          { max-height: calc(3 * var(--post-slot)); }
+.post[data-type="embed"].expanded .post-body  { max-height: calc(2 * var(--post-slot)); }
+
 .post-fulltext {
   font-family: 'Times New Roman', Times, serif;
   font-size: 15px;
