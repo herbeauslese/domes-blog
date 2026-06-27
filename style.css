@@ -627,6 +627,25 @@ body.dark .album-songs-list { border-color: #333; }
 }
 .post.expanded .collage { display: none; }
 
+/* ── FEED-GRID: FESTE PLÄTZE PRO POST-TYP ── */
+/* 1 Platz ≈ Texte (kompakt), Fotos 2 Plätze, Reisen 3 Plätze */
+.post.post-foto:not(.expanded) .collage {
+  height: 160px;
+  aspect-ratio: unset;
+}
+.post.post-reise:not(.expanded) .collage {
+  height: 320px;
+  aspect-ratio: unset;
+}
+/* Einzelbild: cover-Modus bei fixierter Höhe */
+.post.post-foto:not(.expanded) .collage.collage-single .collage-cell,
+.post.post-reise:not(.expanded) .collage.collage-single .collage-cell { height: 100%; }
+.post.post-foto:not(.expanded) .collage.collage-single .collage-cell img,
+.post.post-reise:not(.expanded) .collage.collage-single .collage-cell img {
+  height: 100%;
+  object-fit: cover;
+}
+
 /* ── SLIDESHOW ── */
 .slideshow { margin: 0 0 8px; position: relative; user-select: none; max-width: var(--img-max); }
 .slide-track {
