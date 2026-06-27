@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "title": "Halt dich an deiner Liebe fest",
+    "artist": "Ton Steine Scherben",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/7/70/Ton_Steine_Scherben_Wenn_die_Nacht_am_Tiefsten_ist_album_cover.jpg"
+  },
+  {
+    "title": "Love Me Again",
+    "artist": "John Newman",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/5/53/John-Newman-Love-Me-Again.jpg"
+  },
+  {
+    "title": "Love Wil Tear Us Apart",
+    "artist": "Joy Division",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/1/18/Love_Will_Tear_Us_Apart_%28song%29.jpg/250px-Love_Will_Tear_Us_Apart_%28song%29.jpg"
+  }
+]
