@@ -1854,6 +1854,7 @@ function editorInsert(id) {
 function shareBarHTML(pid, title) {
   const encoded = encodeURIComponent(title || "");
   return `<div class="share-bar">
+    <button class="share-btn" onclick="togglePost('${pid}')">↑ einklappen</button>
     <button class="share-btn" onclick="copyPostLink('${pid}', this)" title="Link kopieren">🔗 link</button>
     <button class="share-btn" onclick="shareWhatsApp(decodeURIComponent('${encoded}'))" title="Per WhatsApp teilen">↗ whatsapp</button>
   </div>`;

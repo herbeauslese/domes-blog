@@ -502,7 +502,7 @@ body.dark .post-preview { color: #999; }
 body.dark .entry-toggle { border-color: #333; color: #666; }
 body.dark .entry-toggle:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,224,99,0.1); }
 
-.post.expanded .entry-toggle-arrow::after { content: " ↑"; }
+.post.expanded .entry-toggle { display: none; }
 .post:not(.expanded) .entry-toggle-arrow::after { content: ""; }
 
 .post-body { display: none; margin-top: 12px; }
@@ -519,7 +519,7 @@ body.dark .entry-toggle:hover { border-color: var(--accent); color: var(--accent
 .post.expanded .post-body::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
 
 .post[data-type="text"].expanded .post-body   { max-height: var(--post-slot); }
-.post.post-foto.expanded .post-body           { max-height: calc(2.4 * var(--post-slot)); }
+.post.post-foto.expanded .post-body           { max-height: calc(3.6 * var(--post-slot)); }
 .post.post-reise.expanded .post-body          { max-height: calc(3.6 * var(--post-slot)); }
 .post[data-type="embed"].expanded .post-body  { max-height: calc(2 * var(--post-slot)); }
 
@@ -663,7 +663,7 @@ body.dark .album-songs-list { border-color: #333; }
 /* Slideshow-Track: gleiche Höhe wie Collage — überschreibt JS-gesetztes aspect-ratio */
 .post.post-foto.expanded .slide-track {
   aspect-ratio: unset !important;
-  height: calc(1.4 * var(--post-slot)) !important;
+  height: calc(2.6 * var(--post-slot)) !important;
 }
 .post.post-reise.expanded .slide-track {
   aspect-ratio: unset !important;
