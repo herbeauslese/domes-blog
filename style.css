@@ -204,8 +204,8 @@ body.dark #admin-panel { background: #1c1800; border-color: #554400; }
 #hero-post { min-width: 0; }
 #hero-post .post { margin-bottom: 0; }
 /* Aktuelle Reise — gleiche Höhe wie erster Post, Bild füllt den Rest */
-#hero-row #hero-reise { height: 100%; min-width: 0; }
-#hero-reise .featured-reise-wrap { margin-bottom: 0; height: 100%; display: flex; flex-direction: column; border: var(--border); }
+#hero-row #hero-reise { min-width: 0; display: flex; flex-direction: column; }
+#hero-reise .featured-reise-wrap { margin-bottom: 0; flex: 1; display: flex; flex-direction: column; border: var(--border); }
 #hero-reise .featured-reise-card { flex: 1; display: flex; flex-direction: column; border: none; }
 #hero-reise .featured-reise-img-wrap { flex: 1; aspect-ratio: unset; min-height: 0; }
 
