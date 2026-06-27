@@ -547,6 +547,12 @@ body.dark .post-heading { border-color: #333; }
 }
 .hide-btn:hover { color: #000; background: none; border: none; }
 .hide-btn.active { color: var(--fg); }
+.del-btn {
+  font-size: 11px; color: #ddd; cursor: pointer;
+  margin-left: 3px; background: none; border: none;
+  border-radius: 0; padding: 0; font-family: var(--font-mono);
+}
+.del-btn:hover { color: #c00; background: none; border: none; }
 
 .edit-form {
   margin-top: 8px; padding: 14px;

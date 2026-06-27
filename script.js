@@ -419,6 +419,7 @@ function renderTextPost(p, pid, dateStr) {
   const fullText = parseText(p.text || "", pid);
   const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
+  const delBtn  = unlocked ? `<button class="del-btn"  onclick="deletePost('${pid}', event)" title="löschen">✕</button>` : "";
 
   const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
 
@@ -427,7 +428,7 @@ function renderTextPost(p, pid, dateStr) {
     <div class="post-header">
       <span class="post-title-wrap">
         <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
-        ${editBtn}${hideBtn}
+        ${editBtn}${hideBtn}${delBtn}
       </span>
       <span class="post-tag">text</span>
       ${draftBadge}
@@ -461,6 +462,7 @@ function renderPhotoPost(p, pid, dateStr) {
     .slice(0, 140) + ((p.text||"").length > 140 ? "…" : "");
   const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
+  const delBtn  = unlocked ? `<button class="del-btn"  onclick="deletePost('${pid}', event)" title="löschen">✕</button>` : "";
 
   // ── KOLLAGE (preview, außerhalb post-body) ──
   let collageHTML = "";
@@ -538,7 +540,7 @@ function renderPhotoPost(p, pid, dateStr) {
     <div class="post-header">
       <span class="post-title-wrap">
         <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
-        ${editBtn}${hideBtn}
+        ${editBtn}${hideBtn}${delBtn}
       </span>
       <span class="post-tag ${tagClass}">${tagLabel}</span>
     </div>
@@ -562,6 +564,7 @@ function renderEmbedPost(p, pid, dateStr) {
   const preview = (p.text || "").replace(/\*\*(.+?)\*\*/g,"$1").replace(/\*(.+?)\*/g,"$1").slice(0,140) + ((p.text||"").length>140?"…":"");
   const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
+  const delBtn  = unlocked ? `<button class="del-btn"  onclick="deletePost('${pid}', event)" title="löschen">✕</button>` : "";
   const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
 
   const safeEmbed = (p.embed || "")
@@ -574,7 +577,7 @@ function renderEmbedPost(p, pid, dateStr) {
     <div class="post-header">
       <span class="post-title-wrap">
         <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
-        ${editBtn}${hideBtn}
+        ${editBtn}${hideBtn}${delBtn}
       </span>
       <span class="post-tag">embed</span>
       ${draftBadge}
@@ -613,13 +616,14 @@ function renderAlbumPost(p, pid, dateStr) {
     : "";
   const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditAlbum('${safeid(a.artist+a.album)}', event)">✎</button>` : "";
   const hideBtn = unlocked ? `<button class="hide-btn" title="ausblenden" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
+  const delBtn  = unlocked ? `<button class="del-btn"  onclick="deleteAlbum('${safeid(a.artist+a.album)}', event)" title="löschen">✕</button>` : "";
 
   return `<div class="post" id="${pid}">
     <div style="position:relative">
       <div class="post-header" style="padding-right:52px">
         <span class="post-title-wrap">
           <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(a.album)}</span>
-          ${editBtn}${hideBtn}
+          ${editBtn}${hideBtn}${delBtn}
         </span>
         <span class="post-tag album">album</span>
       </div>
@@ -820,6 +824,82 @@ async function saveEditPost(pid) {
   } catch(err) {
     st.textContent = "fehler: " + err.message;
     if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "speichern"; }
+  }
+}
+
+// ── DELETE POST (text / photo / embed) ───────────────────────────────────────
+async function deletePost(pid, e) {
+  if (e) e.stopPropagation();
+  const postEl = document.getElementById(pid);
+  if (!postEl) return;
+  const title = postEl.dataset.title || "(ohne titel)";
+  if (!confirm(`"${title}" wirklich löschen?`)) return;
+
+  const idx = posts.findIndex(p =>
+    p.title === postEl.dataset.title &&
+    p.posted_at === postEl.dataset.date
+  );
+  if (idx < 0) { alert("Beitrag nicht gefunden."); return; }
+
+  const token  = localStorage.getItem("gh_token");
+  const repo   = localStorage.getItem("gh_repo");
+  const branch = localStorage.getItem("gh_branch") || "main";
+  if (!token || !repo) { alert("GitHub Einstellungen fehlen."); return; }
+
+  try {
+    const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/posts.json?ref=${branch}`,
+      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+    if (!shaRes.ok) throw new Error(shaRes.status);
+    const { sha } = await shaRes.json();
+    const newPosts = posts.filter((_, i) => i !== idx);
+    const content = btoa([...new TextEncoder().encode(JSON.stringify(newPosts, null, 2))].map(b => String.fromCharCode(b)).join(""));
+    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/posts.json`, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify({ message: `delete: ${title}`, content, sha, branch })
+    });
+    if (!putRes.ok) { const err = await putRes.json(); throw new Error(err.message || putRes.status); }
+    posts.splice(idx, 1);
+    mergePosts();
+    render();
+  } catch(err) {
+    alert("Fehler beim Löschen: " + err.message);
+  }
+}
+
+// ── DELETE ALBUM ──────────────────────────────────────────────────────────────
+async function deleteAlbum(eid, e) {
+  if (e) e.stopPropagation();
+  const idx = albums.findIndex(a => safeid(a.artist + a.album) === eid);
+  if (idx < 0) return;
+  const a = albums[idx];
+  if (!confirm(`"${a.album}" von ${a.artist} wirklich löschen?`)) return;
+
+  const token  = localStorage.getItem("gh_token");
+  const repo   = localStorage.getItem("gh_repo");
+  const branch = localStorage.getItem("gh_branch") || "main";
+  if (!token || !repo) { alert("GitHub Einstellungen fehlen."); return; }
+
+  try {
+    const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/albums.json?ref=${branch}`,
+      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+    if (!shaRes.ok) throw new Error(shaRes.status);
+    const { sha } = await shaRes.json();
+    const newAlbums = albums.filter((_, i) => i !== idx);
+    const content = btoa([...new TextEncoder().encode(JSON.stringify(newAlbums, null, 2))].map(b => String.fromCharCode(b)).join(""));
+    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/albums.json`, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify({ message: `delete: ${a.artist} - ${a.album}`, content, sha, branch })
+    });
+    if (!putRes.ok) { const err = await putRes.json(); throw new Error(err.message || putRes.status); }
+    albums.splice(idx, 1);
+    mergePosts();
+    render();
+    renderSidebarAlbums();
+    renderAlbumStrip();
+  } catch(err) {
+    alert("Fehler beim Löschen: " + err.message);
   }
 }
 
