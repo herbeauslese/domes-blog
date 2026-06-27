@@ -35,18 +35,23 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/d/dd/Is_It_a_Crime_-_cover.jpg/250px-Is_It_a_Crime_-_cover.jpg"
   },
   {
-    "title": "Rock the Cashabn",
-    "artist": "The Clash",
-    "cover": "https://upload.wikimedia.org/wikipedia/en/b/bb/The_Clash_Rock_the_Casbah_single_cover.png"
-  },
-  {
     "title": "I Wanna Be Adored",
     "artist": "The Stone Roses",
     "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
   },
   {
+    "title": "Rock the Cashabn",
+    "artist": "The Clash",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/b/bb/The_Clash_Rock_the_Casbah_single_cover.png"
+  },
+  {
     "title": "Fools Gold",
     "artist": "The Stone Roses",
     "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
+  },
+  {
+    "title": "I Am the Resurrection",
+    "artist": "The Stone Roses",
+    "cover": "The Stone Roses"
   }
 ]
