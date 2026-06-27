@@ -207,7 +207,8 @@ body.dark #admin-panel { background: #1c1800; border-color: #554400; }
 #hero-row #hero-reise { min-width: 0; display: flex; flex-direction: column; }
 #hero-reise .featured-reise-wrap { margin-bottom: 0; flex: 1; display: flex; flex-direction: column; border: var(--border); }
 #hero-reise .featured-reise-card { flex: 1; display: flex; flex-direction: column; border: none; }
-#hero-reise .featured-reise-img-wrap { flex: 1; aspect-ratio: unset; min-height: 0; }
+#hero-reise .featured-reise-img-wrap { flex: 1; aspect-ratio: unset; min-height: 0; position: relative; overflow: hidden; }
+#hero-reise .featured-reise-img-wrap .featured-reise-img { position: absolute; inset: 0; width: 100%; height: 100%; }
 
 /* ── DESKTOP WÄSCHELEINE ── */
 #desktop-leine {
