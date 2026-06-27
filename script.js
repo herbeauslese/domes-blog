@@ -2088,50 +2088,16 @@ document.getElementById("btn-show-hidden").addEventListener("click", () => {
 });
 
 // ── SIDEBAR ALBUM LIST ────────────────────────────────────────────────────────
-let sidebarSortMode = "rating";
-
-function setSidebarSort(mode) {
-  sidebarSortMode = mode;
-  document.querySelectorAll(".sa-sort-btn").forEach(b =>
-    b.classList.toggle("active", b.dataset.sort === mode)
-  );
-  renderSidebarAlbums();
-}
-
-function toggleSidebarAlbums() {
-  const wrap = document.querySelector(".sidebar-albums-wrap");
-  if (!wrap) return;
-  wrap.classList.toggle("expanded");
-  requestAnimationFrame(splitFeedAtSidebarHeight);
-}
-
 function renderSidebarAlbums() {
   const container = document.getElementById("sidebar-albums");
   if (!container || !albums.length) return;
 
-  let sorted, getGroup;
-  if (sidebarSortMode === "alpha") {
-    sorted = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
-    getGroup = a => a.artist[0].toUpperCase();
-  } else if (sidebarSortMode === "year") {
-    sorted = [...albums].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
-    getGroup = a => a.year || "?";
-  } else {
-    sorted = [...albums].sort((a, b) => b.rating - a.rating);
-    getGroup = a => String(Math.floor(Number(a.rating)));
-  }
+  const sorted = [...albums].sort((a, b) => b.rating - a.rating);
 
-  let html = "";
-  let lastGroup = null;
-  sorted.forEach(a => {
-    const group = getGroup(a);
-    if (group !== lastGroup) {
-      html += `<div class="sa-separator"><span>${escapeHtml(String(group))}</span></div>`;
-      lastGroup = group;
-    }
+  container.innerHTML = sorted.map(a => {
     const cid = "sav-" + safeid(a.artist + a.album);
     const key = safeid(a.artist + a.album);
-    html += `<div class="sidebar-album-row" data-akey="${key}">
+    return `<div class="sidebar-album-row" data-akey="${key}">
       <canvas class="sidebar-album-cover" id="${cid}" width="4" height="4"></canvas>
       <div class="sidebar-album-info">
         <div class="sidebar-album-name">${escapeHtml(a.album)}</div>
@@ -2139,8 +2105,7 @@ function renderSidebarAlbums() {
       </div>
       <div class="sidebar-album-rating">${Number(a.rating)}</div>
     </div>`;
-  });
-  container.innerHTML = html;
+  }).join("");
 
   container.querySelectorAll(".sidebar-album-row").forEach(row => {
     row.addEventListener("click", () => {
