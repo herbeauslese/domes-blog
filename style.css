@@ -398,57 +398,6 @@ button:hover { border-color: #000; background: var(--bg); }
 body.dark button { border-color: #333; color: var(--fg); }
 body.dark button:hover { border-color: var(--accent); background: rgba(255,224,99,0.1); }
 
-/* ── FEED CSS GRID ── */
-#feed, #feed-below {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-auto-rows: var(--post-slot);
-  gap: 16px;
-}
-/* Grid übernimmt den Abstand — kein margin-bottom mehr nötig */
-#feed > .post, #feed-below > .post { margin-bottom: 0; }
-
-/* Zugeklappt: Plätze pro Typ */
-#feed > .post[data-type="text"]:not(.expanded),
-#feed-below > .post[data-type="text"]:not(.expanded) { grid-row: span 1; }
-
-#feed > .post.post-foto:not(.expanded),
-#feed-below > .post.post-foto:not(.expanded) { grid-row: span 2; }
-
-#feed > .post.post-reise:not(.expanded),
-#feed-below > .post.post-reise:not(.expanded) { grid-row: span 3; }
-
-#feed > .post[data-type="embed"]:not(.expanded),
-#feed-below > .post[data-type="embed"]:not(.expanded) { grid-row: span 2; }
-
-/* Aufgeklappt: +2 Plätze je Typ */
-#feed > .post[data-type="text"].expanded,
-#feed-below > .post[data-type="text"].expanded { grid-row: span 3; }
-
-#feed > .post.post-foto.expanded,
-#feed-below > .post.post-foto.expanded { grid-row: span 4; }
-
-#feed > .post.post-reise.expanded,
-#feed-below > .post.post-reise.expanded { grid-row: span 5; }
-
-#feed > .post[data-type="embed"].expanded,
-#feed-below > .post[data-type="embed"].expanded { grid-row: span 4; }
-
-/* Aufgeklappter Post: flex-column, Post-Body scrollt */
-#feed > .post.expanded,
-#feed-below > .post.expanded { display: flex; flex-direction: column; }
-
-#feed > .post.expanded .post-body,
-#feed-below > .post.expanded .post-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #ccc transparent;
-}
-#feed > .post.expanded .post-body::-webkit-scrollbar { width: 4px; }
-#feed > .post.expanded .post-body::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
-
 /* ── POSTS ── */
 .post {
   background: var(--card);
