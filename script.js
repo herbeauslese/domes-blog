@@ -2218,23 +2218,29 @@ function openBdmPhoto(p) {
 function renderTop100() {
   const wrap = document.getElementById("sidebar-top100");
   const list = document.getElementById("top100-list");
+  const mobileList = document.getElementById("mobile-top100-list");
   if (!wrap || !list) return;
   if (!top100.length) { wrap.style.display = "none"; return; }
   wrap.style.display = "";
-  list.innerHTML = top100.map((s, i) => {
-    const cid = "t100-" + i;
-    return `<div class="top100-item">
-      <span class="top100-rank">${i + 1}</span>
-      <canvas class="top100-cover" id="${cid}" width="4" height="4"></canvas>
-      <div class="top100-info">
-        <div class="top100-title">${escapeHtml(s.title)}</div>
-        <div class="top100-artist">${escapeHtml(s.artist)}</div>
-      </div>
-    </div>`;
-  }).join("");
+
+  const makeRow = (s, i, prefix) => `<div class="top100-item">
+    <span class="top100-rank">${i + 1}</span>
+    <canvas class="top100-cover" id="${prefix}${i}" width="4" height="4"></canvas>
+    <div class="top100-info">
+      <div class="top100-title">${escapeHtml(s.title)}</div>
+      <div class="top100-artist">${escapeHtml(s.artist)}</div>
+    </div>
+  </div>`;
+
+  list.innerHTML = top100.map((s, i) => makeRow(s, i, "t100-")).join("");
+  if (mobileList) mobileList.innerHTML = top100.map((s, i) => makeRow(s, i, "mt100-")).join("");
+
   requestAnimationFrame(() => {
     top100.forEach((s, i) => {
-      if (s.cover) loadCover("t100-" + i, s.cover, "t100|" + s.title + "|" + s.artist);
+      if (s.cover) {
+        loadCover("t100-" + i, s.cover, "t100|" + s.title + "|" + s.artist);
+        if (mobileList) loadCover("mt100-" + i, s.cover, "t100|" + s.title + "|" + s.artist);
+      }
     });
   });
 }

@@ -1277,6 +1277,17 @@ body.dark .ap-review { border-color: #222; }
 #mobile-platten {
   display: none;
 }
+#mobile-top100 {
+  display: none;
+}
+#mobile-top100-list {
+  max-height: calc(3 * var(--post-slot));
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+}
+#mobile-top100-list::-webkit-scrollbar { width: 4px; }
+#mobile-top100-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
 #featured-reise-mobile {
   display: none;
 }
@@ -1465,6 +1476,16 @@ body.dark .album-strip-cover { background: #222; }
   }
   #mobile-platten .sidebar-title { border-radius: 0; }
   #mobile-platten .album-strip { padding: 10px 12px 12px; }
+
+  #mobile-top100 {
+    display: block;
+    margin-bottom: 16px;
+    background: var(--card);
+    border: var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
 
   #featured-reise-mobile {
     display: block;
