@@ -2173,10 +2173,34 @@ function ratingBadgeColor(rating) {
   return `hsl(50,${S}%,${L}%)`;
 }
 
+let mobileSortMode = "rating";
+
+function setMobileSort(mode) {
+  mobileSortMode = mode;
+  const wrap = document.getElementById("mobile-platten");
+  if (wrap) wrap.querySelectorAll(".sa-sort-btn").forEach(b =>
+    b.classList.toggle("active", b.dataset.sort === mode)
+  );
+  renderAlbumStrip();
+}
+
+function toggleMobileAlbums() {
+  const wrap = document.getElementById("mobile-platten");
+  if (!wrap) return;
+  wrap.classList.toggle("expanded");
+}
+
 function renderAlbumStrip() {
   const container = document.getElementById("album-strip-mobile");
   if (!container || !albums.length) return;
-  const sorted = [...albums].sort((a, b) => b.rating - a.rating);
+  let sorted;
+  if (mobileSortMode === "alpha") {
+    sorted = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
+  } else if (mobileSortMode === "year") {
+    sorted = [...albums].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
+  } else {
+    sorted = [...albums].sort((a, b) => b.rating - a.rating);
+  }
   container.innerHTML = sorted.map(a => {
     const cid = "asv-" + safeid(a.artist + a.album);
     const key = safeid(a.artist + a.album);

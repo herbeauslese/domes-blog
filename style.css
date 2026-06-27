@@ -1511,7 +1511,67 @@ body.dark .album-strip-cover { background: #222; }
     overflow: hidden;
   }
   #mobile-platten .sidebar-title { border-radius: 0; }
+
+  #mobile-platten-sort {
+    display: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  #mobile-platten-sort .sa-sort-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-right: 1px solid #e0e0e0;
+    padding: 5px 2px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+  }
+  #mobile-platten-sort .sa-sort-btn:last-child { border-right: none; }
+  #mobile-platten-sort .sa-sort-btn:hover { background: #f5f5f5; color: var(--fg); }
+  #mobile-platten-sort .sa-sort-btn.active { background: #000; color: #fff; }
+  body.dark #mobile-platten-sort { border-color: #1e1e10; }
+  body.dark #mobile-platten-sort .sa-sort-btn { border-color: #1e1e10; }
+  body.dark #mobile-platten-sort .sa-sort-btn.active { background: var(--accent); color: #000; }
+
+  #mobile-platten.expanded #mobile-platten-sort { display: flex; }
   #mobile-platten .album-strip { padding: 10px 12px 12px; }
+  #mobile-platten.expanded .album-strip { padding: 14px 12px 14px; }
+  #mobile-platten.expanded .album-strip-cover-wrap { width: 78px; height: 78px; }
+  #mobile-platten.expanded .album-strip-cover { width: 78px; height: 78px; }
+
+  #mobile-albums-toggle {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    padding: 4px 0;
+    cursor: pointer;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1;
+    transition: color var(--transition);
+  }
+  #mobile-albums-toggle:hover { color: var(--fg); }
+  body.dark #mobile-albums-toggle { border-color: #1e1e10; }
+  #mobile-albums-toggle::after {
+    content: "";
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-right: 2.5px solid currentColor;
+    border-bottom: 2.5px solid currentColor;
+    transform: rotate(45deg);
+    vertical-align: top;
+    margin-top: 1px;
+    transition: transform 0.25s ease;
+  }
+  #mobile-platten.expanded #mobile-albums-toggle::after {
+    transform: rotate(-135deg);
+    margin-top: 5px;
+  }
 
   #mobile-top100 {
     display: block;
