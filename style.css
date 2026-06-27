@@ -1299,16 +1299,31 @@ body.dark .ap-review { border-color: #222; }
   background: none;
   border: none;
   border-top: 1px solid #e0e0e0;
-  padding: 6px 0;
+  padding: 4px 0;
   cursor: pointer;
-  font-size: 13px;
   color: var(--muted);
   text-align: center;
   transition: color var(--transition);
+  line-height: 1;
 }
 #mobile-top100-toggle:hover { color: var(--fg); }
 body.dark #mobile-top100-toggle { border-color: #1e1e10; }
-#mobile-top100.expanded #mobile-top100-toggle { content: "↑"; }
+#mobile-top100-toggle::after {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-right: 2.5px solid currentColor;
+  border-bottom: 2.5px solid currentColor;
+  transform: rotate(45deg);
+  vertical-align: top;
+  margin-top: 1px;
+  transition: transform 0.25s ease;
+}
+#mobile-top100.expanded #mobile-top100-toggle::after {
+  transform: rotate(-135deg);
+  margin-top: 5px;
+}
 #featured-reise-mobile {
   display: none;
 }

@@ -2247,10 +2247,8 @@ function renderTop100() {
 
 function toggleMobileTop100() {
   const wrap = document.getElementById("mobile-top100");
-  const btn  = document.getElementById("mobile-top100-toggle");
   if (!wrap) return;
   wrap.classList.toggle("expanded");
-  btn.textContent = wrap.classList.contains("expanded") ? "↑" : "↓";
 }
 
 // ── TOP 100 ADMIN EDITOR ──────────────────────────────────────────────────────
