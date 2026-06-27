@@ -1549,6 +1549,7 @@ body.dark .album-strip-cover { background: #222; }
   }
   #mobile-sort-pill:hover { background: rgba(255,255,255,0.3); }
   body.dark #mobile-sort-pill { background: rgba(0,0,0,0.2); border-color: rgba(0,0,0,0.4); color: #000; }
+  #mobile-platten:not(.expanded) #mobile-sort-pill { display: none; }
 
   #mobile-platten .album-strip { padding: 10px 12px 12px; }
   #mobile-platten.expanded .album-strip { padding: 14px 12px 14px; }
