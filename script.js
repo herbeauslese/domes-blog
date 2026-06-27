@@ -313,30 +313,52 @@ function splitFeedAtSidebarHeight() {
   if (!sidebar || !feed || !feedBelow) return;
   if (getComputedStyle(sidebar).display === "none") return;
 
-  // Natürliche Sidebar-Höhe lesen (Stil-Höhe zurücksetzen)
+  const albumsWrap = sidebar.querySelector(".sidebar-albums-wrap");
+
+  // feed-below Posts zurückholen, damit die Menge neu berechnet wird
+  Array.from(feedBelow.children).forEach(p => feed.appendChild(p));
+
+  // Reset für korrekte naturalH (Albums auf CSS-Standardhöhe zurück)
+  if (albumsWrap) albumsWrap.style.height = "";
   sidebar.style.height = "";
+  sidebar.style.overflow = "";
   const naturalH = sidebar.scrollHeight;
 
   const posts = Array.from(feed.children);
   if (!posts.length) return;
+
+  // Albums-Startposition bei natürlicher Sidebar-Höhe messen
+  let albumsOffset = 0;
+  if (albumsWrap) {
+    const sR = sidebar.getBoundingClientRect();
+    const aR = albumsWrap.getBoundingClientRect();
+    albumsOffset = aR.top - sR.top;
+  }
 
   // Posts akkumulieren bis sidebar-Höhe überschritten wird
   let cumH     = 0;
   let splitIdx = posts.length;
 
   for (let i = 0; i < posts.length; i++) {
-    const gap = i > 0 ? 16 : 0; // margin-bottom des Vorgängers
+    const gap = i > 0 ? 16 : 0;
     cumH += gap + posts[i].offsetHeight;
     if (cumH > naturalH) {
       splitIdx = i;
-      cumH -= gap + posts[i].offsetHeight; // diesen Post herausrechnen
+      cumH -= gap + posts[i].offsetHeight;
       break;
     }
   }
 
+  const finalH = cumH || naturalH;
+
   // Sidebar auf exakte Post-Grenze snappen
-  sidebar.style.height = (cumH || naturalH) + "px";
+  sidebar.style.height = finalH + "px";
   sidebar.style.overflow = "hidden";
+
+  // Albums-Block füllt genau den verbleibenden Sidebar-Raum
+  if (albumsWrap && albumsOffset > 0) {
+    albumsWrap.style.height = Math.max(finalH - albumsOffset, 0) + "px";
+  }
 
   // Übrige Posts in feed-below verschieben
   posts.slice(splitIdx).forEach(p => feedBelow.appendChild(p));
@@ -667,6 +689,8 @@ function togglePost(pid) {
       initSlideshowRatio(pid, postData.images[0]);
     }
   }
+  // Feed-Split neu berechnen damit Albums-Block plan bleibt
+  requestAnimationFrame(splitFeedAtSidebarHeight);
 }
 
 // ── INLINE EDIT: TEXT + FOTO POSTS ───────────────────────────────────────────
