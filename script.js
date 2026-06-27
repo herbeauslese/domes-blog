@@ -514,7 +514,7 @@ function renderPhotoPost(p, pid, dateStr) {
   let slidesHTML = "";
   if (orderedImgs.length > 0) {
     const tracks = orderedImgs.map((url, i) =>
-      `<img class="slide-img${i===0?' active':''}" src="${url}" alt="" loading="lazy">`
+      `<img class="slide-img${i===0?' active':''}" src="${url}" alt="" loading="lazy" onload="this.style.objectFit=this.naturalHeight>this.naturalWidth?'contain':'cover'">`
     ).join("");
     const dots = orderedImgs.length > 1
       ? `<div class="slide-dots">${orderedImgs.map((_, i) =>
