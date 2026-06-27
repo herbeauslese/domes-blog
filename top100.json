@@ -10,8 +10,43 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/5/53/John-Newman-Love-Me-Again.jpg"
   },
   {
+    "title": "There Is a Light  That Never Goes Out",
+    "artist": "The Smiths",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/e/ed/The-Queen-is-Dead-cover.png"
+  },
+  {
     "title": "Love Wil Tear Us Apart",
     "artist": "Joy Division",
     "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/1/18/Love_Will_Tear_Us_Apart_%28song%29.jpg/250px-Love_Will_Tear_Us_Apart_%28song%29.jpg"
+  },
+  {
+    "title": "Semi-Charmed Life",
+    "artist": "Third Eye Blind",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/d/da/Third_eye_blind_self_titled.jpg"
+  },
+  {
+    "title": "This Charming Man",
+    "artist": "The Smiths",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/1/13/The_Smiths_The_Smiths.jpg/250px-The_Smiths_The_Smiths.jpg"
+  },
+  {
+    "title": "Is It A Crime",
+    "artist": "Sade",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/d/dd/Is_It_a_Crime_-_cover.jpg/250px-Is_It_a_Crime_-_cover.jpg"
+  },
+  {
+    "title": "Rock the Cashabn",
+    "artist": "The Clash",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/b/bb/The_Clash_Rock_the_Casbah_single_cover.png"
+  },
+  {
+    "title": "I Wanna Be Adored",
+    "artist": "The Stone Roses",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
+  },
+  {
+    "title": "Fools Gold",
+    "artist": "The Stone Roses",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
   }
 ]
