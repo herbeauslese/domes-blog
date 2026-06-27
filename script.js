@@ -170,7 +170,6 @@ async function loadData() {
   applyDark();
   render();
   renderSidebarAlbums();
-  renderMobileAlbums();
   renderAlbumStrip();
   renderFeaturedReise();
   renderBilderDesMonats();
@@ -922,7 +921,6 @@ async function deleteAlbum(eid, e) {
     mergePosts();
     render();
     renderSidebarAlbums();
-    renderMobileAlbums();
     renderAlbumStrip();
   } catch(err) {
     alert("Fehler beim Löschen: " + err.message);
@@ -2119,76 +2117,6 @@ function renderSidebarAlbums() {
   requestAnimationFrame(() => {
     sorted.forEach(a => {
       const cid = "sav-" + safeid(a.artist + a.album);
-      if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
-    });
-  });
-}
-
-// ── MOBILE ALBUM LIST ─────────────────────────────────────────────────────────
-let mobileSortMode = "rating";
-
-function setMobileSort(mode) {
-  mobileSortMode = mode;
-  const wrap = document.getElementById("mobile-platten");
-  if (wrap) wrap.querySelectorAll(".sa-sort-btn").forEach(b =>
-    b.classList.toggle("active", b.dataset.sort === mode)
-  );
-  renderMobileAlbums();
-}
-
-function toggleMobileAlbums() {
-  const wrap = document.getElementById("mobile-platten");
-  if (!wrap) return;
-  wrap.classList.toggle("expanded");
-}
-
-function renderMobileAlbums() {
-  const container = document.getElementById("mobile-albums-list");
-  if (!container || !albums.length) return;
-
-  let sorted, getGroup;
-  if (mobileSortMode === "alpha") {
-    sorted = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
-    getGroup = a => a.artist[0].toUpperCase();
-  } else if (mobileSortMode === "year") {
-    sorted = [...albums].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
-    getGroup = a => a.year || "?";
-  } else {
-    sorted = [...albums].sort((a, b) => b.rating - a.rating);
-    getGroup = a => String(Math.floor(Number(a.rating)));
-  }
-
-  let html = "";
-  let lastGroup = null;
-  sorted.forEach(a => {
-    const group = getGroup(a);
-    if (group !== lastGroup) {
-      html += `<div class="sa-separator"><span>${escapeHtml(String(group))}</span></div>`;
-      lastGroup = group;
-    }
-    const cid = "mav-" + safeid(a.artist + a.album);
-    const key = safeid(a.artist + a.album);
-    html += `<div class="sidebar-album-row" data-akey="${key}">
-      <canvas class="sidebar-album-cover" id="${cid}" width="4" height="4"></canvas>
-      <div class="sidebar-album-info">
-        <div class="sidebar-album-name">${escapeHtml(a.album)}</div>
-        <div class="sidebar-album-artist">${escapeHtml(a.artist)}</div>
-      </div>
-      <div class="sidebar-album-rating">${Number(a.rating)}</div>
-    </div>`;
-  });
-  container.innerHTML = html;
-
-  container.querySelectorAll(".sidebar-album-row").forEach(row => {
-    row.addEventListener("click", () => {
-      const a = sorted.find(x => safeid(x.artist + x.album) === row.dataset.akey);
-      if (a) openAlbumDirect(a);
-    });
-  });
-
-  requestAnimationFrame(() => {
-    sorted.forEach(a => {
-      const cid = "mav-" + safeid(a.artist + a.album);
       if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
     });
   });
