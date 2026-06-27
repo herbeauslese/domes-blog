@@ -645,11 +645,11 @@ body.dark .album-songs-list { border-color: #333; }
 /* ── FEED-GRID: FESTE PLÄTZE PRO POST-TYP ── */
 /* 1 Platz ≈ Texte (kompakt), Fotos 2 Plätze, Reisen 3 Plätze */
 .post.post-foto:not(.expanded) .collage {
-  height: calc(1.2 * var(--post-slot));
+  height: calc(1.4 * var(--post-slot));
   aspect-ratio: unset;
 }
 .post.post-reise:not(.expanded) .collage {
-  height: calc(2.4 * var(--post-slot));
+  height: calc(2.6 * var(--post-slot));
   aspect-ratio: unset;
 }
 /* Einzelbild: cover-Modus bei fixierter Höhe */
@@ -659,6 +659,15 @@ body.dark .album-songs-list { border-color: #333; }
 .post.post-reise:not(.expanded) .collage.collage-single .collage-cell img {
   height: 100%;
   object-fit: cover;
+}
+/* Slideshow-Track: gleiche Höhe wie Collage — überschreibt JS-gesetztes aspect-ratio */
+.post.post-foto.expanded .slide-track {
+  aspect-ratio: unset !important;
+  height: calc(1.4 * var(--post-slot)) !important;
+}
+.post.post-reise.expanded .slide-track {
+  aspect-ratio: unset !important;
+  height: calc(2.6 * var(--post-slot)) !important;
 }
 
 /* ── SLIDESHOW ── */
