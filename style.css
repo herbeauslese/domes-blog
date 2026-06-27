@@ -198,15 +198,16 @@ body.dark #admin-panel { background: #1c1800; border-color: #554400; }
   grid-template-columns: 3fr 2fr;
   gap: 16px;
   margin-top: 16px;
-  align-items: stretch;
+  align-items: start;
+  padding-top: 90px;
 }
-#hero-post { min-width: 0; display: flex; flex-direction: column; }
-#hero-post .post { flex: 1; margin-bottom: 0; }
-/* Aktuelle Reise füllt die volle Höhe des ersten Posts */
-#hero-row #hero-reise { height: 100%; min-width: 0; }
-#hero-reise .featured-reise-wrap { margin-bottom: 0; height: 100%; display: flex; flex-direction: column; border: var(--border); }
-#hero-reise .featured-reise-card { flex: 1; display: flex; flex-direction: column; border: none; }
-#hero-reise .featured-reise-img-wrap { flex: 0 0 auto; height: 180px; aspect-ratio: unset; }
+#hero-post { min-width: 0; }
+#hero-post .post { margin-bottom: 0; }
+/* Aktuelle Reise — natürliche Höhe, oben ausgerichtet */
+#hero-row #hero-reise { min-width: 0; }
+#hero-reise .featured-reise-wrap { margin-bottom: 0; border: var(--border); }
+#hero-reise .featured-reise-card { border: none; }
+#hero-reise .featured-reise-img-wrap { height: 180px; aspect-ratio: unset; }
 
 /* ── DESKTOP WÄSCHELEINE ── */
 #desktop-leine {
