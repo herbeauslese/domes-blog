@@ -1337,6 +1337,26 @@ body.dark #mobile-top100-toggle { border-color: #1e1e10; }
 }
 .album-strip::-webkit-scrollbar { display: none; }
 
+.album-strip-group {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-right: 1px solid #ccc;
+  padding-right: 10px;
+  margin-right: 2px;
+}
+.album-strip-group.last { border-right: none; padding-right: 0; margin-right: 0; }
+.album-strip-group-items { display: flex; gap: 10px; }
+.album-strip-group-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--muted);
+  padding-top: 4px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+body.dark .album-strip-group { border-color: #333; }
+
 .album-strip-item {
   display: flex;
   flex-direction: column;

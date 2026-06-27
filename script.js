@@ -2193,25 +2193,46 @@ function toggleMobileAlbums() {
 function renderAlbumStrip() {
   const container = document.getElementById("album-strip-mobile");
   if (!container || !albums.length) return;
-  let sorted;
+  let sorted, getGroupKey;
   if (mobileSortMode === "alpha") {
     sorted = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
+    getGroupKey = a => a.artist[0].toUpperCase();
   } else if (mobileSortMode === "year") {
     sorted = [...albums].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
+    getGroupKey = a => a.year || "?";
   } else {
     sorted = [...albums].sort((a, b) => b.rating - a.rating);
+    getGroupKey = a => String(Math.floor(Number(a.rating)));
   }
-  container.innerHTML = sorted.map(a => {
-    const cid = "asv-" + safeid(a.artist + a.album);
-    const key = safeid(a.artist + a.album);
-    const badgeColor = ratingBadgeColor(Number(a.rating));
-    return `<div class="album-strip-item" data-akey="${key}" title="${a.album} – ${a.artist}">
-      <div class="album-strip-cover-wrap">
-        <canvas class="album-strip-cover" id="${cid}" width="4" height="4"></canvas>
-        <div class="album-strip-badge-outer"><div class="album-strip-badge" style="background:${badgeColor}">${Number(a.rating)}</div></div>
-      </div>
+
+  // Alben in Gruppen aufteilen
+  const groups = [];
+  let lastKey = null;
+  sorted.forEach(a => {
+    const k = getGroupKey(a);
+    if (k !== lastKey) { groups.push({ key: k, albums: [] }); lastKey = k; }
+    groups[groups.length - 1].albums.push(a);
+  });
+
+  container.innerHTML = groups.map((g, gi) => {
+    const isLast = gi === groups.length - 1;
+    const items = g.albums.map(a => {
+      const cid = "asv-" + safeid(a.artist + a.album);
+      const key = safeid(a.artist + a.album);
+      const badgeColor = ratingBadgeColor(Number(a.rating));
+      return `<div class="album-strip-item" data-akey="${key}" title="${a.album} – ${a.artist}">
+        <div class="album-strip-cover-wrap">
+          <canvas class="album-strip-cover" id="${cid}" width="4" height="4"></canvas>
+          <div class="album-strip-badge-outer"><div class="album-strip-badge" style="background:${badgeColor}">${Number(a.rating)}</div></div>
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="album-strip-group${isLast ? " last" : ""}">
+      <div class="album-strip-group-items">${items}</div>
+      <div class="album-strip-group-label">${escapeHtml(g.key)}</div>
     </div>`;
   }).join("");
+
   container.querySelectorAll(".album-strip-item").forEach(item => {
     item.addEventListener("click", () => {
       const a = sorted.find(x => safeid(x.artist + x.album) === item.dataset.akey);
