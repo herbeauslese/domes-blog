@@ -2174,14 +2174,26 @@ function ratingBadgeColor(rating) {
 }
 
 let mobileSortMode = "rating";
+const mobileSortCycle = [
+  { mode: "rating", label: "Wert" },
+  { mode: "alpha",  label: "A–Z" },
+  { mode: "year",   label: "Jahr" }
+];
 
 function setMobileSort(mode) {
   mobileSortMode = mode;
-  const wrap = document.getElementById("mobile-platten");
-  if (wrap) wrap.querySelectorAll(".sa-sort-btn").forEach(b =>
-    b.classList.toggle("active", b.dataset.sort === mode)
-  );
+  const pill = document.getElementById("mobile-sort-pill");
+  if (pill) {
+    const entry = mobileSortCycle.find(e => e.mode === mode);
+    if (entry) pill.textContent = entry.label;
+  }
   renderAlbumStrip();
+}
+
+function cycleMobileSort() {
+  const idx = mobileSortCycle.findIndex(e => e.mode === mobileSortMode);
+  const next = mobileSortCycle[(idx + 1) % mobileSortCycle.length];
+  setMobileSort(next.mode);
 }
 
 function toggleMobileAlbums() {

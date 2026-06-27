@@ -163,12 +163,7 @@
 
     <!-- mobile: platten strip (nur auf Handy sichtbar) -->
     <div id="mobile-platten">
-      <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span></h3>
-      <div id="mobile-platten-sort">
-        <button class="sa-sort-btn active" data-sort="rating" onclick="setMobileSort('rating')">Wert</button>
-        <button class="sa-sort-btn" data-sort="alpha" onclick="setMobileSort('alpha')">A–Z</button>
-        <button class="sa-sort-btn" data-sort="year" onclick="setMobileSort('year')">Jahr</button>
-      </div>
+      <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span><button id="mobile-sort-pill" onclick="cycleMobileSort()">Wert</button></h3>
       <div class="album-strip" id="album-strip-mobile"></div>
       <button id="mobile-albums-toggle" onclick="toggleMobileAlbums()"></button>
     </div>
