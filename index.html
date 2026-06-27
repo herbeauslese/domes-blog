@@ -89,7 +89,22 @@
   <div>
     <button id="btn-new-post">+ neuer beitrag</button>
     <button id="btn-bdm-toggle">bilder des monats</button>
+    <button id="btn-top100-toggle">top 100</button>
     <button id="btn-show-hidden" style="display:none">versteckte anzeigen</button>
+  </div>
+  <div id="top100-editor" style="display:none;margin-top:8px;border-top:1px solid #f0c000;padding-top:8px">
+    <b style="display:block;margin-bottom:6px">Top 100 Songs</b>
+    <div id="top100-drag-list"></div>
+    <div style="display:flex;gap:5px;margin-top:8px;align-items:center;flex-wrap:wrap">
+      <input type="url" id="t100-new-cover" placeholder="Cover URL" style="flex:2;min-width:80px">
+      <input type="text" id="t100-new-title" placeholder="Song" style="flex:3;min-width:80px">
+      <input type="text" id="t100-new-artist" placeholder="Artist" style="flex:2;min-width:60px">
+      <button id="btn-top100-add">+</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+      <button id="btn-top100-save">speichern + push</button>
+      <span id="top100-status" style="font-size:11px;color:var(--muted)"></span>
+    </div>
   </div>
   <div id="bdm-editor" style="display:none;margin-top:8px;border-top:1px solid #f0c000;padding-top:8px">
     <b style="display:block;margin-bottom:6px">Bilder des Monats</b>
@@ -160,9 +175,13 @@
 
   </div><!-- /main-column -->
 
-  <!-- sidebar: Aktuelle Reise + Platten, natürliche Höhe -->
+  <!-- sidebar: Aktuelle Reise + Top 100 + Platten, natürliche Höhe -->
   <aside id="sidebar">
     <div id="featured-reise"></div>
+    <div class="sidebar-top100-wrap" id="sidebar-top100" style="display:none">
+      <h3 class="sidebar-title">Top 100 <span class="sidebar-subtitle">Meine liebsten Songs</span></h3>
+      <div id="top100-list"></div>
+    </div>
     <div class="sidebar-albums-wrap">
       <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span></h3>
       <div id="sidebar-albums"></div>

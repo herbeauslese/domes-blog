@@ -128,6 +128,7 @@ function hideLoadingScreen() {
 let posts   = [];  // from posts.json  (type: text | photo | album)
 let albums  = [];  // from albums.json (legacy, injected as album-posts)
 let bilderDesMonats = { month: "", photos: [] };
+let top100  = [];  // from top100.json
 let allPosts = []; // merged + sorted feed
 
 let sortDir    = 1; // 1 = oldest first, -1 = newest first
@@ -158,6 +159,7 @@ async function loadData() {
   setLoadingProgress(40);
   try { albums = await (await fetch("albums.json?_=" + Date.now())).json(); } catch(e) { albums = []; }
   try { bilderDesMonats = await (await fetch("bilder_des_monats.json?_=" + Date.now())).json(); } catch(e) { bilderDesMonats = { month: "", photos: [] }; }
+  try { top100 = await (await fetch("top100.json?_=" + Date.now())).json(); } catch(e) { top100 = []; }
   setLoadingProgress(70);
   try {
     const h = await (await fetch("hidden.json?_=" + Date.now())).json();
@@ -171,6 +173,7 @@ async function loadData() {
   renderAlbumStrip();
   renderFeaturedReise();
   renderBilderDesMonats();
+  renderTop100();
   hideLoadingScreen();
   // nach dem Laden: Hash-Anker scrollen + highlighten
   handleHashOnLoad();
@@ -2104,6 +2107,144 @@ function openBdmPhoto(p) {
   </div>`;
   overlay.style.display = "flex";
 }
+
+// ── TOP 100 SONGS ─────────────────────────────────────────────────────────────
+
+function renderTop100() {
+  const wrap = document.getElementById("sidebar-top100");
+  const list = document.getElementById("top100-list");
+  if (!wrap || !list) return;
+  if (!top100.length) { wrap.style.display = "none"; return; }
+  wrap.style.display = "";
+  list.innerHTML = top100.map((s, i) => {
+    const cid = "t100-" + i;
+    return `<div class="top100-item">
+      <span class="top100-rank">${i + 1}</span>
+      <canvas class="top100-cover" id="${cid}" width="4" height="4"></canvas>
+      <div class="top100-info">
+        <div class="top100-title">${escapeHtml(s.title)}</div>
+        <div class="top100-artist">${escapeHtml(s.artist)}</div>
+      </div>
+    </div>`;
+  }).join("");
+  requestAnimationFrame(() => {
+    top100.forEach((s, i) => {
+      if (s.cover) loadCover("t100-" + i, s.cover, "t100|" + s.title + "|" + s.artist);
+    });
+  });
+}
+
+// ── TOP 100 ADMIN EDITOR ──────────────────────────────────────────────────────
+let top100AdminList = [];
+let top100DragIdx   = null;
+
+document.getElementById("btn-top100-toggle").addEventListener("click", () => {
+  const ed = document.getElementById("top100-editor");
+  if (ed.style.display !== "none") { ed.style.display = "none"; return; }
+  top100AdminList = top100.map(s => ({ ...s }));
+  renderTop100AdminRows();
+  ed.style.display = "";
+});
+
+function renderTop100AdminRows() {
+  const list = document.getElementById("top100-drag-list");
+  if (!list) return;
+  list.innerHTML = top100AdminList.length
+    ? top100AdminList.map((s, i) => {
+        const cid = "t100a-" + i;
+        return `<div class="t100-admin-row" draggable="true" data-idx="${i}">
+          <span class="t100-admin-handle">⠿</span>
+          <span class="t100-admin-rank">${i + 1}</span>
+          <canvas class="t100-admin-cover" id="${cid}" width="4" height="4"></canvas>
+          <div class="t100-admin-info">${escapeHtml(s.title)} <span style="color:var(--muted)">— ${escapeHtml(s.artist)}</span></div>
+          <button class="t100-admin-del" data-idx="${i}" title="löschen">✕</button>
+        </div>`;
+      }).join("")
+    : `<div style="padding:10px 8px;font-size:11px;color:var(--muted)">Noch keine Songs.</div>`;
+
+  requestAnimationFrame(() => {
+    top100AdminList.forEach((s, i) => {
+      if (s.cover) loadCover("t100a-" + i, s.cover, "t100a|" + s.title + "|" + s.artist);
+    });
+  });
+
+  list.querySelectorAll(".t100-admin-row").forEach(row => {
+    row.addEventListener("dragstart", e => {
+      top100DragIdx = +row.dataset.idx;
+      e.dataTransfer.effectAllowed = "move";
+      setTimeout(() => row.classList.add("t100-dragging"), 0);
+    });
+    row.addEventListener("dragend", () => {
+      row.classList.remove("t100-dragging");
+      list.querySelectorAll(".t100-drop-above").forEach(el => el.classList.remove("t100-drop-above"));
+    });
+    row.addEventListener("dragover", e => {
+      e.preventDefault();
+      list.querySelectorAll(".t100-drop-above").forEach(el => el.classList.remove("t100-drop-above"));
+      row.classList.add("t100-drop-above");
+    });
+    row.addEventListener("drop", e => {
+      e.preventDefault();
+      row.classList.remove("t100-drop-above");
+      const toIdx = +row.dataset.idx;
+      if (top100DragIdx === null || top100DragIdx === toIdx) return;
+      const [item] = top100AdminList.splice(top100DragIdx, 1);
+      const adjusted = top100DragIdx < toIdx ? toIdx - 1 : toIdx;
+      top100AdminList.splice(adjusted, 0, item);
+      top100DragIdx = null;
+      renderTop100AdminRows();
+    });
+    row.querySelector(".t100-admin-del").addEventListener("click", () => {
+      top100AdminList.splice(+row.dataset.idx, 1);
+      renderTop100AdminRows();
+    });
+  });
+}
+
+document.getElementById("btn-top100-add").addEventListener("click", () => {
+  const title  = document.getElementById("t100-new-title").value.trim();
+  const artist = document.getElementById("t100-new-artist").value.trim();
+  const cover  = document.getElementById("t100-new-cover").value.trim();
+  if (!title || !artist) { document.getElementById("top100-status").textContent = "fehler: titel + artist angeben."; return; }
+  document.getElementById("top100-status").textContent = "";
+  top100AdminList.push({ title, artist, cover });
+  document.getElementById("t100-new-title").value  = "";
+  document.getElementById("t100-new-artist").value = "";
+  document.getElementById("t100-new-cover").value  = "";
+  renderTop100AdminRows();
+});
+
+document.getElementById("btn-top100-save").addEventListener("click", async () => {
+  const st  = document.getElementById("top100-status");
+  const btn = document.getElementById("btn-top100-save");
+  if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = "...";
+  const token  = localStorage.getItem("gh_token");
+  const repo   = localStorage.getItem("gh_repo");
+  const branch = localStorage.getItem("gh_branch") || "main";
+  if (!token || !repo) { st.textContent = "fehler: github einstellungen fehlen."; btn.disabled = false; btn.textContent = "speichern + push"; return; }
+  st.textContent = "verbinde...";
+  try {
+    const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/top100.json?ref=${branch}`,
+      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+    const sha = shaRes.ok ? (await shaRes.json()).sha : undefined;
+    const content = btoa([...new TextEncoder().encode(JSON.stringify(top100AdminList, null, 2))].map(b => String.fromCharCode(b)).join(""));
+    st.textContent = "schreibe...";
+    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/top100.json`, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "update: top 100 songs", content, sha, branch })
+    });
+    if (!putRes.ok) { const err = await putRes.json(); throw new Error(err.message || putRes.status); }
+    top100 = top100AdminList.map(s => ({ ...s }));
+    renderTop100();
+    st.textContent = "✓ fertig. ~30 sek bis live.";
+  } catch(e) {
+    st.textContent = "fehler: " + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = "speichern + push";
+  }
+});
 
 // ── BILDER DES MONATS EDITOR ──────────────────────────────────────────────────
 
