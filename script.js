@@ -2088,16 +2088,42 @@ document.getElementById("btn-show-hidden").addEventListener("click", () => {
 });
 
 // ── SIDEBAR ALBUM LIST ────────────────────────────────────────────────────────
+let desktopSortMode = "rating";
+const desktopSortCycle = [
+  { mode: "rating", label: "Wert" },
+  { mode: "alpha",  label: "A–Z" },
+  { mode: "year",   label: "Jahr" }
+];
+
+function cycleDesktopSort() {
+  const idx = desktopSortCycle.findIndex(e => e.mode === desktopSortMode);
+  const next = desktopSortCycle[(idx + 1) % desktopSortCycle.length];
+  desktopSortMode = next.mode;
+  const pill = document.getElementById("desktop-sort-pill");
+  if (pill) pill.textContent = next.label;
+  renderSidebarAlbums();
+}
+
 function renderSidebarAlbums() {
   const container = document.getElementById("sidebar-albums");
   if (!container || !albums.length) return;
 
-  const sorted = [...albums].sort((a, b) => b.rating - a.rating);
+  let sorted, getGroupKey;
+  if (desktopSortMode === "alpha") {
+    sorted = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
+    getGroupKey = a => a.artist[0].toUpperCase();
+  } else if (desktopSortMode === "year") {
+    sorted = [...albums].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
+    getGroupKey = a => String(a.year || "?");
+  } else {
+    sorted = [...albums].sort((a, b) => b.rating - a.rating);
+    getGroupKey = a => String(Math.floor(Number(a.rating)));
+  }
 
   const groups = [];
   let lastKey = null;
   sorted.forEach(a => {
-    const k = String(Math.floor(Number(a.rating)));
+    const k = getGroupKey(a);
     if (k !== lastKey) { groups.push({ key: k, albums: [] }); lastKey = k; }
     groups[groups.length - 1].albums.push(a);
   });
