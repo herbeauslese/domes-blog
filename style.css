@@ -1358,8 +1358,8 @@ body.dark #mobile-top100-toggle { border-color: #1e1e10; }
 }
 
 .sidebar-album-group-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-body);
+  font-size: 11px;
   font-weight: 800;
   color: var(--muted);
   padding: 3px 14px;
