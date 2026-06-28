@@ -10,9 +10,9 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/5/53/John-Newman-Love-Me-Again.jpg"
   },
   {
-    "title": "There Is a Light  That Never Goes Out",
-    "artist": "The Smiths",
-    "cover": "https://upload.wikimedia.org/wikipedia/en/e/ed/The-Queen-is-Dead-cover.png"
+    "title": "Kids",
+    "artist": "MGMT",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/8/83/Oracular_Spectacular_2008.jpg/250px-Oracular_Spectacular_2008.jpg"
   },
   {
     "title": "Love Wil Tear Us Apart",
@@ -20,19 +20,29 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/1/18/Love_Will_Tear_Us_Apart_%28song%29.jpg/250px-Love_Will_Tear_Us_Apart_%28song%29.jpg"
   },
   {
+    "title": "There Is a Light  That Never Goes Out",
+    "artist": "The Smiths",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/e/ed/The-Queen-is-Dead-cover.png"
+  },
+  {
     "title": "Semi-Charmed Life",
     "artist": "Third Eye Blind",
     "cover": "https://upload.wikimedia.org/wikipedia/en/d/da/Third_eye_blind_self_titled.jpg"
   },
   {
-    "title": "This Charming Man",
-    "artist": "The Smiths",
-    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/1/13/The_Smiths_The_Smiths.jpg/250px-The_Smiths_The_Smiths.jpg"
-  },
-  {
     "title": "Is It A Crime",
     "artist": "Sade",
     "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/d/dd/Is_It_a_Crime_-_cover.jpg/250px-Is_It_a_Crime_-_cover.jpg"
+  },
+  {
+    "title": "Teal",
+    "artist": "Wunderhorse",
+    "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFa-NeniW7BUavP9kz2Fhg9TXD-Q3UCylmKE7__mLsC7KJw8FeZK3gkfk&s=10"
+  },
+  {
+    "title": "This Charming Man",
+    "artist": "The Smiths",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/1/13/The_Smiths_The_Smiths.jpg/250px-The_Smiths_The_Smiths.jpg"
   },
   {
     "title": "I Wanna Be Adored",
@@ -45,9 +55,49 @@
     "cover": "https://upload.wikimedia.org/wikipedia/ru/f/f5/The_Cure_-_Kiss_Me%2C_Kiss_Me%2C_Kiss_Me.jpg"
   },
   {
+    "title": "Champagne Supernova",
+    "artist": "Oasis",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Oasis_-_%28What%27s_The_Story%29_Morning_Glory_album_cover.jpg"
+  },
+  {
+    "title": "Sympathy For The Devil",
+    "artist": "The Rolling Stones",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/d/da/Sympathy_for_the_Devil_cover.jpg"
+  },
+  {
+    "title": "I Am the Resurrection",
+    "artist": "The Stone Roses",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
+  },
+  {
+    "title": "Band On The Run",
+    "artist": "Paul McCartney & Wings",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/f/f4/Paul_McCartney_%26_Wings-Band_on_the_Run_album_cover.jpg"
+  },
+  {
+    "title": "Lady Writer",
+    "artist": "Dire Straits",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/1/14/Dire_Straits_Communique.jpg"
+  },
+  {
+    "title": "Whole Lotta Love",
+    "artist": "Led Zeppelin",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/6/66/Wllsingle.jpg"
+  },
+  {
     "title": "Rock the Cashabn",
     "artist": "The Clash",
     "cover": "https://upload.wikimedia.org/wikipedia/en/b/bb/The_Clash_Rock_the_Casbah_single_cover.png"
+  },
+  {
+    "title": "Don't Look Back In Anger",
+    "artist": "Oasis",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Oasis_-_%28What%27s_The_Story%29_Morning_Glory_album_cover.jpg"
+  },
+  {
+    "title": "Can't You Hear Me Knocking",
+    "artist": "The Rolling Stones",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/5/57/The_Rolling_Stones_-_Sticky_Fingers.png/250px-The_Rolling_Stones_-_Sticky_Fingers.png"
   },
   {
     "title": "Fools Gold",
@@ -55,8 +105,48 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
   },
   {
-    "title": "I Am the Resurrection",
-    "artist": "The Stone Roses",
-    "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
+    "title": "Slide Away",
+    "artist": "Oasis",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/d/d4/OasisDefinitelyMaybealbumcover.jpg"
+  },
+  {
+    "title": "One of These Nights",
+    "artist": "Eagles",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/3/30/The_Eagles_-_One_of_These_Nights.jpg"
+  },
+  {
+    "title": "Come As You Are",
+    "artist": "Nirvana",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/0/06/ComeAsYouAre.jpg"
+  },
+  {
+    "title": "Mistadobalina",
+    "artist": "Del The Funky Homosapien",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Delbgwh.jpg/250px-Delbgwh.jpg"
+  },
+  {
+    "title": "Disorder",
+    "artist": "Joy Division",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/5/5a/UnknownPleasuresVinyl.jpg"
+  },
+  {
+    "title": "Wild Horses",
+    "artist": "The Rolling Stones",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/5/57/The_Rolling_Stones_-_Sticky_Fingers.png/250px-The_Rolling_Stones_-_Sticky_Fingers.png"
+  },
+  {
+    "title": "Wonderwall",
+    "artist": "Oasis",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Oasis_-_%28What%27s_The_Story%29_Morning_Glory_album_cover.jpg"
+  },
+  {
+    "title": "Stairway to Heaven",
+    "artist": "Led Zeppelin",
+    "cover": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Zeppelin_IV.jpg"
+  },
+  {
+    "title": "Hotel California",
+    "artist": "Eagles",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/4/49/Hotelcalifornia.jpg"
   }
 ]
