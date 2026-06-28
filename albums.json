@@ -688,5 +688,29 @@
       "edginess": 4,
       "harmonie": 5
     }
+  },
+  {
+    "artist": "Miles Davis",
+    "album": "Bitches Brew",
+    "year": 1970,
+    "genre": "Jazz, Fusion Jazz, Avantgarde-Jazz",
+    "rating": 9.5,
+    "favorite_song": "Bitches Brew",
+    "songs": [
+      "Pharaoh’s Dance",
+      "Bitches Brew",
+      "Spanish Key",
+      "John McLaughlin",
+      "Miles Runs the Voodoo Down",
+      "Sanctuary"
+    ],
+    "review": "Jazz ist für Rentner, Jazz ist langweilig, Jazz ist eintönig. Alles typische Stereotypen. Und auch ich hab lange Zeit so gedacht. Aber wenn man einmal dieses Kunstwerk von Miles anhört, dann ändert man seine Meinung ganz schnell. \nVom Cover, über den Namen bis zum Soundtrack. Dieses Album ist ein Meisterwerk. Es fühlt sich an, als würde man in eine Parallelwelt abtauchen. \nAuf Bitches Brew spielten zeitweise bis zu 13 Musiker gleichzeitig – darunter drei E-Pianos, zwei Schlagzeuger und zwei Bassisten. Sehr ungewöhnlich für Jazz zu der Zeit.",
+    "cover_url": "https://upload.wikimedia.org/wikipedia/en/7/72/Bitches_brew.jpg",
+    "reviewed_at": "2026-06-28T11:53:39.659Z",
+    "sub_ratings": {
+      "hoerspass": 5,
+      "edginess": 5,
+      "harmonie": 4
+    }
   }
 ]
