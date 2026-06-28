@@ -2176,7 +2176,8 @@ function ratingBadgeColor(rating) {
 let mobileSortMode = "rating";
 const mobileSortCycle = [
   { mode: "rating", label: "Wert" },
-  { mode: "alpha",  label: "A–Z" }
+  { mode: "alpha",  label: "A–Z" },
+  { mode: "year",   label: "Jahr" }
 ];
 
 function setMobileSort(mode) {
