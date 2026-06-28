@@ -2094,16 +2094,30 @@ function renderSidebarAlbums() {
 
   const sorted = [...albums].sort((a, b) => b.rating - a.rating);
 
-  container.innerHTML = sorted.map(a => {
-    const cid = "sav-" + safeid(a.artist + a.album);
-    const key = safeid(a.artist + a.album);
-    return `<div class="sidebar-album-row" data-akey="${key}">
-      <canvas class="sidebar-album-cover" id="${cid}" width="4" height="4"></canvas>
-      <div class="sidebar-album-info">
-        <div class="sidebar-album-name">${escapeHtml(a.album)}</div>
-        <div class="sidebar-album-artist">${escapeHtml(a.artist)}</div>
-      </div>
-      <div class="sidebar-album-rating">${Number(a.rating)}</div>
+  const groups = [];
+  let lastKey = null;
+  sorted.forEach(a => {
+    const k = String(Math.floor(Number(a.rating)));
+    if (k !== lastKey) { groups.push({ key: k, albums: [] }); lastKey = k; }
+    groups[groups.length - 1].albums.push(a);
+  });
+
+  container.innerHTML = groups.map(g => {
+    const rows = g.albums.map(a => {
+      const cid = "sav-" + safeid(a.artist + a.album);
+      const key = safeid(a.artist + a.album);
+      return `<div class="sidebar-album-row" data-akey="${key}">
+        <canvas class="sidebar-album-cover" id="${cid}" width="4" height="4"></canvas>
+        <div class="sidebar-album-info">
+          <div class="sidebar-album-name">${escapeHtml(a.album)}</div>
+          <div class="sidebar-album-artist">${escapeHtml(a.artist)}</div>
+        </div>
+        <div class="sidebar-album-rating">${Number(a.rating)}</div>
+      </div>`;
+    }).join("");
+    return `<div class="sidebar-album-group">
+      <div class="sidebar-album-group-label">${escapeHtml(g.key)}</div>
+      ${rows}
     </div>`;
   }).join("");
 

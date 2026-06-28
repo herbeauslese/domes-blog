@@ -752,13 +752,13 @@ body.dark .comment-item { border-color: #1e1e10; }
   border: var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow);
+  filter: drop-shadow(4px 4px 0 #000);
   display: flex;
   flex-direction: column;
   height: calc(4 * var(--post-slot));
   flex: none;
 }
-body.dark .sidebar-albums-wrap { border-color: #555; box-shadow: 4px 4px 0 #444; }
+body.dark .sidebar-albums-wrap { border-color: #555; filter: drop-shadow(4px 4px 0 #444); }
 
 .sidebar-title {
   font-family: var(--font-head);
@@ -804,7 +804,8 @@ body.dark .sidebar-title { background: var(--accent); color: #000; }
   border-bottom: 1px solid #e0e0e0;
   transition: background var(--transition);
 }
-.sidebar-album-row:last-child { border-bottom: none; }
+.sidebar-album-row:last-child,
+.sidebar-album-group:last-child .sidebar-album-row:last-child { border-bottom: none; }
 .sidebar-album-row:hover { background: var(--bg); }
 body.dark .sidebar-album-row { border-color: #1e1e10; }
 body.dark .sidebar-album-row:hover { background: #2c2c14; }
@@ -856,12 +857,12 @@ body.dark .sidebar-album-cover { background: #222; }
   border: var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow);
+  filter: drop-shadow(4px 4px 0 #000);
   height: calc(3 * var(--post-slot));
   display: flex;
   flex-direction: column;
 }
-body.dark .sidebar-top100-wrap { border-color: #555; box-shadow: 4px 4px 0 #444; }
+body.dark .sidebar-top100-wrap { border-color: #555; filter: drop-shadow(4px 4px 0 #444); }
 
 #top100-list {
   flex: 1;
@@ -1350,11 +1351,23 @@ body.dark #mobile-top100-toggle { border-color: #1e1e10; }
 .album-strip-group-label {
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 800;
   color: var(--muted);
   text-align: center;
   letter-spacing: 0.5px;
 }
+
+.sidebar-album-group-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+  padding: 3px 14px 2px;
+  border-top: 1px solid #e0e0e0;
+  letter-spacing: 0.5px;
+}
+.sidebar-album-group:first-child .sidebar-album-group-label { border-top: none; padding-top: 0; }
+body.dark .sidebar-album-group-label { border-color: #1e1e10; }
 body.dark .album-strip-group { border-color: #333; }
 
 .album-strip-item {
