@@ -105,6 +105,11 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
   },
   {
+    "title": "Black Lucia",
+    "artist": "Aztec Camera",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/f/f1/AC_Dreamland.jpg"
+  },
+  {
     "title": "Slide Away",
     "artist": "Oasis",
     "cover": "https://upload.wikimedia.org/wikipedia/en/d/d4/OasisDefinitelyMaybealbumcover.jpg"
@@ -138,6 +143,11 @@
     "title": "Wonderwall",
     "artist": "Oasis",
     "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Oasis_-_%28What%27s_The_Story%29_Morning_Glory_album_cover.jpg"
+  },
+  {
+    "title": "Get Out Of London",
+    "artist": "Aztec Camera",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/0/08/Aztecstray.jpg"
   },
   {
     "title": "Stairway to Heaven",
