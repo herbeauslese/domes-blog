@@ -2211,7 +2211,7 @@ function renderAlbumStrip() {
     getGroupKey = a => a.artist[0].toUpperCase();
   } else if (mobileSortMode === "year") {
     sorted = [...albums].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
-    getGroupKey = a => a.year || "?";
+    getGroupKey = a => String(a.year || "?");
   } else {
     sorted = [...albums].sort((a, b) => b.rating - a.rating);
     getGroupKey = a => String(Math.floor(Number(a.rating)));
