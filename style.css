@@ -1352,7 +1352,6 @@ body.dark #mobile-top100-toggle { border-color: #1e1e10; }
   font-size: 11px;
   font-weight: bold;
   color: var(--muted);
-  padding-top: 4px;
   text-align: center;
   letter-spacing: 0.5px;
 }
@@ -1372,6 +1371,7 @@ body.dark .album-strip-group { border-color: #333; }
   position: relative;
   width: 60px;
   height: 60px;
+  transition: width 0.35s ease, height 0.35s ease;
 }
 
 .album-strip-cover {
@@ -1384,6 +1384,7 @@ body.dark .album-strip-group { border-color: #333; }
   background: #eee;
   display: block;
   box-shadow: 2px 2px 0 #000;
+  transition: width 0.35s ease, height 0.35s ease;
 }
 body.dark .album-strip-cover { background: #222; }
 
@@ -1549,11 +1550,24 @@ body.dark .album-strip-cover { background: #222; }
   }
   #mobile-sort-pill:hover { background: rgba(255,255,255,0.3); }
   body.dark #mobile-sort-pill { background: rgba(0,0,0,0.2); border-color: rgba(0,0,0,0.4); color: #000; }
-  #mobile-platten:not(.expanded) #mobile-sort-pill { display: none; }
-  #mobile-platten:not(.expanded) .album-strip-group-label { display: none; }
-  #mobile-platten:not(.expanded) .album-strip-group { border-right: none; padding-right: 0; margin-right: 0; }
+  #mobile-platten:not(.expanded) #mobile-sort-pill { opacity: 0; pointer-events: none; }
+  #mobile-platten.expanded #mobile-sort-pill { opacity: 1; transition: opacity 0.3s ease 0.1s; }
+  .album-strip-group-label {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    transition: max-height 0.35s ease, opacity 0.3s ease, padding-top 0.35s ease;
+  }
+  #mobile-platten.expanded .album-strip-group-label {
+    max-height: 20px;
+    opacity: 1;
+    padding-top: 4px;
+  }
+  #mobile-platten:not(.expanded) .album-strip-group { border-right: none; padding-right: 0; margin-right: 0; transition: border-color 0.35s, padding 0.35s, margin 0.35s; }
+  #mobile-platten.expanded .album-strip-group { transition: border-color 0.35s, padding 0.35s, margin 0.35s; }
 
-  #mobile-platten .album-strip { padding: 10px 12px 12px; }
+  #mobile-platten .album-strip { padding: 10px 12px 12px; transition: padding 0.35s ease; }
   #mobile-platten.expanded .album-strip { padding: 14px 12px 14px; }
   #mobile-platten.expanded .album-strip-cover-wrap { width: 78px; height: 78px; }
   #mobile-platten.expanded .album-strip-cover { width: 78px; height: 78px; }
