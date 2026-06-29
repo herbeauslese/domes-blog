@@ -170,13 +170,13 @@ async function loadData() {
   setLoadingProgress(90);
   mergePosts();
   applyDark();
-  render();
   renderSidebarAlbums();
   renderAlbumStrip();
   renderFeaturedReise();
   renderBilderDesMonats();
   renderSidebarBdmArchiv();
   renderTop100();
+  render();
   hideLoadingScreen();
   // nach dem Laden: Hash-Anker scrollen + highlighten
   handleHashOnLoad();
@@ -270,7 +270,7 @@ function buildFeedGrid(filtered) {
   const pool     = document.getElementById("sidebar-pool");
 
   // Sidebar-Blöcke zurück in den Pool bevor innerHTML überschrieben wird
-  pool.querySelectorAll(".sidebar-grid-block").forEach(el => {
+  document.querySelectorAll(".sidebar-grid-block").forEach(el => {
     if (el.parentElement !== pool) pool.appendChild(el);
   });
 
