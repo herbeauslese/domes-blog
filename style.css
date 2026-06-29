@@ -321,31 +321,17 @@ body.dark .desktop-hanging-photo { background: #2a2810; }
   overflow-wrap: break-word;
 }
 body.dark .desktop-hanging-caption { color: #999; }
-/* Sidebar featured-reise auf Desktop ausblenden — steht jetzt im hero-row */
-#sidebar #featured-reise { display: none; }
-
-/* Zeilen 2-N: Posts (~77%) + schmale Sidebar */
-#feed-section {
+/* ── ALTERNATING FEED GRID ── */
+#feed-grid {
   display: grid;
-  grid-template-columns: 1fr 272px;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-top: 16px;
   align-items: start;
 }
 
-/* ── SIDEBAR ── */
-#sidebar {
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* ── MAIN COLUMN ── */
-#main-column { min-width: 0; }
-
-/* Posts nach Sidebar-Ende: volle Breite */
-#feed-below { margin-top: 0; }
+/* Posts ab Slot 5: volle Breite */
+.feed-fw { grid-column: 1 / -1; }
 
 /* ── CONTROLS ── */
 #controls {
@@ -812,8 +798,7 @@ body.dark .sidebar-archiv-wrap { border-color: #555; filter: drop-shadow(4px 4px
   filter: drop-shadow(4px 4px 0 #000);
   display: flex;
   flex-direction: column;
-  height: calc(4 * var(--post-slot));
-  flex: none;
+  max-height: calc(5 * var(--post-slot));
 }
 body.dark .sidebar-albums-wrap { border-color: #555; filter: drop-shadow(4px 4px 0 #444); }
 
@@ -915,7 +900,7 @@ body.dark .sidebar-album-cover { background: #222; }
   border-radius: var(--radius);
   overflow: hidden;
   filter: drop-shadow(4px 4px 0 #000);
-  height: calc(3 * var(--post-slot));
+  max-height: calc(4 * var(--post-slot));
   display: flex;
   flex-direction: column;
 }
@@ -1602,9 +1587,9 @@ body.dark .album-strip-cover { background: #222; }
 
   #header-me, #header-me-album { height: 68px; right: 10px; bottom: 4px; }
 
-  #hero-row { display: none !important; }
-  #feed-section { grid-template-columns: 1fr; }
-  #sidebar { display: none; }
+  #feed-grid { grid-template-columns: 1fr; }
+  .feed-fw { grid-column: 1; }
+  .sidebar-grid-block { display: none; }
 
   /* Nav: kein Scrollen, kein Sort, kein Search */
   #main-nav { overflow: visible; justify-content: center; }

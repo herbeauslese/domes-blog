@@ -127,83 +127,64 @@
 <!-- desktop: Wäscheleine Bilder des Monats -->
 <div id="desktop-leine"></div>
 
-<!-- Hero-Zeile: erster Post (60%) + Aktuelle Reise (40%), gleiche Höhe -->
-<div id="hero-row" style="display:none">
-  <div id="hero-post"></div>
-  <div id="hero-reise"></div>
+<!-- Sidebar-Blöcke (pool — JS schiebt sie in feed-grid) -->
+<div id="sidebar-pool" style="display:none">
+  <div id="featured-reise" class="sidebar-grid-block"></div>
+  <div class="sidebar-albums-wrap sidebar-grid-block" id="sidebar-albums-block">
+    <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span><button id="desktop-sort-pill" onclick="cycleDesktopSort()">Wert</button></h3>
+    <div id="sidebar-albums"></div>
+  </div>
+  <div class="sidebar-archiv-wrap sidebar-grid-block" id="sidebar-bdm-archiv">
+    <h3 class="sidebar-title">Archiv <span class="sidebar-subtitle">Bilder des Monats</span></h3>
+    <div class="sidebar-archiv-slide"></div>
+  </div>
+  <div class="sidebar-top100-wrap sidebar-grid-block" id="sidebar-top100">
+    <h3 class="sidebar-title">Top 100 <span class="sidebar-subtitle">Meine liebsten Songs</span></h3>
+    <div id="top100-list"></div>
+  </div>
 </div>
 
-<!-- 2-Spalten-Layout: links Feed (~77%), rechts schmale Sidebar -->
-<div id="feed-section">
-
-  <!-- main column: Posts 2-N neben Sidebar -->
-  <div id="main-column">
-
-    <!-- controls -->
-    <div id="controls">
-      <div style="display:contents" id="controls-top">
-        <button id="btn-filter-toggle" aria-label="Filter" style="display:none">[filter]</button>
-        <div id="controls-right">
-          <span id="post-count"></span>
-        </div>
-      </div>
-      <div id="controls-filters">
-        <select id="filter-type" style="display:none">
-          <option value="all">alle beiträge</option>
-          <option value="text">nur text</option>
-          <option value="photo">nur fotos</option>
-          <option value="reise">nur reisen</option>
-          <option value="embed">nur embeds</option>
-        </select>
-      </div>
+<!-- Controls (volle Breite) -->
+<div id="controls">
+  <div style="display:contents" id="controls-top">
+    <button id="btn-filter-toggle" aria-label="Filter" style="display:none">[filter]</button>
+    <div id="controls-right">
+      <span id="post-count"></span>
     </div>
+  </div>
+  <div id="controls-filters">
+    <select id="filter-type" style="display:none">
+      <option value="all">alle beiträge</option>
+      <option value="text">nur text</option>
+      <option value="photo">nur fotos</option>
+      <option value="reise">nur reisen</option>
+      <option value="embed">nur embeds</option>
+    </select>
+  </div>
+</div>
 
-    <!-- featured reise (nur mobile) -->
-    <div id="featured-reise-mobile"></div>
+<!-- featured reise (nur mobile) -->
+<div id="featured-reise-mobile"></div>
 
-    <!-- mobile: platten strip (nur auf Handy sichtbar) -->
-    <div id="mobile-platten">
-      <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span><button id="mobile-sort-pill" onclick="cycleMobileSort()">Wert</button></h3>
-      <div class="album-strip" id="album-strip-mobile"></div>
-      <button id="mobile-albums-toggle" onclick="toggleMobileAlbums()"></button>
-    </div>
+<!-- mobile: platten strip (nur auf Handy sichtbar) -->
+<div id="mobile-platten">
+  <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span><button id="mobile-sort-pill" onclick="cycleMobileSort()">Wert</button></h3>
+  <div class="album-strip" id="album-strip-mobile"></div>
+  <button id="mobile-albums-toggle" onclick="toggleMobileAlbums()"></button>
+</div>
 
-    <!-- mobile: Top 100 (nur auf Handy sichtbar) -->
-    <div id="mobile-top100">
-      <h3 class="sidebar-title">Meine Top 100 Songs</h3>
-      <div id="mobile-top100-list"></div>
-      <button id="mobile-top100-toggle" onclick="toggleMobileTop100()"></button>
-    </div>
+<!-- mobile: Top 100 (nur auf Handy sichtbar) -->
+<div id="mobile-top100">
+  <h3 class="sidebar-title">Meine Top 100 Songs</h3>
+  <div id="mobile-top100-list"></div>
+  <button id="mobile-top100-toggle" onclick="toggleMobileTop100()"></button>
+</div>
 
-    <!-- feed: Posts neben Sidebar -->
-    <div id="feed"></div>
+<!-- 2-Spalten-Grid: Posts & Sidebar-Blöcke abwechselnd -->
+<div id="feed-grid"></div>
 
-    <!-- album grid -->
-    <div id="album-grid" style="display:none"></div>
-
-  </div><!-- /main-column -->
-
-  <!-- sidebar: Aktuelle Reise + Top 100 + Platten, natürliche Höhe -->
-  <aside id="sidebar">
-    <div id="featured-reise"></div>
-    <div class="sidebar-archiv-wrap" id="sidebar-bdm-archiv" style="display:none">
-      <h3 class="sidebar-title">Archiv <span class="sidebar-subtitle">Bilder des Monats</span></h3>
-      <div class="sidebar-archiv-slide"></div>
-    </div>
-    <div class="sidebar-top100-wrap" id="sidebar-top100" style="display:none">
-      <h3 class="sidebar-title">Top 100 <span class="sidebar-subtitle">Meine liebsten Songs</span></h3>
-      <div id="top100-list"></div>
-    </div>
-    <div class="sidebar-albums-wrap">
-      <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span><button id="desktop-sort-pill" onclick="cycleDesktopSort()">Wert</button></h3>
-      <div id="sidebar-albums"></div>
-    </div>
-  </aside>
-
-</div><!-- /feed-section -->
-
-<!-- Posts nach Sidebar-Ende: volle Breite -->
-<div id="feed-below"></div>
+<!-- Platten-Grid (separater Modus) -->
+<div id="album-grid" style="display:none"></div>
 
 <!-- footer -->
 <hr>

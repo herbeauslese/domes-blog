@@ -226,146 +226,104 @@ function render() {
   const q = searchQ.toLowerCase();
 
   let filtered = allPosts.filter(p => {
-    // Alben nur im Album-Grid, nicht im Blog-Feed
     if (p.type === "album") return false;
-    // Entwürfe nur für Admin sichtbar
     if (p.draft && !unlocked) return false;
-    // type filter
     if (filterType === "text"  && p.type !== "text")  return false;
     if (filterType === "photo" && p.type !== "photo") return false;
     if (filterType === "album" && p.type !== "album") return false;
     if (filterType === "embed" && p.type !== "embed") return false;
     if (filterType === "reise" && !(p.type === "photo" && p.tag === "reise")) return false;
-    // search
     if (q) {
-      const hay = [
-        p.title || "",
-        p.text  || "",
-        p.type  === "album" ? (p._albumData.artist + " " + p._albumData.genre + " " + p._albumData.review) : ""
-      ].join(" ").toLowerCase();
+      const hay = [p.title || "", p.text || ""].join(" ").toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
   });
 
-  // hidden posts: skip unless showHidden
-  if (!showHidden) {
-    filtered = filtered.filter(p => !hiddenPosts.has(stablePid(p)));
-  }
+  if (!showHidden) filtered = filtered.filter(p => !hiddenPosts.has(stablePid(p)));
 
-  // update count
   document.getElementById("post-count").textContent = filtered.length + " beiträge";
 
-  if (!filtered.length) {
-    const hr = document.getElementById("hero-row");
-    if (hr) hr.style.display = "none";
-    document.getElementById("feed").innerHTML =
-      `<div class="post" style="color:#aaa;font-style:italic;padding:10px 0;border-top:1px solid #000;border-bottom:1px solid #000">keine beiträge.</div>`;
-    return;
-  }
-
-  const heroRow   = document.getElementById("hero-row");
-  const heroPost  = document.getElementById("hero-post");
-  const feedBelow = document.getElementById("feed-below");
-  if (feedBelow) feedBelow.innerHTML = "";
-
-  const isMobile = window.innerWidth <= 680;
-  const hasBdM   = bilderDesMonats.photos && bilderDesMonats.photos.length > 0;
-  const useHero  = heroRow && heroPost && hasBdM && !isMobile && filtered.length > 0;
-
-  if (useHero) {
-    heroRow.style.display = "";
-    heroPost.innerHTML = renderPost(filtered[0], 0);
-    document.getElementById("feed").innerHTML = filtered.slice(1).map((p, i) => renderPost(p, i + 1)).join("");
-  } else {
-    if (heroRow) heroRow.style.display = "none";
-    document.getElementById("feed").innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
-  }
+  buildFeedGrid(filtered);
 
   // init album covers
   filtered.forEach(p => {
     if (p.type === "album" && p._albumData.cover_url) {
       const a = p._albumData;
-      const cid = "cv-" + safeid(a.artist + a.album);
-      loadCover(cid, a.cover_url, a.artist + "|" + a.album);
+      loadCover("cv-" + safeid(a.artist + a.album), a.cover_url, a.artist + "|" + a.album);
     }
   });
 
-  // init song tickers
   requestAnimationFrame(() => requestAnimationFrame(initTickers));
 
-  // slideshow aspect ratios — vom ersten Bild ableiten
   filtered.forEach(p => {
     if (p.type === "photo" && p.images && p.images.length > 0) {
       initSlideshowRatio(stablePid(p), p.images[0]);
     }
   });
 
-  // apply hidden UI state
   requestAnimationFrame(applyHiddenUI);
-
-  // Posts nach Sidebar aufteilen
-  requestAnimationFrame(() => requestAnimationFrame(splitFeedAtSidebarHeight));
 }
 
-function splitFeedAtSidebarHeight() {
-  if (window.innerWidth <= 680) return;
-  const sidebar   = document.getElementById("sidebar");
-  const feed      = document.getElementById("feed");
-  const feedBelow = document.getElementById("feed-below");
-  if (!sidebar || !feed || !feedBelow) return;
-  if (getComputedStyle(sidebar).display === "none") return;
+function buildFeedGrid(filtered) {
+  const feedGrid = document.getElementById("feed-grid");
+  const pool     = document.getElementById("sidebar-pool");
 
-  const albumsWrap = sidebar.querySelector(".sidebar-albums-wrap");
+  // Sidebar-Blöcke zurück in den Pool bevor innerHTML überschrieben wird
+  pool.querySelectorAll(".sidebar-grid-block").forEach(el => {
+    if (el.parentElement !== pool) pool.appendChild(el);
+  });
 
-  // feed-below Posts zurückholen, damit die Menge neu berechnet wird
-  Array.from(feedBelow.children).forEach(p => feed.appendChild(p));
-
-  // Reset für korrekte naturalH (Albums auf CSS-Standardhöhe zurück)
-  if (albumsWrap) albumsWrap.style.height = "";
-  sidebar.style.height = "";
-  sidebar.style.overflow = "";
-  const naturalH = sidebar.scrollHeight;
-
-  const posts = Array.from(feed.children);
-  if (!posts.length) return;
-
-  // Albums-Startposition bei natürlicher Sidebar-Höhe messen
-  let albumsOffset = 0;
-  if (albumsWrap) {
-    const sR = sidebar.getBoundingClientRect();
-    const aR = albumsWrap.getBoundingClientRect();
-    albumsOffset = aR.top - sR.top;
+  if (!filtered.length) {
+    feedGrid.innerHTML = `<div class="post feed-fw" style="color:#aaa;font-style:italic;padding:10px 0;border-top:1px solid #000;border-bottom:1px solid #000">keine beiträge.</div>`;
+    return;
   }
 
-  // Posts akkumulieren bis sidebar-Höhe überschritten wird
-  let cumH     = 0;
-  let splitIdx = posts.length;
+  const isMobile = window.innerWidth <= 680;
 
-  for (let i = 0; i < posts.length; i++) {
-    const gap = i > 0 ? 16 : 0;
-    cumH += gap + posts[i].offsetHeight;
-    if (cumH > naturalH) {
-      splitIdx = i;
-      cumH -= gap + posts[i].offsetHeight;
-      break;
-    }
+  if (isMobile) {
+    feedGrid.innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
+    return;
   }
 
-  const finalH = cumH || naturalH;
+  // Aktive Sidebar-Blöcke in gewünschter Reihenfolge
+  const blockOrder = ["featured-reise", "sidebar-albums-block", "sidebar-bdm-archiv", "sidebar-top100"];
+  const blocks = blockOrder
+    .map(id => document.getElementById(id))
+    .filter(el => el && el.innerHTML.trim() !== "" && el.style.display !== "none");
 
-  // Sidebar auf exakte Post-Grenze snappen
-  sidebar.style.height = finalH + "px";
-  sidebar.style.overflow = "hidden";
+  // Posts 0-(blocks.length-1) abwechselnd mit Sidebar-Blöcken, Rest volle Breite
+  const pairedPosts   = filtered.slice(0, blocks.length);
+  const fullWidePosts = filtered.slice(blocks.length);
 
-  // Albums-Block füllt genau den verbleibenden Sidebar-Raum
-  if (albumsWrap && albumsOffset > 0) {
-    albumsWrap.style.height = Math.max(finalH - albumsOffset, 0) + "px";
+  // Interleaving: post, block, block, post, post, block, block, post, …
+  const items = [];
+  let pi = 0, bi = 0;
+  while (pi < pairedPosts.length || bi < blocks.length) {
+    const slot = items.length % 4;
+    const wantsBlock = slot === 1 || slot === 2;
+    if (wantsBlock && bi < blocks.length)      items.push({ type: "block", el: blocks[bi++] });
+    else if (pi < pairedPosts.length)          items.push({ type: "post",  p: pairedPosts[pi], i: pi++ });
+    else if (bi < blocks.length)               items.push({ type: "block", el: blocks[bi++] });
+    else break;
   }
 
-  // Übrige Posts in feed-below verschieben
-  posts.slice(splitIdx).forEach(p => feedBelow.appendChild(p));
+  // HTML bauen — Sidebar-Blöcke als Platzhalter
+  feedGrid.innerHTML =
+    items.map((item, idx) =>
+      item.type === "post"
+        ? renderPost(item.p, item.i)
+        : `<div class="block-ph" data-idx="${idx}"></div>`
+    ).join("") +
+    fullWidePosts.map((p, i) => `<div class="feed-fw">${renderPost(p, blocks.length + i)}</div>`).join("");
+
+  // Platzhalter durch echte DOM-Knoten ersetzen
+  items.filter(it => it.type === "block").forEach(item => {
+    const ph = feedGrid.querySelector(`.block-ph[data-idx="${items.indexOf(item)}"]`);
+    if (ph) ph.replaceWith(item.el);
+  });
 }
+
 
 function safeid(s) { return s.replace(/[^a-zA-Z0-9]/g, ""); }
 
@@ -692,8 +650,6 @@ function togglePost(pid) {
       initSlideshowRatio(pid, postData.images[0]);
     }
   }
-  // Feed-Split neu berechnen damit Albums-Block plan bleibt
-  requestAnimationFrame(splitFeedAtSidebarHeight);
 }
 
 // ── INLINE EDIT: TEXT + FOTO POSTS ───────────────────────────────────────────
@@ -1922,7 +1878,7 @@ function switchToAlbumMode() {
   document.body.classList.add("album-mode");
   document.getElementById("btn-mode-switch").classList.add("active");
   document.getElementById("btn-mode-switch").textContent = "◑ blog";
-  document.getElementById("feed").style.display = "none";
+  document.getElementById("feed-grid").style.display = "none";
   document.getElementById("album-grid").style.display = "block";
   document.getElementById("controls-filters").style.display = "none";
   // Header-Figur tauschen
@@ -1939,7 +1895,7 @@ function switchToBlogMode() {
   document.body.classList.remove("album-mode");
   document.getElementById("btn-mode-switch").classList.remove("active");
   document.getElementById("btn-mode-switch").textContent = "◑ platten";
-  document.getElementById("feed").style.display = "block";
+  document.getElementById("feed-grid").style.display = "";
   document.getElementById("album-grid").style.display = "none";
   document.getElementById("controls-filters").style.display = "";
   // Header-Figur zurück
@@ -2170,7 +2126,7 @@ function renderFeaturedReise() {
   const reisePosts = posts.filter(p => p.type === "photo" && p.tag === "reise" && !p.draft);
   reisePosts.sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
 
-  ["featured-reise", "featured-reise-mobile", "hero-reise"].forEach(id => {
+  ["featured-reise", "featured-reise-mobile"].forEach(id => {
     const container = document.getElementById(id);
     if (!container) return;
     if (!reisePosts.length) { container.innerHTML = ""; return; }
