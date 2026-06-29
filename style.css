@@ -678,8 +678,8 @@ body.dark .album-songs-list { border-color: #333; }
   background: #111; aspect-ratio: 4/3;
 }
 body.dark .slide-track { background: #0a0a05; }
-.slide-img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; }
-.slide-img.active { display: block; }
+.slide-img { width: 100%; height: 100%; object-fit: cover; opacity: 0; position: absolute; top: 0; left: 0; transition: opacity 0.15s ease; }
+.slide-img.active { opacity: 1; }
 .slide-overlay-btn {
   position: absolute; top: 50%; transform: translateY(-50%);
   background: rgba(255,255,255,0.92); color: #000;
