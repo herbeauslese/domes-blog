@@ -1616,8 +1616,7 @@ body.dark .album-strip-cover { background: #222; }
 
   #header-me, #header-me-album { height: 68px; right: 10px; bottom: 4px; }
 
-  .feed-col--minor { display: none; }
-  .feed-col--major { flex: 1; }
+
 
   /* Nav: kein Scrollen, kein Sort, kein Search */
   #main-nav { overflow: visible; justify-content: center; }

@@ -281,12 +281,6 @@ function buildFeedGrid(filtered) {
     return;
   }
 
-  const isMobile = window.innerWidth <= 680;
-  if (isMobile) {
-    grid.innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
-    return;
-  }
-
   // Aktive Sidebar-Blöcke — direkt an Datenarrays geprüft
   const blockSpecs = [
     { id: "featured-reise",       active: posts.some(p => p.type === "photo" && p.tag === "reise" && !p.draft) },
@@ -344,7 +338,6 @@ function buildFeedGrid(filtered) {
 }
 
 function equalizeColumnPairs() {
-  if (window.innerWidth <= 680) return;
   const rows = Array.from(document.querySelectorAll("#feed-grid .feed-row"));
 
   // Phase 1: Reset
