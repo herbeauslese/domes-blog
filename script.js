@@ -372,8 +372,11 @@ function equalizeColumnPairs() {
   pairs.forEach((p, i) => { if (p.block) p.block.style.height = postHeights[i] + "px"; });
 
   // Phase 4: Eingeklemmte Block-Höhe messen, Post auf diesen Wert hochziehen
+  // Embed-Posts werden nicht gestreckt (Iframe-Inhalt ist fixe Höhe)
   pairs.forEach(p => {
-    if (p.post && p.block) p.post.style.minHeight = p.block.offsetHeight + "px";
+    if (p.post && p.block && p.post.dataset.type !== "embed") {
+      p.post.style.minHeight = p.block.offsetHeight + "px";
+    }
   });
 }
 
