@@ -747,6 +747,63 @@ body.dark .comment-item { border-color: #1e1e10; }
 
 /* ── SIDEBAR ── */
 
+.sidebar-archiv-wrap {
+  background: var(--card);
+  border: var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  filter: drop-shadow(4px 4px 0 #000);
+  display: flex;
+  flex-direction: column;
+}
+body.dark .sidebar-archiv-wrap { border-color: #555; filter: drop-shadow(4px 4px 0 #444); }
+
+.sidebar-archiv-slide {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: #111;
+  overflow: hidden;
+}
+
+.sidebar-archiv-item {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.sidebar-archiv-item.active { opacity: 1; }
+
+.sidebar-archiv-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-archiv-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.72));
+  padding: 24px 10px 8px;
+}
+
+.sidebar-archiv-caption {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.sidebar-archiv-month {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
 .sidebar-albums-wrap {
   background: var(--card);
   border: var(--border);

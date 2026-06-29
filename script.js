@@ -128,6 +128,7 @@ function hideLoadingScreen() {
 let posts   = [];  // from posts.json  (type: text | photo | album)
 let albums  = [];  // from albums.json (legacy, injected as album-posts)
 let bilderDesMonats = { month: "", photos: [] };
+let bdmArchiv = []; // from bdm_archiv.json — array of { month, photos }
 let top100  = [];  // from top100.json
 let allPosts = []; // merged + sorted feed
 
@@ -159,6 +160,7 @@ async function loadData() {
   setLoadingProgress(40);
   try { albums = await (await fetch("albums.json?_=" + Date.now())).json(); } catch(e) { albums = []; }
   try { bilderDesMonats = await (await fetch("bilder_des_monats.json?_=" + Date.now())).json(); } catch(e) { bilderDesMonats = { month: "", photos: [] }; }
+  try { bdmArchiv = await (await fetch("bdm_archiv.json?_=" + Date.now())).json(); } catch(e) { bdmArchiv = []; }
   try { top100 = await (await fetch("top100.json?_=" + Date.now())).json(); } catch(e) { top100 = []; }
   setLoadingProgress(70);
   try {
@@ -173,6 +175,7 @@ async function loadData() {
   renderAlbumStrip();
   renderFeaturedReise();
   renderBilderDesMonats();
+  renderSidebarBdmArchiv();
   renderTop100();
   hideLoadingScreen();
   // nach dem Laden: Hash-Anker scrollen + highlighten
@@ -2526,24 +2529,43 @@ async function saveBdm() {
   }).filter(Boolean);
 
   const data    = { month, photos };
-  const content = btoa([...new TextEncoder().encode(JSON.stringify(data, null, 2))].map(b => String.fromCharCode(b)).join(""));
+  const headers = { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" };
+  const toB64   = obj => btoa([...new TextEncoder().encode(JSON.stringify(obj, null, 2))].map(b => String.fromCharCode(b)).join(""));
+
   st.textContent = "speichere...";
   try {
+    // Aktuellen Monat ins Archiv schieben wenn er Fotos hat und noch nicht drin ist
+    const cur = bilderDesMonats;
+    if (cur.photos && cur.photos.length > 0 && !bdmArchiv.some(m => m.month === cur.month)) {
+      const newArchiv = [cur, ...bdmArchiv];
+      let archivSha = null;
+      const archivRes = await fetch(`https://api.github.com/repos/${repo}/contents/bdm_archiv.json?ref=${branch}`,
+        { headers });
+      if (archivRes.ok) archivSha = (await archivRes.json()).sha;
+      const archivBody = { message: "bdm: Monat archivieren", content: toB64(newArchiv), branch };
+      if (archivSha) archivBody.sha = archivSha;
+      const archivPut = await fetch(`https://api.github.com/repos/${repo}/contents/bdm_archiv.json`, {
+        method: "PUT", headers, body: JSON.stringify(archivBody)
+      });
+      if (!archivPut.ok) { const e = await archivPut.json(); throw new Error("Archiv: " + (e.message || archivPut.status)); }
+      bdmArchiv = newArchiv;
+    }
+
+    // Neuen Monat speichern
     let sha = null;
     const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/bilder_des_monats.json?ref=${branch}`,
-      { headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" } });
+      { headers });
     if (shaRes.ok) sha = (await shaRes.json()).sha;
-    const body = { message: "bdm: update Bilder des Monats", content, branch };
+    const body = { message: "bdm: update Bilder des Monats", content: toB64(data), branch };
     if (sha) body.sha = sha;
     const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/bilder_des_monats.json`, {
-      method: "PUT",
-      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      method: "PUT", headers, body: JSON.stringify(body)
     });
     if (!putRes.ok) { const e = await putRes.json(); throw new Error(e.message || putRes.status); }
     bilderDesMonats = data;
     render();
     renderMobileBdmStickers();
+    renderSidebarBdmArchiv();
     st.textContent = "✓ gespeichert. ~30 sek bis live.";
   } catch(e) { st.textContent = "fehler: " + e.message; }
 }
@@ -2630,6 +2652,41 @@ function renderBilderDesMonats() {
   }
 
   renderMobileBdmStickers();
+}
+
+let bdmArchivTimer = null;
+let bdmArchivIdx   = 0;
+
+function renderSidebarBdmArchiv() {
+  const wrap = document.getElementById("sidebar-bdm-archiv");
+  if (!wrap) return;
+
+  const allPhotos = bdmArchiv.flatMap(m => (m.photos || []).map(p => ({ ...p, month: m.month })));
+  if (allPhotos.length === 0) { wrap.style.display = "none"; return; }
+
+  wrap.style.display = "";
+  const slideEl = wrap.querySelector(".sidebar-archiv-slide");
+
+  slideEl.innerHTML = allPhotos.map((p, i) =>
+    `<div class="sidebar-archiv-item${i === 0 ? " active" : ""}">
+      <img class="sidebar-archiv-img" src="${escapeHtml(p.url)}" alt="${escapeHtml(p.caption || "")}">
+      <div class="sidebar-archiv-info">
+        ${p.caption ? `<div class="sidebar-archiv-caption">${escapeHtml(p.caption)}</div>` : ""}
+        <div class="sidebar-archiv-month">${escapeHtml(p.month)}</div>
+      </div>
+    </div>`
+  ).join("");
+
+  if (bdmArchivTimer) clearInterval(bdmArchivTimer);
+  bdmArchivIdx = 0;
+  if (allPhotos.length > 1) {
+    bdmArchivTimer = setInterval(() => {
+      const items = wrap.querySelectorAll(".sidebar-archiv-item");
+      items[bdmArchivIdx].classList.remove("active");
+      bdmArchivIdx = (bdmArchivIdx + 1) % allPhotos.length;
+      items[bdmArchivIdx].classList.add("active");
+    }, 4000);
+  }
 }
 
 function openAlbumDirect(a) {
