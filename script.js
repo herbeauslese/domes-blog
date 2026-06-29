@@ -266,36 +266,40 @@ function render() {
 }
 
 function buildFeedGrid(filtered) {
-  const pool    = document.getElementById("sidebar-pool");
-  const colLeft = document.getElementById("col-left");
-  const colRight= document.getElementById("col-right");
-  const below   = document.getElementById("feed-below");
+  const pool  = document.getElementById("sidebar-pool");
+  const grid  = document.getElementById("feed-grid");
+  const below = document.getElementById("feed-below");
 
   // Sidebar-Blöcke zurück in den Pool
   document.querySelectorAll(".sidebar-grid-block").forEach(el => pool.appendChild(el));
 
-  colLeft.innerHTML  = "";
-  colRight.innerHTML = "";
-  below.innerHTML    = "";
+  grid.innerHTML  = "";
+  below.innerHTML = "";
 
   if (!filtered.length) {
-    colLeft.innerHTML = `<div class="post" style="color:#aaa;font-style:italic;padding:10px 0;border-top:1px solid #000;border-bottom:1px solid #000">keine beiträge.</div>`;
+    grid.innerHTML = `<div class="post" style="color:#aaa;font-style:italic;padding:10px 0;border-top:1px solid #000;border-bottom:1px solid #000">keine beiträge.</div>`;
     return;
   }
 
   const isMobile = window.innerWidth <= 680;
   if (isMobile) {
-    colLeft.innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
+    grid.innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
     return;
   }
 
-  // Aktive Sidebar-Blöcke in gewünschter Reihenfolge
-  const blocks = ["featured-reise", "sidebar-albums-block", "sidebar-bdm-archiv", "sidebar-top100"]
-    .map(id => document.getElementById(id))
-    .filter(el => el && el.style.display !== "none");
+  // Aktive Sidebar-Blöcke — direkt an Datenarrays geprüft
+  const blockSpecs = [
+    { id: "featured-reise",       active: posts.some(p => p.type === "photo" && p.tag === "reise" && !p.draft) },
+    { id: "sidebar-albums-block", active: albums.length > 0 },
+    { id: "sidebar-bdm-archiv",   active: bilderDesMonats.photos?.length > 0 || bdmArchiv.length > 0 },
+    { id: "sidebar-top100",       active: top100.length > 0 },
+  ];
+  const blocks = blockSpecs
+    .filter(s => s.active)
+    .map(s => document.getElementById(s.id))
+    .filter(Boolean);
 
-  // Stream: [post0, block0, block1, post1, post2, block2, block3, post3]
-  // Gerade Positionen → col-left, ungerade → col-right
+  // Stream: [post0, block0, block1, post1, post2, block2, ...]
   const pairedPosts = filtered.slice(0, blocks.length);
   const belowPosts  = filtered.slice(blocks.length);
 
@@ -310,16 +314,67 @@ function buildFeedGrid(filtered) {
     else break;
   }
 
-  stream.forEach((item, i) => {
-    const col = i % 2 === 0 ? colLeft : colRight;
-    if (item.type === "post") {
-      col.insertAdjacentHTML("beforeend", renderPost(item.p, item.i));
-    } else {
-      col.appendChild(item.el);
-    }
-  });
+  // Paare als eigene Reihen: post → major (60%), block → minor (40%), alternierend
+  for (let i = 0; i + 1 < stream.length; i += 2) {
+    const left  = stream[i];
+    const right = stream[i + 1];
+    const leftIsPost = left.type === "post";
+
+    const row = document.createElement("div");
+    row.className = "feed-row";
+
+    const leftCol  = document.createElement("div");
+    leftCol.className  = "feed-col " + (leftIsPost ? "feed-col--major" : "feed-col--minor");
+    const rightCol = document.createElement("div");
+    rightCol.className = "feed-col " + (leftIsPost ? "feed-col--minor" : "feed-col--major");
+
+    if (left.type  === "post") leftCol.insertAdjacentHTML("beforeend", renderPost(left.p, left.i));
+    else                       leftCol.appendChild(left.el);
+    if (right.type === "post") rightCol.insertAdjacentHTML("beforeend", renderPost(right.p, right.i));
+    else                       rightCol.appendChild(right.el);
+
+    row.appendChild(leftCol);
+    row.appendChild(rightCol);
+    grid.appendChild(row);
+  }
 
   below.innerHTML = belowPosts.map((p, i) => renderPost(p, blocks.length + i)).join("");
+
+  requestAnimationFrame(() => requestAnimationFrame(equalizeColumnPairs));
+}
+
+function equalizeColumnPairs() {
+  if (window.innerWidth <= 680) return;
+  const rows = Array.from(document.querySelectorAll("#feed-grid .feed-row"));
+
+  // Phase 1: Reset
+  rows.forEach(row => {
+    const block = row.querySelector(".sidebar-grid-block");
+    if (block) { block.style.height = ""; block.style.maxHeight = ""; }
+    const post = row.querySelector(".post");
+    if (post) post.style.minHeight = "";
+  });
+
+  // Phase 2: Paare sammeln + Post-Höhen messen (natürliche Höhe nach Reset)
+  const pairs = rows.map(row => {
+    const [lCol, rCol] = row.children;
+    if (!lCol || !rCol) return null;
+    const lBlock = lCol.querySelector(".sidebar-grid-block");
+    const rBlock = rCol.querySelector(".sidebar-grid-block");
+    if (lBlock && !rBlock) return { block: lBlock, post: rCol.querySelector(".post") };
+    if (rBlock && !lBlock) return { block: rBlock, post: lCol.querySelector(".post") };
+    return null;
+  }).filter(Boolean);
+
+  const postHeights = pairs.map(p => p.post ? p.post.offsetHeight : 0);
+
+  // Phase 3: Block-Höhe = Post-Höhe setzen → CSS min/max klemmt ein
+  pairs.forEach((p, i) => { if (p.block) p.block.style.height = postHeights[i] + "px"; });
+
+  // Phase 4: Eingeklemmte Block-Höhe messen, Post auf diesen Wert hochziehen
+  pairs.forEach(p => {
+    if (p.post && p.block) p.post.style.minHeight = p.block.offsetHeight + "px";
+  });
 }
 
 
@@ -648,6 +703,7 @@ function togglePost(pid) {
       initSlideshowRatio(pid, postData.images[0]);
     }
   }
+  requestAnimationFrame(equalizeColumnPairs);
 }
 
 // ── INLINE EDIT: TEXT + FOTO POSTS ───────────────────────────────────────────
@@ -1578,6 +1634,13 @@ document.addEventListener("click", e => {
   }
   document.querySelectorAll(".srf-tooltip.tip-open").forEach(t => t.classList.remove("tip-open"));
 });
+
+// ── RESIZE: Spalten neu angleichen ───────────────────────────────────────────
+let _eqTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(_eqTimer);
+  _eqTimer = setTimeout(equalizeColumnPairs, 120);
+}, { passive: true });
 
 // ── BACK TO TOP ───────────────────────────────────────────────────────────────
 const backTopBtn = document.getElementById("btn-back-top");

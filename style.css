@@ -211,6 +211,13 @@ body.dark #admin-panel { background: #1c1800; border-color: #554400; }
 #hero-reise .featured-reise-img-wrap { flex: 1; aspect-ratio: unset; min-height: 0; position: relative; overflow: hidden; }
 #hero-reise .featured-reise-img-wrap .featured-reise-img { position: absolute; inset: 0; width: 100%; height: 100%; }
 
+/* Featured Reise im Feed-Grid — Bild und Karte füllen die zugewiesene Höhe */
+#featured-reise { display: flex; flex-direction: column; min-height: calc(1 * var(--post-slot)); max-height: calc(4 * var(--post-slot)); }
+#featured-reise .featured-reise-wrap { flex: 1; margin-bottom: 0; display: flex; flex-direction: column; border: var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+#featured-reise .featured-reise-card { flex: 1; display: flex; flex-direction: column; border: none; }
+#featured-reise .featured-reise-img-wrap { flex: 1; aspect-ratio: unset; min-height: 0; position: relative; overflow: hidden; }
+#featured-reise .featured-reise-img-wrap .featured-reise-img { position: absolute; inset: 0; width: 100%; height: 100%; }
+
 /* ── DESKTOP WÄSCHELEINE ── */
 #desktop-leine {
   position: relative;
@@ -323,19 +330,28 @@ body.dark .desktop-hanging-photo { background: #2a2810; }
 body.dark .desktop-hanging-caption { color: #999; }
 /* ── ALTERNATING FEED GRID ── */
 #feed-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 16px;
-  align-items: start;
-}
-
-#col-left, #col-right {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-width: 0;
+  margin-top: 16px;
 }
+
+.feed-row {
+  display: flex;
+  gap: 16px;
+  align-items: start;
+}
+
+.feed-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-col--major { flex: 3; }
+.feed-col--minor { flex: 2; }
+
+.feed-col > .post { margin-bottom: 0; }
 
 #feed-below { margin-top: 16px; }
 
@@ -747,6 +763,8 @@ body.dark .comment-item { border-color: #1e1e10; }
   filter: drop-shadow(4px 4px 0 #000);
   display: flex;
   flex-direction: column;
+  min-height: calc(1 * var(--post-slot));
+  max-height: calc(3 * var(--post-slot));
 }
 body.dark .sidebar-archiv-wrap { border-color: #555; filter: drop-shadow(4px 4px 0 #444); }
 
@@ -804,7 +822,8 @@ body.dark .sidebar-archiv-wrap { border-color: #555; filter: drop-shadow(4px 4px
   filter: drop-shadow(4px 4px 0 #000);
   display: flex;
   flex-direction: column;
-  max-height: calc(5 * var(--post-slot));
+  min-height: calc(1 * var(--post-slot));
+  max-height: calc(4 * var(--post-slot));
 }
 body.dark .sidebar-albums-wrap { border-color: #555; filter: drop-shadow(4px 4px 0 #444); }
 
@@ -836,6 +855,7 @@ body.dark .sidebar-title { background: var(--accent); color: #000; }
 }
 
 #sidebar-albums {
+  flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #ddd transparent;
@@ -906,9 +926,10 @@ body.dark .sidebar-album-cover { background: #222; }
   border-radius: var(--radius);
   overflow: hidden;
   filter: drop-shadow(4px 4px 0 #000);
-  max-height: calc(4 * var(--post-slot));
   display: flex;
   flex-direction: column;
+  min-height: calc(1 * var(--post-slot));
+  max-height: calc(3 * var(--post-slot));
 }
 body.dark .sidebar-top100-wrap { border-color: #555; filter: drop-shadow(4px 4px 0 #444); }
 
@@ -1593,8 +1614,8 @@ body.dark .album-strip-cover { background: #222; }
 
   #header-me, #header-me-album { height: 68px; right: 10px; bottom: 4px; }
 
-  #feed-grid { grid-template-columns: 1fr; }
-  #col-right { display: none; }
+  .feed-col--minor { display: none; }
+  .feed-col--major { flex: 1; }
 
   /* Nav: kein Scrollen, kein Sort, kein Search */
   #main-nav { overflow: visible; justify-content: center; }
