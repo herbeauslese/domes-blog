@@ -717,6 +717,7 @@ body.dark .slide-dot.active { background: #ccc; }
 /* ── EMBED ── */
 .post-embed { margin: 6px 0; max-width: var(--img-max); }
 .post-embed iframe { width: 100%; display: block; border: var(--border); border-radius: 8px; }
+.post-embed iframe[src*="spotify"] { height: 500px; }
 
 /* ── SHARE BAR ── */
 .share-bar {
@@ -764,7 +765,7 @@ body.dark .comment-item { border-color: #1e1e10; }
   display: flex;
   flex-direction: column;
   min-height: calc(1 * var(--post-slot));
-  max-height: calc(3 * var(--post-slot));
+  max-height: calc(4 * var(--post-slot));
 }
 body.dark .sidebar-archiv-wrap { border-color: #555; filter: drop-shadow(4px 4px 0 #444); }
 
