@@ -266,62 +266,60 @@ function render() {
 }
 
 function buildFeedGrid(filtered) {
-  const feedGrid = document.getElementById("feed-grid");
-  const pool     = document.getElementById("sidebar-pool");
+  const pool    = document.getElementById("sidebar-pool");
+  const colLeft = document.getElementById("col-left");
+  const colRight= document.getElementById("col-right");
+  const below   = document.getElementById("feed-below");
 
-  // Sidebar-Blöcke zurück in den Pool bevor innerHTML überschrieben wird
-  document.querySelectorAll(".sidebar-grid-block").forEach(el => {
-    if (el.parentElement !== pool) pool.appendChild(el);
-  });
+  // Sidebar-Blöcke zurück in den Pool
+  document.querySelectorAll(".sidebar-grid-block").forEach(el => pool.appendChild(el));
+
+  colLeft.innerHTML  = "";
+  colRight.innerHTML = "";
+  below.innerHTML    = "";
 
   if (!filtered.length) {
-    feedGrid.innerHTML = `<div class="post feed-fw" style="color:#aaa;font-style:italic;padding:10px 0;border-top:1px solid #000;border-bottom:1px solid #000">keine beiträge.</div>`;
+    colLeft.innerHTML = `<div class="post" style="color:#aaa;font-style:italic;padding:10px 0;border-top:1px solid #000;border-bottom:1px solid #000">keine beiträge.</div>`;
     return;
   }
 
   const isMobile = window.innerWidth <= 680;
-
   if (isMobile) {
-    feedGrid.innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
+    colLeft.innerHTML = filtered.map((p, i) => renderPost(p, i)).join("");
     return;
   }
 
   // Aktive Sidebar-Blöcke in gewünschter Reihenfolge
-  const blockOrder = ["featured-reise", "sidebar-albums-block", "sidebar-bdm-archiv", "sidebar-top100"];
-  const blocks = blockOrder
+  const blocks = ["featured-reise", "sidebar-albums-block", "sidebar-bdm-archiv", "sidebar-top100"]
     .map(id => document.getElementById(id))
-    .filter(el => el && el.innerHTML.trim() !== "" && el.style.display !== "none");
+    .filter(el => el && el.style.display !== "none");
 
-  // Posts 0-(blocks.length-1) abwechselnd mit Sidebar-Blöcken, Rest volle Breite
-  const pairedPosts   = filtered.slice(0, blocks.length);
-  const fullWidePosts = filtered.slice(blocks.length);
+  // Stream: [post0, block0, block1, post1, post2, block2, block3, post3]
+  // Gerade Positionen → col-left, ungerade → col-right
+  const pairedPosts = filtered.slice(0, blocks.length);
+  const belowPosts  = filtered.slice(blocks.length);
 
-  // Interleaving: post, block, block, post, post, block, block, post, …
-  const items = [];
+  const stream = [];
   let pi = 0, bi = 0;
   while (pi < pairedPosts.length || bi < blocks.length) {
-    const slot = items.length % 4;
+    const slot = stream.length % 4;
     const wantsBlock = slot === 1 || slot === 2;
-    if (wantsBlock && bi < blocks.length)      items.push({ type: "block", el: blocks[bi++] });
-    else if (pi < pairedPosts.length)          items.push({ type: "post",  p: pairedPosts[pi], i: pi++ });
-    else if (bi < blocks.length)               items.push({ type: "block", el: blocks[bi++] });
+    if (wantsBlock && bi < blocks.length)  stream.push({ type: "block", el: blocks[bi++] });
+    else if (pi < pairedPosts.length)      stream.push({ type: "post",  p: pairedPosts[pi], i: pi++ });
+    else if (bi < blocks.length)           stream.push({ type: "block", el: blocks[bi++] });
     else break;
   }
 
-  // HTML bauen — Sidebar-Blöcke als Platzhalter
-  feedGrid.innerHTML =
-    items.map((item, idx) =>
-      item.type === "post"
-        ? renderPost(item.p, item.i)
-        : `<div class="block-ph" data-idx="${idx}"></div>`
-    ).join("") +
-    fullWidePosts.map((p, i) => `<div class="feed-fw">${renderPost(p, blocks.length + i)}</div>`).join("");
-
-  // Platzhalter durch echte DOM-Knoten ersetzen
-  items.filter(it => it.type === "block").forEach(item => {
-    const ph = feedGrid.querySelector(`.block-ph[data-idx="${items.indexOf(item)}"]`);
-    if (ph) ph.replaceWith(item.el);
+  stream.forEach((item, i) => {
+    const col = i % 2 === 0 ? colLeft : colRight;
+    if (item.type === "post") {
+      col.insertAdjacentHTML("beforeend", renderPost(item.p, item.i));
+    } else {
+      col.appendChild(item.el);
+    }
   });
+
+  below.innerHTML = belowPosts.map((p, i) => renderPost(p, blocks.length + i)).join("");
 }
 
 
@@ -1879,6 +1877,7 @@ function switchToAlbumMode() {
   document.getElementById("btn-mode-switch").classList.add("active");
   document.getElementById("btn-mode-switch").textContent = "◑ blog";
   document.getElementById("feed-grid").style.display = "none";
+  document.getElementById("feed-below").style.display = "none";
   document.getElementById("album-grid").style.display = "block";
   document.getElementById("controls-filters").style.display = "none";
   // Header-Figur tauschen
@@ -1896,6 +1895,7 @@ function switchToBlogMode() {
   document.getElementById("btn-mode-switch").classList.remove("active");
   document.getElementById("btn-mode-switch").textContent = "◑ platten";
   document.getElementById("feed-grid").style.display = "";
+  document.getElementById("feed-below").style.display = "";
   document.getElementById("album-grid").style.display = "none";
   document.getElementById("controls-filters").style.display = "";
   // Header-Figur zurück
@@ -2129,7 +2129,8 @@ function renderFeaturedReise() {
   ["featured-reise", "featured-reise-mobile"].forEach(id => {
     const container = document.getElementById(id);
     if (!container) return;
-    if (!reisePosts.length) { container.innerHTML = ""; return; }
+    if (!reisePosts.length) { container.innerHTML = ""; container.style.display = "none"; return; }
+    container.style.display = "";
     const p = reisePosts[0];
     const pid = stablePid(p);
     const firstImg = (p.images && p.images.length) ? p.images[0] : "";

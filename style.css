@@ -330,8 +330,14 @@ body.dark .desktop-hanging-caption { color: #999; }
   align-items: start;
 }
 
-/* Posts ab Slot 5: volle Breite */
-.feed-fw { grid-column: 1 / -1; }
+#col-left, #col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+#feed-below { margin-top: 16px; }
 
 /* ── CONTROLS ── */
 #controls {
@@ -1588,8 +1594,7 @@ body.dark .album-strip-cover { background: #222; }
   #header-me, #header-me-album { height: 68px; right: 10px; bottom: 4px; }
 
   #feed-grid { grid-template-columns: 1fr; }
-  .feed-fw { grid-column: 1; }
-  .sidebar-grid-block { display: none; }
+  #col-right { display: none; }
 
   /* Nav: kein Scrollen, kein Sort, kein Search */
   #main-nav { overflow: visible; justify-content: center; }
