@@ -1624,14 +1624,7 @@ body.dark .album-strip-cover { background: #222; }
   .nav-btn { font-size: 12px; padding: 10px 13px; }
 
   #mobile-platten {
-    display: block;
-    margin-top: 12px;
-    margin-bottom: 16px;
-    background: var(--card);
-    border: var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
+    display: none;
   }
   #mobile-platten .sidebar-title { border-radius: 0; align-items: center; }
 
@@ -1706,20 +1699,8 @@ body.dark .album-strip-cover { background: #222; }
     margin-top: 5px;
   }
 
-  #mobile-top100 {
-    display: block;
-    margin-bottom: 16px;
-    background: var(--card);
-    border: var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-
-  #featured-reise-mobile {
-    display: block;
-    margin-bottom: 16px;
-  }
+  #mobile-top100 { display: none; }
+  #featured-reise-mobile { display: none; }
 
   .post-title { font-size: 18px; }
   .post.post-reise .post-title { font-size: 22px; }
