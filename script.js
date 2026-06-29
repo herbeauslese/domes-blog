@@ -2661,7 +2661,8 @@ function renderSidebarBdmArchiv() {
   const wrap = document.getElementById("sidebar-bdm-archiv");
   if (!wrap) return;
 
-  const allPhotos = bdmArchiv.flatMap(m => (m.photos || []).map(p => ({ ...p, month: m.month })));
+  const allMonths = [...(bilderDesMonats.photos?.length ? [bilderDesMonats] : []), ...bdmArchiv];
+  const allPhotos = allMonths.flatMap(m => (m.photos || []).map(p => ({ ...p, month: m.month })));
   if (allPhotos.length === 0) { wrap.style.display = "none"; return; }
 
   wrap.style.display = "";
