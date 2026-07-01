@@ -56,11 +56,17 @@
 
 <!-- site header -->
 <header id="site-header">
-  <div id="site-header-inner">
+  <div id="site-header-sidebar-col">
     <button id="sidebar-open-btn" onclick="toggleSidebar()">☰</button>
+  </div>
+  <div id="site-header-main-col">
     <div id="site-header-title">
       <h1><span>rote</span>haare</h1>
       <p class="sub">— ein ganz persönlicher blog</p>
+    </div>
+    <div id="site-header-controls">
+      <button id="btn-darkmode" title="Dark Mode">[dark]</button>
+      <button id="btn-mode-switch" style="display:none">[platten]</button>
     </div>
   </div>
 </header>
@@ -74,10 +80,6 @@
 <aside id="sidebar">
   <div id="sidebar-brand">
     <button id="sidebar-close-btn" onclick="toggleSidebar()">✕</button>
-  </div>
-  <div id="admin-bar">
-    <button id="btn-mode-switch" style="display:none">[platten]</button>
-    <button id="btn-darkmode" title="Dark Mode">[dark]</button>
   </div>
   <hr class="sidebar-hr">
   <div id="sidebar-search">
