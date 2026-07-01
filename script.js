@@ -328,9 +328,11 @@ function buildFlow(filtered) {
     carouselEl.id = "flow-albums-carousel";
     carouselEl.innerHTML =
       sortPills +
+      `<div class="album-index" id="album-index"></div>` +
+      `<div class="album-carousel-section">` +
       `<div class="album-carousel" id="album-carousel" data-current="0">${slidesHTML}</div>` +
       nav +
-      `<div class="album-index" id="album-index"></div>`;
+      `</div>`;
     flow.appendChild(carouselEl);
     renderAlbumIndex();
   }
