@@ -208,10 +208,21 @@ function postEmoji(p) {
 
 // ── FLIESSTEXT-FEED ───────────────────────────────────────────────────────────
 let albumSortMode = "rating";
+let albumSortAsc = false;
 
 function setAlbumSort(mode) {
-  albumSortMode = mode;
-  document.querySelectorAll(".album-sort-pill").forEach(b => b.classList.toggle("active", b.dataset.sort === mode));
+  if (albumSortMode === mode) {
+    albumSortAsc = !albumSortAsc;
+  } else {
+    albumSortMode = mode;
+    albumSortAsc = mode === "az";
+  }
+  document.querySelectorAll(".album-sort-pill").forEach(b => {
+    const active = b.dataset.sort === mode;
+    b.classList.toggle("active", active);
+    if (active) b.textContent = b.dataset.label + (albumSortAsc ? " ↑" : " ↓");
+    else b.textContent = b.dataset.label;
+  });
   const carousel = document.getElementById("album-carousel");
   if (!carousel) return;
   const slides = [...carousel.querySelectorAll(".album-slide")];
@@ -220,7 +231,8 @@ function setAlbumSort(mode) {
     az:     (a, b) => a.dataset.artist.localeCompare(b.dataset.artist),
     year:   (a, b) => Number(b.dataset.year || 0) - Number(a.dataset.year || 0),
   };
-  const sorted = [...slides].sort(sortFns[mode] || sortFns.rating);
+  let sorted = [...slides].sort(sortFns[mode] || sortFns.rating);
+  if (albumSortAsc) sorted = sorted.reverse();
   const cur = parseInt(carousel.dataset.current || 0);
   const activeFpid = slides[cur].dataset.fpid;
   sorted.forEach(s => { s.classList.remove("active"); carousel.appendChild(s); });
@@ -310,9 +322,9 @@ function buildFlow(filtered) {
     }).join("");
 
     const sortPills = `<div class="album-sort-pills">` +
-      `<button class="album-sort-pill active" data-sort="rating" onclick="setAlbumSort('rating')">★ Bewertung</button>` +
-      `<button class="album-sort-pill" data-sort="az" onclick="setAlbumSort('az')">A–Z</button>` +
-      `<button class="album-sort-pill" data-sort="year" onclick="setAlbumSort('year')">Jahr</button>` +
+      `<button class="album-sort-pill active" data-sort="rating" data-label="Bewertung" onclick="setAlbumSort('rating')">Bewertung ↓</button>` +
+      `<button class="album-sort-pill" data-sort="az" data-label="A–Z" onclick="setAlbumSort('az')">A–Z</button>` +
+      `<button class="album-sort-pill" data-sort="year" data-label="Jahr" onclick="setAlbumSort('year')">Jahr</button>` +
       `</div>`;
 
     const nav = albums.length > 1

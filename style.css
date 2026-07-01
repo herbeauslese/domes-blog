@@ -492,40 +492,56 @@ body.dark .flow-album-meta { color: #aaa; }
 body.dark .flow-album-cover { border-color: #555; }
 body.dark .flow-album-cover--empty { background: #333; }
 .flow-album-songs {
-  font-size: 12px;
-  line-height: 1.6;
-  padding-left: 22px;
+  list-style: none;
+  padding: 0;
   margin: 0 0 8px;
-  columns: 2;
-  column-gap: 16px;
+  border-top: 1px solid #e8e8e8;
 }
-.flow-album-songs .fav { font-weight: bold; }
+body.dark .flow-album-songs { border-color: #333; }
+.flow-album-songs li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  padding: 3px 0;
+  border-bottom: 1px solid #f0f0f0;
+  counter-increment: song-counter;
+}
+body.dark .flow-album-songs li { border-color: #2a2a1a; }
+.flow-album-songs li::before {
+  content: counter(song-counter) ".";
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  flex-shrink: 0;
+  min-width: 18px;
+  text-align: right;
+}
+.flow-album-songs { counter-reset: song-counter; }
+.flow-album-songs .fav { font-weight: bold; color: var(--fg); }
+.flow-album-songs .fav::after { content: " ★"; font-size: 10px; color: var(--accent); }
 .flow-album-review { font-size: 12.5px; line-height: 1.55; margin: 0 0 8px; }
 
 /* sort pills */
-/* sort pills — unauffällig, passend zum Retro-Style */
 .album-sort-pills {
   display: flex;
-  gap: 0;
+  gap: 12px;
   margin-bottom: 8px;
-  border-bottom: 2px solid #000;
+  align-items: center;
 }
 .album-sort-pill {
   font-family: var(--font-mono);
-  font-size: 11px;
-  padding: 4px 10px;
+  font-size: 10px;
+  padding: 0;
   border: none;
   background: none;
   cursor: pointer;
   color: var(--muted);
-  letter-spacing: 0.03em;
 }
 .album-sort-pill:hover { color: var(--fg); }
 .album-sort-pill.active {
   color: var(--fg);
   font-weight: bold;
-  box-shadow: 0 2px 0 0 #000;
-  margin-bottom: -2px;
 }
 body.dark .album-sort-pills { border-color: #555; }
 body.dark .album-sort-pill.active { box-shadow: 0 2px 0 0 var(--accent); color: var(--accent); }
@@ -1152,5 +1168,5 @@ body.sidebar-open #sidebar-open-btn { display: none !important; }
 
 @media (max-width: 500px) {
   .flow-top100-list { column-count: 1; }
-  .flow-album-songs { columns: 1; }
+
 }
