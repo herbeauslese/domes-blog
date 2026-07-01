@@ -54,35 +54,50 @@
   </div>
 </div>
 
-<!-- header -->
-<div id="site-header">
+<!-- mobile sidebar open button + overlay -->
+<button id="sidebar-open-btn" onclick="toggleSidebar()">☰</button>
+<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- page layout: sidebar + content -->
+<div id="page-layout">
+
+<!-- sidebar -->
+<aside id="sidebar">
+  <div id="sidebar-brand">
+    <div id="sidebar-brand-text">
+      <h1><span>rote</span>haare</h1>
+      <p class="sub">— ein ganz persönlicher blog</p>
+    </div>
+    <button id="sidebar-close-btn" onclick="toggleSidebar()">✕</button>
+  </div>
   <div id="admin-bar">
     <button id="btn-mode-switch" style="display:none">[platten]</button>
     <button id="btn-darkmode" title="Dark Mode">[dark]</button>
   </div>
-  <div id="header-inner">
-    <h1><span>rote</span>haare</h1>
-    <p class="sub">— ein ganz persönlicher blog</p>
-  </div>
-  <img id="header-me" src="me.png" alt="" aria-hidden="true">
-  <img id="header-me-album" src="me-album.png" alt="" aria-hidden="true" style="display:none">
-</div>
-
-<!-- main navigation -->
-<nav id="main-nav">
-  <button class="nav-btn active" data-filter="all" onclick="setNavFilter(this,'all')">Alle</button>
-  <button class="nav-btn" data-filter="text" onclick="setNavFilter(this,'text')">Text</button>
-  <button class="nav-btn" data-filter="photo" onclick="setNavFilter(this,'photo')">Foto</button>
-  <button class="nav-btn" data-filter="reise" onclick="setNavFilter(this,'reise')">Reise</button>
-  <button class="nav-btn" data-filter="embed" onclick="setNavFilter(this,'embed')">Embeds</button>
-  <div id="nav-search-wrap">
+  <hr class="sidebar-hr">
+  <div id="sidebar-search">
     <input type="text" id="search" placeholder="suchen...">
-    <select id="sort-dir" class="nav-sort">
-      <option value="1" selected>↑ alt</option>
-      <option value="-1">↓ neu</option>
-    </select>
+    <div class="sidebar-sort">
+      <button id="sort-btn-old" class="sort-btn active" onclick="setSortDir(1)">↑ alt</button>
+      <button id="sort-btn-new" class="sort-btn" onclick="setSortDir(-1)">↓ neu</button>
+    </div>
   </div>
-</nav>
+  <hr class="sidebar-hr">
+  <div id="sidebar-quick">
+    <div class="sidebar-section-label">Springen zu</div>
+    <button class="sidebar-link" onclick="jumpToSection('flow-albums-carousel')">Alben</button>
+    <button class="sidebar-link" onclick="jumpToSection('flow-bdm-archiv')">BDM Archiv</button>
+    <button class="sidebar-link" onclick="jumpToSection('flow-top100')">Top 100</button>
+  </div>
+  <hr class="sidebar-hr">
+  <div id="sidebar-toc">
+    <div class="sidebar-section-label">Beiträge</div>
+    <div id="sidebar-toc-list"></div>
+  </div>
+</aside>
+
+<!-- main content -->
+<div id="main-content">
 
 <!-- admin panel -->
 <div id="admin-panel">
@@ -121,82 +136,22 @@
   </div>
 </div>
 
-<!-- mobile: Wäscheleine Platzhalter -->
-<div id="mobile-leine"></div>
-
-<!-- desktop: Wäscheleine Bilder des Monats -->
-<div id="desktop-leine"></div>
-
-<!-- Sidebar-Blöcke (pool — JS schiebt sie in feed-grid) -->
-<div id="sidebar-pool" style="display:none">
-  <div id="featured-reise" class="sidebar-grid-block"></div>
-  <div class="sidebar-albums-wrap sidebar-grid-block" id="sidebar-albums-block">
-    <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span><button id="desktop-sort-pill" onclick="cycleDesktopSort()">Wert</button></h3>
-    <div id="sidebar-albums"></div>
-  </div>
-  <div class="sidebar-archiv-wrap sidebar-grid-block" id="sidebar-bdm-archiv">
-    <h3 class="sidebar-title">Archiv <span class="sidebar-subtitle">Bilder des Monats</span></h3>
-    <div class="sidebar-archiv-slide"></div>
-  </div>
-  <div class="sidebar-top100-wrap sidebar-grid-block" id="sidebar-top100">
-    <h3 class="sidebar-title">Top 100 <span class="sidebar-subtitle">Meine liebsten Songs</span></h3>
-    <div id="top100-list"></div>
-  </div>
+<!-- BDM angepinnt -->
+<div id="bdm-pinned" style="display:none">
+  <div id="bdm-pinned-left"></div>
+  <div id="bdm-pinned-right"></div>
 </div>
 
-<!-- Controls (volle Breite) -->
-<div id="controls">
-  <div style="display:contents" id="controls-top">
-    <button id="btn-filter-toggle" aria-label="Filter" style="display:none">[filter]</button>
-    <div id="controls-right">
-      <span id="post-count"></span>
-    </div>
-  </div>
-  <div id="controls-filters">
-    <select id="filter-type" style="display:none">
-      <option value="all">alle beiträge</option>
-      <option value="text">nur text</option>
-      <option value="photo">nur fotos</option>
-      <option value="reise">nur reisen</option>
-      <option value="embed">nur embeds</option>
-    </select>
-  </div>
-</div>
-
-<!-- featured reise (nur mobile) -->
-<div id="featured-reise-mobile"></div>
-
-<!-- mobile: platten strip (nur auf Handy sichtbar) -->
-<div id="mobile-platten">
-  <h3 class="sidebar-title">Platten <span class="sidebar-subtitle">Meine Sammlung & Bewertung</span><button id="mobile-sort-pill" onclick="cycleMobileSort()">Wert</button></h3>
-  <div class="album-strip" id="album-strip-mobile"></div>
-  <button id="mobile-albums-toggle" onclick="toggleMobileAlbums()"></button>
-</div>
-
-<!-- mobile: Top 100 (nur auf Handy sichtbar) -->
-<div id="mobile-top100">
-  <h3 class="sidebar-title">Meine Top 100 Songs</h3>
-  <div id="mobile-top100-list"></div>
-  <button id="mobile-top100-toggle" onclick="toggleMobileTop100()"></button>
-</div>
-
-<!-- 2-Spalten-Grid: Posts & Sidebar-Blöcke abwechselnd (Reihen per JS) -->
-<div id="feed-grid"></div>
-
-<!-- Posts ab Post 5: volle Breite -->
-<div id="feed-below"></div>
-
-<!-- Platten-Grid (separater Modus) -->
+<!-- Feed -->
+<div id="feed-flow"></div>
 <div id="album-grid" style="display:none"></div>
 
-<!-- footer -->
-<hr>
 <div id="footer">
-  <a href="albums.json">albums.json</a> &middot;
-  <a href="posts.json">posts.json</a> &middot;
-  <a href="hidden.json">hidden.json</a> &middot;
   <button id="btn-admin">[admin]</button>
 </div>
+
+</div><!-- /#main-content -->
+</div><!-- /#page-layout -->
 
 <!-- album popup -->
 <div id="album-popup-overlay" style="display:none">
@@ -370,34 +325,6 @@
   </div>
 </div>
 
-<script>
-function setNavFilter(btn, val) {
-  const modeSwitchBtn = document.getElementById('btn-mode-switch');
-  const isAlbumMode = modeSwitchBtn && modeSwitchBtn.classList.contains('active');
-
-  if (val === 'platten') {
-    if (isAlbumMode) {
-      switchToBlogMode();
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      const allBtn = document.querySelector('.nav-btn[data-filter="all"]');
-      if (allBtn) allBtn.classList.add('active');
-    } else {
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      switchToAlbumMode();
-    }
-    return;
-  }
-
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  const sel = document.getElementById('filter-type');
-  if (sel) { sel.value = val; sel.dispatchEvent(new Event('change')); }
-
-  if (isAlbumMode) switchToBlogMode();
-}
-</script>
 <script src="config.js"></script>
 <script src="script.js"></script>
 </body>

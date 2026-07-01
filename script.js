@@ -1,111 +1,5 @@
-// ── SUPABASE KOMMENTARE ───────────────────────────────────────────────────────
-// Werte kommen aus config.js
-const SUPABASE_URL = CONFIG.SUPABASE_URL;
-const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
-
-async function loadComments(pid) { 
-  try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/comments?post_id=eq.${encodeURIComponent(pid)}&order=created_at.asc`,
-      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-    );
-    if (!res.ok) return [];
-    return await res.json();
-  } catch(e) { return []; }
-}
-
-async function postComment(pid, name, text) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/comments`, {
-    method: "POST",
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-      "Content-Type": "application/json",
-      Prefer: "return=representation"
-    },
-    body: JSON.stringify({ post_id: pid, name: name.trim(), text: text.trim() })
-  });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.status); }
-  return await res.json();
-}
-
-async function deleteComment(id, btn) {
-  if (!unlocked) return;
-  btn.textContent = "...";
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/comments?id=eq.${id}`, {
-      method: "DELETE",
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-    });
-    btn.closest(".comment-item").remove();
-  } catch(e) { btn.textContent = "✕"; }
-}
-
-function commentSectionHTML(pid) {
-  return `<div class="comment-section" id="comments-${pid}">
-    <div class="comment-list" id="comment-list-${pid}">
-      <div class="comment-loading">lade kommentare...</div>
-    </div>
-    <div class="comment-form">
-      <input type="text" id="comment-name-${pid}" placeholder="dein name" maxlength="40" class="comment-input-name">
-      <textarea id="comment-text-${pid}" placeholder="kommentar schreiben..." rows="2" maxlength="500" class="comment-input-text"></textarea>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="comment-submit" onclick="submitComment('${pid}')">senden</button>
-        <span id="comment-status-${pid}" style="font-size:11px;color:#888"></span>
-      </div>
-    </div>
-  </div>`;
-}
-
-async function initComments(pid) {
-  const listEl = document.getElementById("comment-list-" + pid);
-  if (!listEl) return;
-  const comments = await loadComments(pid);
-  renderCommentList(pid, comments);
-}
-
-function renderCommentList(pid, comments) {
-  const listEl = document.getElementById("comment-list-" + pid);
-  if (!listEl) return;
-  if (!comments.length) {
-    listEl.innerHTML = `<div class="comment-empty">noch keine kommentare.</div>`;
-    return;
-  }
-  listEl.innerHTML = comments.map(c => {
-    const date = new Date(c.created_at).toLocaleDateString("de-DE", { day:"2-digit", month:"2-digit", year:"numeric" });
-    const deleteBtn = unlocked ? `<button class="comment-delete" onclick="deleteComment(${c.id}, this)">✕</button>` : "";
-    return `<div class="comment-item">
-      <div class="comment-meta"><span class="comment-name">${escapeHtml(c.name)}</span><span class="comment-date">${date}</span>${deleteBtn}</div>
-      <div class="comment-text">${escapeHtml(c.text).replace(/\n/g,"<br>")}</div>
-    </div>`;
-  }).join("");
-}
-
 function escapeHtml(s) {
   return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-async function submitComment(pid) {
-  const nameEl   = document.getElementById("comment-name-" + pid);
-  const textEl   = document.getElementById("comment-text-" + pid);
-  const statusEl = document.getElementById("comment-status-" + pid);
-  const name = nameEl.value.trim();
-  const text = textEl.value.trim();
-  if (!name) { statusEl.textContent = "name fehlt."; return; }
-  if (!text) { statusEl.textContent = "kommentar fehlt."; return; }
-  statusEl.textContent = "sende...";
-  try {
-    await postComment(pid, name, text);
-    nameEl.value = "";
-    textEl.value = "";
-    statusEl.textContent = "✓ gesendet!";
-    setTimeout(() => statusEl.textContent = "", 3000);
-    // Liste neu laden
-    const comments = await loadComments(pid);
-    renderCommentList(pid, comments);
-  } catch(e) {
-    statusEl.textContent = "fehler: " + e.message;
-  }
 }
 
 // ── LOADING SCREEN ────────────────────────────────────────────────────────────
@@ -128,7 +22,6 @@ function hideLoadingScreen() {
 let posts   = [];  // from posts.json  (type: text | photo | album)
 let albums  = [];  // from albums.json (legacy, injected as album-posts)
 let bilderDesMonats = { month: "", photos: [] };
-let bdmArchiv = []; // from bdm_archiv.json — array of { month, photos }
 let top100  = [];  // from top100.json
 let allPosts = []; // merged + sorted feed
 
@@ -160,7 +53,6 @@ async function loadData() {
   setLoadingProgress(40);
   try { albums = await (await fetch("albums.json?_=" + Date.now())).json(); } catch(e) { albums = []; }
   try { bilderDesMonats = await (await fetch("bilder_des_monats.json?_=" + Date.now())).json(); } catch(e) { bilderDesMonats = { month: "", photos: [] }; }
-  try { bdmArchiv = await (await fetch("bdm_archiv.json?_=" + Date.now())).json(); } catch(e) { bdmArchiv = []; }
   try { top100 = await (await fetch("top100.json?_=" + Date.now())).json(); } catch(e) { top100 = []; }
   setLoadingProgress(70);
   try {
@@ -170,12 +62,8 @@ async function loadData() {
   setLoadingProgress(90);
   mergePosts();
   applyDark();
-  renderSidebarAlbums();
-  renderAlbumStrip();
   renderFeaturedReise();
   renderBilderDesMonats();
-  renderSidebarBdmArchiv();
-  renderTop100();
   render();
   hideLoadingScreen();
   // nach dem Laden: Hash-Anker scrollen + highlighten
@@ -188,15 +76,9 @@ function handleHashOnLoad() {
   setTimeout(() => {
     const el = document.getElementById(hash);
     if (!el) return;
-    // Post aufklappen
-    if (!el.classList.contains("expanded")) togglePost(hash);
-    // Scrollen
-    setTimeout(() => {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      // Rahmen aufleuchten lassen
-      el.classList.add("post-highlight");
-      setTimeout(() => el.classList.remove("post-highlight"), 2000);
-    }, 150);
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("post-highlight");
+    setTimeout(() => el.classList.remove("post-highlight"), 2000);
   }, 300);
 }
 
@@ -226,7 +108,6 @@ function render() {
   const q = searchQ.toLowerCase();
 
   let filtered = allPosts.filter(p => {
-    if (p.type === "album") return false;
     if (p.draft && !unlocked) return false;
     if (filterType === "text"  && p.type !== "text")  return false;
     if (filterType === "photo" && p.type !== "photo") return false;
@@ -242,139 +123,293 @@ function render() {
 
   if (!showHidden) filtered = filtered.filter(p => !hiddenPosts.has(stablePid(p)));
 
-  document.getElementById("post-count").textContent = filtered.length + " beiträge";
+  buildFlow(filtered);
 
-  buildFeedGrid(filtered);
-
-  // init album covers
-  filtered.forEach(p => {
-    if (p.type === "album" && p._albumData.cover_url) {
-      const a = p._albumData;
-      loadCover("cv-" + safeid(a.artist + a.album), a.cover_url, a.artist + "|" + a.album);
+  // BDM Archiv als Fliesstext-Eintrag (aktueller + vergangene Monate)
+  const bdmAllMonths = bilderDesMonats.photos?.length ? [bilderDesMonats] : [];
+  if (bdmAllMonths.length > 0 && filterType === "all" && !q) {
+    const flow = document.getElementById("feed-flow");
+    if (flow) {
+      const allPhotos = [];
+      const monthsHTML = bdmAllMonths.map(m =>
+        `<div class="bdm-archiv-month">` +
+        `<span class="bdm-archiv-month-label">${escapeHtml(m.month)}</span>` +
+        `<div class="bdm-archiv-thumbs">${(m.photos || []).map(p => {
+          const photoIdx = allPhotos.length;
+          allPhotos.push(p);
+          return `<img class="bdm-archiv-thumb" src="${escapeHtml(p.url)}" alt="${escapeHtml(p.caption || "")}" data-photo-idx="${photoIdx}">`;
+        }).join("")}</div>` +
+        `</div>`
+      ).join("");
+      const archivEl = document.createElement("article");
+      archivEl.className = "flow-post flow-post--bdm-archiv";
+      archivEl.id = "flow-bdm-archiv";
+      archivEl.innerHTML = `<h2 class="flow-title">📁 Bilder des Monats — Archiv</h2>` + monthsHTML;
+      archivEl.querySelectorAll(".bdm-archiv-thumb").forEach(img => {
+        const photo = allPhotos[parseInt(img.dataset.photoIdx)];
+        if (photo) img.addEventListener("click", () => openBdmPhoto(photo));
+      });
+      flow.appendChild(archivEl);
     }
-  });
+  }
 
-  requestAnimationFrame(() => requestAnimationFrame(initTickers));
+  // Top 100 als Fliesstext-Eintrag am Ende
+  if (top100.length > 0 && (filterType === "all") && !q) {
+    const flow = document.getElementById("feed-flow");
+    if (flow) {
+      const t100 = document.createElement("article");
+      t100.className = "flow-post flow-post--top100";
+      t100.id = "flow-top100";
+      t100.innerHTML =
+        `<h2 class="flow-title">🎵 Meine Top 100 Songs</h2>` +
+        `<ol class="flow-top100-list">${top100.map((s, i) =>
+          `<li>` +
+          `<span class="flow-top100-rank">${i + 1}.</span>` +
+          `${s.cover ? `<img class="flow-top100-cover" src="${escapeHtml(s.cover)}" alt="" loading="lazy">` : ''}` +
+          `<span class="flow-top100-info"><em>${escapeHtml(s.artist)}</em> — ${escapeHtml(s.title)}</span>` +
+          `</li>`
+        ).join("")}</ol>`;
+      flow.appendChild(t100);
+    }
+  }
 
   filtered.forEach(p => {
     if (p.type === "photo" && p.images && p.images.length > 0) {
-      initSlideshowRatio(stablePid(p), p.images[0]);
+      initSlideshowRatio(stablePid(p) + "-f", p.images[0]);
     }
   });
 
   requestAnimationFrame(applyHiddenUI);
+  buildSidebarToc(filtered);
 }
 
-function buildFeedGrid(filtered) {
-  const pool  = document.getElementById("sidebar-pool");
-  const grid  = document.getElementById("feed-grid");
-  const below = document.getElementById("feed-below");
-
-  // Sidebar-Blöcke zurück in den Pool
-  document.querySelectorAll(".sidebar-grid-block").forEach(el => pool.appendChild(el));
-
-  grid.innerHTML  = "";
-  below.innerHTML = "";
-
-  if (!filtered.length) {
-    grid.innerHTML = `<div class="post" style="color:#aaa;font-style:italic;padding:10px 0;border-top:1px solid #000;border-bottom:1px solid #000">keine beiträge.</div>`;
-    return;
-  }
-
-  // Aktive Sidebar-Blöcke — direkt an Datenarrays geprüft
-  const blockSpecs = [
-    { id: "featured-reise",       active: posts.some(p => p.type === "photo" && p.tag === "reise" && !p.draft) },
-    { id: "sidebar-albums-block", active: albums.length > 0 },
-    { id: "sidebar-bdm-archiv",   active: bilderDesMonats.photos?.length > 0 || bdmArchiv.length > 0 },
-    { id: "sidebar-top100",       active: top100.length > 0 },
-  ];
-  const blocks = blockSpecs
-    .filter(s => s.active)
-    .map(s => document.getElementById(s.id))
-    .filter(Boolean);
-
-  // Stream: [post0, block0, block1, post1, post2, block2, ...]
-  const pairedPosts = filtered.slice(0, blocks.length);
-  const belowPosts  = filtered.slice(blocks.length);
-
-  const stream = [];
-  let pi = 0, bi = 0;
-  while (pi < pairedPosts.length || bi < blocks.length) {
-    const slot = stream.length % 4;
-    const wantsBlock = slot === 1 || slot === 2;
-    if (wantsBlock && bi < blocks.length)  stream.push({ type: "block", el: blocks[bi++] });
-    else if (pi < pairedPosts.length)      stream.push({ type: "post",  p: pairedPosts[pi], i: pi++ });
-    else if (bi < blocks.length)           stream.push({ type: "block", el: blocks[bi++] });
-    else break;
-  }
-
-  // Paare als eigene Reihen: post → major (60%), block → minor (40%), alternierend
-  for (let i = 0; i + 1 < stream.length; i += 2) {
-    const left  = stream[i];
-    const right = stream[i + 1];
-    const leftIsPost = left.type === "post";
-
-    const row = document.createElement("div");
-    row.className = "feed-row";
-
-    const leftCol  = document.createElement("div");
-    leftCol.className  = "feed-col " + (leftIsPost ? "feed-col--major" : "feed-col--minor");
-    const rightCol = document.createElement("div");
-    rightCol.className = "feed-col " + (leftIsPost ? "feed-col--minor" : "feed-col--major");
-
-    if (left.type  === "post") leftCol.insertAdjacentHTML("beforeend", renderPost(left.p, left.i));
-    else                       leftCol.appendChild(left.el);
-    if (right.type === "post") rightCol.insertAdjacentHTML("beforeend", renderPost(right.p, right.i));
-    else                       rightCol.appendChild(right.el);
-
-    row.appendChild(leftCol);
-    row.appendChild(rightCol);
-    grid.appendChild(row);
-  }
-
-  below.innerHTML = belowPosts.map((p, i) => renderPost(p, blocks.length + i)).join("");
-
-  requestAnimationFrame(() => requestAnimationFrame(equalizeColumnPairs));
+function buildSidebarToc(filtered) {
+  const list = document.getElementById("sidebar-toc-list");
+  if (!list) return;
+  const nonAlbum = filtered.filter(p => p.type !== "album");
+  list.innerHTML = nonAlbum.map(p => {
+    const fpid = stablePid(p) + "-f";
+    const label = p.title || "(ohne titel)";
+    const emoji = postEmoji(p);
+    return `<button class="sidebar-toc-item" onclick="document.getElementById('${fpid}')?.scrollIntoView({behavior:'smooth',block:'start'});if(document.getElementById('sidebar')?.classList.contains('open'))toggleSidebar()">${emoji ? emoji + " " : ""}${escapeHtml(label)}</button>`;
+  }).join("");
 }
-
-function equalizeColumnPairs() {
-  const rows = Array.from(document.querySelectorAll("#feed-grid .feed-row"));
-
-  // Phase 1: Reset
-  rows.forEach(row => {
-    const block = row.querySelector(".sidebar-grid-block");
-    if (block) { block.style.height = ""; block.style.maxHeight = ""; }
-    const post = row.querySelector(".post");
-    if (post) post.style.minHeight = "";
-  });
-
-  // Phase 2: Paare sammeln + Post-Höhen messen (natürliche Höhe nach Reset)
-  const pairs = rows.map(row => {
-    const [lCol, rCol] = row.children;
-    if (!lCol || !rCol) return null;
-    const lBlock = lCol.querySelector(".sidebar-grid-block");
-    const rBlock = rCol.querySelector(".sidebar-grid-block");
-    if (lBlock && !rBlock) return { block: lBlock, post: rCol.querySelector(".post") };
-    if (rBlock && !lBlock) return { block: rBlock, post: lCol.querySelector(".post") };
-    return null;
-  }).filter(Boolean);
-
-  const postHeights = pairs.map(p => p.post ? p.post.offsetHeight : 0);
-
-  // Phase 3: Block-Höhe = Post-Höhe setzen → CSS min/max klemmt ein
-  pairs.forEach((p, i) => { if (p.block) p.block.style.height = postHeights[i] + "px"; });
-
-  // Phase 4: Eingeklemmte Block-Höhe messen, Post auf diesen Wert hochziehen
-  // Embed-Posts werden nicht gestreckt (Iframe-Inhalt ist fixe Höhe)
-  pairs.forEach(p => {
-    if (p.post && p.block && p.post.dataset.type !== "embed") {
-      p.post.style.minHeight = p.block.offsetHeight + "px";
-    }
-  });
-}
-
 
 function safeid(s) { return s.replace(/[^a-zA-Z0-9]/g, ""); }
+
+function postEmoji(p) {
+  if (p.type === "photo" && p.tag === "reise") return "🌍";
+  if (p.type === "photo") return "📷";
+  if (p.type === "text") return "📝";
+  if (p.type === "embed") return "🎬";
+  if (p.type === "album") return "💿";
+  return "";
+}
+
+// ── FLIESSTEXT-FEED ───────────────────────────────────────────────────────────
+let albumSortMode = "rating";
+
+function setAlbumSort(mode) {
+  albumSortMode = mode;
+  document.querySelectorAll(".album-sort-pill").forEach(b => b.classList.toggle("active", b.dataset.sort === mode));
+  const carousel = document.getElementById("album-carousel");
+  if (!carousel) return;
+  const slides = [...carousel.querySelectorAll(".album-slide")];
+  const sortFns = {
+    rating: (a, b) => Number(b.dataset.rating) - Number(a.dataset.rating),
+    az:     (a, b) => a.dataset.artist.localeCompare(b.dataset.artist),
+    year:   (a, b) => Number(b.dataset.year || 0) - Number(a.dataset.year || 0),
+  };
+  const sorted = [...slides].sort(sortFns[mode] || sortFns.rating);
+  const cur = parseInt(carousel.dataset.current || 0);
+  const activeFpid = slides[cur].dataset.fpid;
+  sorted.forEach(s => { s.classList.remove("active"); carousel.appendChild(s); });
+  const newCur = sorted.findIndex(s => s.dataset.fpid === activeFpid);
+  const newIdx = newCur >= 0 ? newCur : 0;
+  sorted[newIdx].classList.add("active");
+  carousel.dataset.current = newIdx;
+  const counter = document.getElementById("album-carousel-counter");
+  if (counter) counter.textContent = (newIdx + 1) + " / " + sorted.length;
+  renderAlbumIndex();
+}
+
+function jumpToAlbumSlide(idx) {
+  const carousel = document.getElementById("album-carousel");
+  if (!carousel) return;
+  const slides = carousel.querySelectorAll(".album-slide");
+  const cur = parseInt(carousel.dataset.current || 0);
+  if (slides[cur]) slides[cur].classList.remove("active");
+  if (slides[idx]) slides[idx].classList.add("active");
+  carousel.dataset.current = idx;
+  const counter = document.getElementById("album-carousel-counter");
+  if (counter) counter.textContent = (idx + 1) + " / " + slides.length;
+  renderAlbumIndex();
+}
+
+function renderAlbumIndex() {
+  const el = document.getElementById("album-index");
+  const carousel = document.getElementById("album-carousel");
+  if (!el || !carousel) return;
+  const slides = [...carousel.querySelectorAll(".album-slide")];
+  const cur = parseInt(carousel.dataset.current || 0);
+  el.innerHTML = slides.map((s, i) =>
+    `<button class="album-index-item${i === cur ? " active" : ""}" onclick="jumpToAlbumSlide(${i})">` +
+    `<span class="album-index-rating">${s.dataset.rating || "—"}</span>` +
+    `<span class="album-index-name">${escapeHtml(s.dataset.artist || "")} — ${escapeHtml(s.dataset.album || "")}` +
+    (s.dataset.year ? ` <span class="album-index-year">(${s.dataset.year})</span>` : "") +
+    `</span></button>`
+  ).join("");
+}
+
+function buildFlow(filtered) {
+  const flow = document.getElementById("feed-flow");
+  if (!flow) return;
+  flow.innerHTML = "";
+
+  // Alben als einzelnen Karussell-Beitrag ganz oben
+  const albums = filtered.filter(p => p.type === "album");
+  if (albums.length > 0) {
+    const slidesHTML = albums.map((p, i) => {
+      const a = p._albumData || {};
+      const pid = stablePid(p);
+      const fpid = pid + "-f";
+      const ratingNum = Number(a.rating) || 0;
+      const starsFull = Math.round(ratingNum / 2);
+      const starStr = "★".repeat(starsFull) + "☆".repeat(5 - starsFull);
+      const genres = (a.genre || "").split(",").map(g => g.trim()).filter(Boolean).join(" · ");
+      const slideDate = p.posted_at
+        ? new Date(p.posted_at).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })
+        : "";
+      const coverHTML = a.cover_url
+        ? `<img src="${escapeHtml(a.cover_url)}" alt="" class="flow-album-cover" loading="lazy">`
+        : `<div class="flow-album-cover flow-album-cover--empty"></div>`;
+      const songsHTML = (a.songs || []).length
+        ? `<ol class="flow-album-songs">${(a.songs || []).map(s =>
+            `<li${s === a.favorite_song ? ' class="fav"' : ""}>${escapeHtml(s)}</li>`
+          ).join("")}</ol>`
+        : "";
+      const reviewHTML = a.review
+        ? `<p class="flow-album-review">${escapeHtml(a.review).replace(/\n/g, "<br>")}</p>`
+        : "";
+      const cid = safeid(a.artist + a.album);
+      const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditAlbum('${cid}', event)">✎</button>` : "";
+      const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
+      const delBtn  = unlocked ? `<button class="del-btn"  onclick="deleteAlbum('${cid}', event)" title="löschen">✕</button>` : "";
+      const adminHTML = unlocked ? `<div class="flow-admin">${editBtn}${hideBtn}${delBtn}</div>` : "";
+      return `<div class="album-slide${i === 0 ? " active" : ""}" data-fpid="${fpid}" data-rating="${ratingNum}" data-artist="${escapeHtml(a.artist || "")}" data-album="${escapeHtml(a.album || "")}" data-year="${a.year || ""}">` +
+        adminHTML +
+        `<div class="flow-album-header">` +
+        coverHTML +
+        `<div class="flow-album-header-info">` +
+        `<h2 class="flow-title">💿 ${escapeHtml(a.artist)} — ${escapeHtml(a.album)}</h2>` +
+        `<div class="flow-album-meta">${ratingNum}/10 ${starStr}${genres ? ` · ${genres}` : ""}${a.year ? ` · ${a.year}` : ""}${slideDate ? ` · ${slideDate}` : ""}</div>` +
+        `</div></div>` +
+        songsHTML + reviewHTML +
+        `<div class="post-edit-form" id="edit-form-${fpid}" style="display:none"></div>` +
+        `</div>`;
+    }).join("");
+
+    const sortPills = `<div class="album-sort-pills">` +
+      `<button class="album-sort-pill active" data-sort="rating" onclick="setAlbumSort('rating')">★ Bewertung</button>` +
+      `<button class="album-sort-pill" data-sort="az" onclick="setAlbumSort('az')">A–Z</button>` +
+      `<button class="album-sort-pill" data-sort="year" onclick="setAlbumSort('year')">Jahr</button>` +
+      `</div>`;
+
+    const nav = albums.length > 1
+      ? `<div class="retro-slide-nav">` +
+        `<button onclick="prevAlbumSlide()">←</button>` +
+        `<span id="album-carousel-counter">1 / ${albums.length}</span>` +
+        `<button onclick="nextAlbumSlide()">→</button>` +
+        `</div>`
+      : "";
+
+    const carouselEl = document.createElement("article");
+    carouselEl.className = "flow-post flow-post--albums";
+    carouselEl.id = "flow-albums-carousel";
+    carouselEl.innerHTML =
+      sortPills +
+      `<div class="album-carousel" id="album-carousel" data-current="0">${slidesHTML}</div>` +
+      nav +
+      `<div class="album-index" id="album-index"></div>`;
+    flow.appendChild(carouselEl);
+    renderAlbumIndex();
+  }
+
+  // Alle anderen Beiträge
+  filtered.filter(p => p.type !== "album").forEach(p => {
+    const pid  = stablePid(p);
+    const fpid = pid + "-f";
+
+    const flowDate = p.posted_at
+      ? new Date(p.posted_at).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })
+      : "";
+
+    let mediaHTML = "";
+
+    if (p.type === "photo") {
+      const imgs = p.images || [];
+      const refs = [...(p.text || "").matchAll(/\[Bild(\d+)\]/gi)].map(m => parseInt(m[1]) - 1);
+      const seen = new Set();
+      const ordered = [];
+      for (const r of refs) {
+        if (r >= 0 && r < imgs.length && !seen.has(r)) { ordered.push(imgs[r]); seen.add(r); }
+      }
+      imgs.forEach((img, i) => { if (!seen.has(i)) ordered.push(img); });
+      const orderedImgs = ordered.length === imgs.length ? ordered : imgs;
+
+      if (orderedImgs.length > 0) {
+        const tracks = orderedImgs.map((url, i) =>
+          `<img class="slide-img${i === 0 ? " active" : ""}" src="${url}" alt="" loading="lazy"` +
+          ` onload="this.style.objectFit=this.naturalHeight>this.naturalWidth?'contain':'cover'">`
+        ).join("");
+        const retroNav = orderedImgs.length > 1
+          ? `<div class="retro-slide-nav">` +
+            `<button onclick="prevSlide('${fpid}')">← zurück</button>` +
+            `<span id="${fpid}-counter">1 / ${orderedImgs.length}</span>` +
+            `<button onclick="nextSlide('${fpid}')">weiter →</button>` +
+            `</div>`
+          : "";
+        mediaHTML = `<div class="slideshow" id="${fpid}-slides" data-current="0">` +
+          `<div class="slide-track" id="${fpid}-track">${tracks}</div>` +
+          retroNav +
+          `</div>`;
+      }
+    }
+
+    if (p.type === "embed") {
+      const safeEmbed = (p.embed || "")
+        .replace(/<(?!\/?(iframe|div)[\s>])/gi, "&lt;")
+        .replace(/\bon\w+\s*=/gi, "data-blocked=");
+      mediaHTML = `<div class="post-embed">${safeEmbed}</div>`;
+    }
+
+    const fullText = parseText(p.text || "", fpid);
+
+    const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${fpid}', event)">✎</button>` : "";
+    const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
+    const delBtn  = unlocked ? `<button class="del-btn"  onclick="deletePost('${fpid}', event)" title="löschen">✕</button>` : "";
+    const adminHTML = unlocked ? `<div class="flow-admin">${editBtn}${hideBtn}${delBtn}</div>` : "";
+
+    const article = document.createElement("article");
+    article.className = "flow-post flow-post--" + (p.tag === "reise" ? "reise" : p.type);
+    article.id = fpid;
+    article.dataset.type  = p.type || "";
+    article.dataset.title = p.title || "";
+    article.dataset.text  = p.text  || "";
+    article.dataset.date  = p.posted_at || "";
+    article.dataset.tag   = p.tag   || "";
+    if (p.type === "photo") article.dataset.images = JSON.stringify(p.images || []);
+    article.innerHTML =
+      (flowDate ? `<div class="flow-date">${flowDate}</div>` : "") +
+      adminHTML +
+      `<h2 class="flow-title">${postEmoji(p) ? postEmoji(p) + " " : ""}${escapeHtml(p.title) || "(ohne titel)"}</h2>` +
+      mediaHTML +
+      (fullText ? `<div class="flow-text">${fullText}</div>` : "") +
+      `<div class="post-edit-form" id="edit-form-${fpid}" style="display:none"></div>`;
+
+    flow.appendChild(article);
+  });
+}
 
 // ── TEXT PARSER: bold, italic, heading, links, bildverweise ──────────────────
 // **fett** → <strong>
@@ -414,294 +449,16 @@ function parseText(text, pid) {
 // springt zur Slideshow und aktiviert Bild n
 function jumpToSlide(pid, idx, e) {
   e.preventDefault();
-  // Post aufklappen falls zu
   const postEl = document.getElementById(pid);
-  if (postEl && !postEl.classList.contains("expanded")) togglePost(pid);
-  // kurz warten bis aufgeklappt, dann springen
+  // Flow-Posts sind immer sichtbar — kein togglePost nötig
+  const isFlow = postEl?.classList.contains("flow-post");
+  if (!isFlow && postEl && !postEl.classList.contains("expanded")) togglePost(pid);
   setTimeout(() => {
     goSlide(pid, idx);
     const slides = document.getElementById(pid + "-slides");
     if (slides) slides.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 100);
+  }, isFlow ? 0 : 100);
 }
-
-// ── RENDER SINGLE POST ───────────────────────────────────────────────────────
-function renderPost(p, idx) {
-  const pid = stablePid(p);
-  const dateStr = formatDate(p.posted_at);
-
-  if (p.type === "text")  return renderTextPost(p, pid, dateStr);
-  if (p.type === "photo") return renderPhotoPost(p, pid, dateStr);
-  if (p.type === "album") return renderAlbumPost(p, pid, dateStr);
-  if (p.type === "embed") return renderEmbedPost(p, pid, dateStr);
-  return "";
-}
-
-function renderTextPost(p, pid, dateStr) {
-  const rawPreview = (p.text || "")
-    .replace(/^##\s+/gm, "")
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*/g, "$1")
-    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
-    .replace(/\[Bild\d+\]/gi, "")
-    .replace(/\n\n/g, " ")
-    .replace(/\n/g, " ")
-    .slice(0, 160);
-  const preview = rawPreview + ((p.text||"").length > 160 ? "…" : "");
-  const fullText = parseText(p.text || "", pid);
-  const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
-  const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
-  const delBtn  = unlocked ? `<button class="del-btn"  onclick="deletePost('${pid}', event)" title="löschen">✕</button>` : "";
-
-  const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
-
-  return `<div class="post${p.draft ? ' post-draft' : ''}" id="${pid}" data-type="text" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
-    <div class="post-date-inline">${dateStr}</div>
-    <div class="post-header">
-      <span class="post-title-wrap">
-        <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
-        ${editBtn}${hideBtn}${delBtn}
-      </span>
-      <span class="post-tag">text</span>
-      ${draftBadge}
-    </div>
-    <div class="post-preview">${preview}</div>
-    <div class="entry-toggle" onclick="togglePost('${pid}')">
-      <span style="flex:1">weiterlesen</span>
-      <span class="entry-toggle-arrow">v</span>
-    </div>
-    <div class="post-body">
-      <div class="post-fulltext">${fullText}</div>
-      ${shareBarHTML(pid, p.title)}
-      ${commentSectionHTML(pid)}
-    </div>
-    <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
-  </div>`;
-}
-
-function renderPhotoPost(p, pid, dateStr) {
-  const isReise = p.tag === "reise";
-  const tagLabel = isReise ? "reise" : "foto";
-  const tagClass = isReise ? "reise" : "";
-  const imgs = p.images || [];
-  const preview = (p.text || "")
-    .replace(/^##\s+/gm, "")
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*/g, "$1")
-    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
-    .replace(/\[Bild\d+\]/gi, "")
-    .replace(/\n/g, " ")
-    .slice(0, 140) + ((p.text||"").length > 140 ? "…" : "");
-  const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
-  const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
-  const delBtn  = unlocked ? `<button class="del-btn"  onclick="deletePost('${pid}', event)" title="löschen">✕</button>` : "";
-
-  // ── KOLLAGE (preview, außerhalb post-body) ──
-  let collageHTML = "";
-  if (imgs.length > 0) {
-    const MAX_SHOWN = 9;
-    const shown = imgs.slice(0, MAX_SHOWN);
-    const extra = imgs.length - MAX_SHOWN;
-    const n = shown.length;
-
-    const cols = n === 1 ? 1 : n === 2 ? 2 : n === 4 ? 2 : 3;
-    const rows = Math.ceil(n / cols);
-
-    const cells = shown.map((url, i) => {
-      const isLast = i === shown.length - 1;
-      const inner = `<img src="${url}" alt="" loading="lazy">`;
-      const more  = (isLast && extra > 0)
-        ? `<div class="collage-more">+${extra + 1}</div>`
-        : "";
-      return `<div class="collage-cell">${inner}${more}</div>`;
-    }).join("");
-
-    const extraClass = n === 1 ? " collage-single" : "";
-    const styleAttr = n === 1
-      ? `style="grid-template-columns:1fr;aspect-ratio:unset"`
-      : `style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)"`;
-
-    collageHTML = `<div class="collage${extraClass}" ${styleAttr} onclick="togglePost('${pid}')">${cells}</div>`;
-  }
-
-  // ── TEXT: [Bild1]-Verweise → Reihenfolge der images[] anpassen ──
-  // Wenn im Text [Bild2] vor [Bild1] steht, werden die Bilder entsprechend umsortiert
-  function reorderImagesByText(images, text) {
-    const refs = [...text.matchAll(/\[Bild(\d+)\]/gi)].map(m => parseInt(m[1]) - 1);
-    const seen = new Set();
-    const ordered = [];
-    for (const idx of refs) {
-      if (idx >= 0 && idx < images.length && !seen.has(idx)) {
-        ordered.push(images[idx]);
-        seen.add(idx);
-      }
-    }
-    // restliche Bilder (ohne Verweis) ans Ende
-    images.forEach((img, i) => { if (!seen.has(i)) ordered.push(img); });
-    return ordered.length === images.length ? ordered : images;
-  }
-  const orderedImgs = reorderImagesByText(imgs, p.text || "");
-
-  // ── SLIDESHOW (im body, mit Overlay-Buttons) ──
-  let slidesHTML = "";
-  if (orderedImgs.length > 0) {
-    const tracks = orderedImgs.map((url, i) =>
-      `<img class="slide-img${i===0?' active':''}" src="${url}" alt="" onload="this.style.objectFit=this.naturalHeight>this.naturalWidth?'contain':'cover'">`
-    ).join("");
-    const dots = orderedImgs.length > 1
-      ? `<div class="slide-dots">${orderedImgs.map((_, i) =>
-          `<span class="slide-dot${i===0?' active':''}" onclick="goSlide('${pid}',${i})"></span>`
-        ).join("")}</div>`
-      : "";
-    const overlayNav = orderedImgs.length > 1
-      ? `<button class="slide-overlay-btn slide-overlay-prev" onclick="prevSlide('${pid}')">‹</button>
-         <button class="slide-overlay-btn slide-overlay-next" onclick="nextSlide('${pid}')">›</button>
-         <div class="slide-overlay-counter" id="${pid}-counter">1 / ${orderedImgs.length}</div>`
-      : "";
-    slidesHTML = `<div class="slideshow" id="${pid}-slides" data-current="0">
-      <div class="slide-track" id="${pid}-track" style="position:relative;overflow:hidden;background:#f5f5f5">
-        ${tracks}
-        ${overlayNav}
-      </div>
-      ${dots}
-    </div>`;
-  }
-
-  return `<div class="${'post' + (isReise ? ' post-reise' : ' post-foto')}" id="${pid}" data-type="photo" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-tag="${p.tag||''}" data-images="${JSON.stringify(p.images||[]).replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
-    <div class="post-date-inline">${dateStr}</div>
-    <div class="post-header">
-      <span class="post-title-wrap">
-        <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
-        ${editBtn}${hideBtn}${delBtn}
-      </span>
-      <span class="post-tag ${tagClass}">${tagLabel}</span>
-    </div>
-    ${collageHTML}
-    <div class="post-preview">${preview}</div>
-    <div class="entry-toggle" onclick="togglePost('${pid}')">
-      <span style="flex:1">weiterlesen</span>
-      <span class="entry-toggle-arrow">v</span>
-    </div>
-    <div class="post-body">
-      ${slidesHTML}
-      <div class="post-fulltext">${parseText(p.text||"", pid)}</div>
-      ${shareBarHTML(pid, p.title)}
-      ${commentSectionHTML(pid)}
-    </div>
-    <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
-  </div>`;
-}
-
-function renderEmbedPost(p, pid, dateStr) {
-  const preview = (p.text || "").replace(/\*\*(.+?)\*\*/g,"$1").replace(/\*(.+?)\*/g,"$1").slice(0,140) + ((p.text||"").length>140?"…":"");
-  const editBtn = unlocked ? `<button class="edit-btn" onclick="toggleEditPost('${pid}', event)">✎</button>` : "";
-  const hideBtn = unlocked ? `<button class="hide-btn" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
-  const delBtn  = unlocked ? `<button class="del-btn"  onclick="deletePost('${pid}', event)" title="löschen">✕</button>` : "";
-  const draftBadge = p.draft ? `<span class="draft-badge">entwurf</span>` : "";
-
-  const safeEmbed = (p.embed || "")
-    .replace(/<(?!\/?(iframe|div)[\s>])/gi, "&lt;")
-    .replace(/\bon\w+\s*=/gi, "data-blocked=");
-  const hasText = p.text && p.text.trim().length > 0;
-
-  return `<div class="post${p.draft?' post-draft':''}" id="${pid}" data-type="embed" data-title="${(p.title||'').replace(/"/g,'&quot;')}" data-text="${(p.text||'').replace(/"/g,'&quot;')}" data-date="${p.posted_at||''}">
-    <div class="post-date-inline">${dateStr}</div>
-    <div class="post-header">
-      <span class="post-title-wrap">
-        <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(p.title) || "(ohne titel)"}</span>
-        ${editBtn}${hideBtn}${delBtn}
-      </span>
-      <span class="post-tag">embed</span>
-      ${draftBadge}
-    </div>
-    <div class="post-embed">${safeEmbed}</div>
-    ${preview ? `<div class="post-preview">${preview}</div>` : ""}
-    ${hasText ? `<div class="entry-toggle" onclick="togglePost('${pid}')">
-      <span style="flex:1">weiterlesen</span>
-      <span class="entry-toggle-arrow">v</span>
-    </div>
-    <div class="post-body">
-      <div class="post-fulltext">${parseText(p.text, pid)}</div>
-      ${shareBarHTML(pid, p.title)}
-      ${commentSectionHTML(pid)}
-    </div>` : `<div style="margin-top:4px">${shareBarHTML(pid, p.title)}</div>`}
-    <div class="post-edit-form" id="edit-form-${pid}" style="display:none"></div>
-  </div>`;
-}
-
-function renderAlbumPost(p, pid, dateStr) {
-  const a = p._albumData;
-  const cid = "cv-" + safeid(a.artist + a.album);
-  const genres = (a.genre||"").split(",").map(g=>g.trim()).filter(Boolean).join(" · ");
-
-  // songs: static list, unauffällig, im body
-  const songsListHTML = (a.songs||[]).length
-    ? `<div class="album-songs-list">${(a.songs||[]).map(s =>
-        s === a.favorite_song
-          ? `<span class="album-song fav">${escapeHtml(s)}</span>`
-          : `<span class="album-song">${escapeHtml(s)}</span>`
-      ).join("")}</div>`
-    : "";
-
-  const reviewHTML = a.review
-    ? `<div class="post-fulltext" style="margin-top:10px">${escapeHtml(a.review).replace(/\n/g,"<br>")}</div>`
-    : "";
-  const editBtn = unlocked ? `<button class="edit-btn" onclick="openEditAlbum('${safeid(a.artist+a.album)}', event)">✎</button>` : "";
-  const hideBtn = unlocked ? `<button class="hide-btn" title="ausblenden" onclick="toggleHidePost('${pid}', event)">◌</button>` : "";
-  const delBtn  = unlocked ? `<button class="del-btn"  onclick="deleteAlbum('${safeid(a.artist+a.album)}', event)" title="löschen">✕</button>` : "";
-
-  return `<div class="post" id="${pid}">
-    <div style="position:relative">
-      <div class="post-header" style="padding-right:52px">
-        <span class="post-title-wrap">
-          <span class="post-title" onclick="togglePost('${pid}')">${escapeHtml(a.album)}</span>
-          ${editBtn}${hideBtn}${delBtn}
-        </span>
-        <span class="post-tag album">album</span>
-      </div>
-      <span class="album-rating">${Number(a.rating)}<span class="rating-denom">/10</span></span>
-      <div class="album-row" style="margin-top:4px">
-        <canvas class="album-cover-canvas" id="${cid}" width="4" height="4"></canvas>
-        <div class="album-info">
-          <div class="post-meta">${escapeHtml(a.artist)}${a.year ? " · "+escapeHtml(a.year) : ""}${genres ? " · "+escapeHtml(genres) : ""}</div>
-        </div>
-      </div>
-      <div class="post-date-inline album-date" style="top:0">${dateStr}</div>
-    </div>
-    <div class="entry-toggle" onclick="togglePost('${pid}')">
-      <span style="flex:1">${a.review ? "rezension lesen" : "details"}</span>
-      <span class="entry-toggle-arrow">v</span>
-    </div>
-    <div class="post-body">
-      ${songsListHTML}
-      ${reviewHTML}
-      <div class="entry-date-small">${dateStr}</div>
-      ${shareBarHTML(pid, a.album)}
-      ${commentSectionHTML(pid)}
-    </div>
-    <div id="edit-${safeid(a.artist+a.album)}" style="display:none"></div>
-  </div>`;
-}
-
-// ── TOGGLE POST EXPAND ────────────────────────────────────────────────────────
-function togglePost(pid) {
-  const el = document.getElementById(pid);
-  if (!el) return;
-  el.classList.toggle("expanded");
-  const preview = el.querySelector(".post-preview");
-  if (preview) preview.style.display = el.classList.contains("expanded") ? "none" : "";
-  // Kommentare laden wenn aufgeklappt
-  if (el.classList.contains("expanded")) {
-    initComments(pid);
-    // Slideshow-Ratio setzen
-    const postData = allPosts.find(p => stablePid(p) === pid);
-    if (postData && postData.type === "photo" && postData.images && postData.images.length > 0) {
-      initSlideshowRatio(pid, postData.images[0]);
-    }
-  }
-  requestAnimationFrame(equalizeColumnPairs);
-}
-
 // ── INLINE EDIT: TEXT + FOTO POSTS ───────────────────────────────────────────
 function toggleEditPost(pid, e) {
   if (e) e.stopPropagation();
@@ -929,8 +686,6 @@ async function deleteAlbum(eid, e) {
     albums.splice(idx, 1);
     mergePosts();
     render();
-    renderSidebarAlbums();
-    renderAlbumStrip();
   } catch(err) {
     alert("Fehler beim Löschen: " + err.message);
   }
@@ -981,7 +736,8 @@ async function toggleHidePost(pid, e) {
 function applyHiddenUI() {
   // colour hide-btns after render
   document.querySelectorAll(".hide-btn").forEach(btn => {
-    const pid = btn.closest(".post")?.id;
+    const rawId = (btn.closest(".post, .flow-post"))?.id || "";
+    const pid   = rawId.endsWith("-f") ? rawId.slice(0, -2) : rawId;
     if (pid && hiddenPosts.has(pid)) {
       btn.textContent = "●";
       btn.title = "einblenden";
@@ -1042,28 +798,29 @@ function prevSlide(pid) {
   goSlide(pid, (cur - 1 + imgs.length) % imgs.length);
 }
 
-// ── SONG TICKER ───────────────────────────────────────────────────────────────
-function initTickers() {
-  document.querySelectorAll(".entry-songs").forEach(container => {
-    const inner = container.querySelector(".entry-songs-inner");
-    if (!inner || inner.dataset.tickerInit) return;
-    if (inner.scrollWidth <= container.clientWidth + 2) return;
-    inner.dataset.tickerInit = "1";
-    const sep = document.createElement("span");
-    sep.style.padding = "0 20px";
-    sep.style.fontSize = "11px";
-    sep.textContent = "·";
-    const clone = inner.cloneNode(true);
-    inner.appendChild(sep);
-    inner.appendChild(clone);
-    const halfW = inner.scrollWidth / 2;
-    const dur = halfW / 24;
-    inner.style.setProperty("--scroll-dist", "-" + halfW + "px");
-    inner.style.setProperty("--scroll-dur", dur.toFixed(1) + "s");
-    inner.classList.add("scrolling");
-    container.addEventListener("mouseenter", () => inner.style.animationPlayState = "paused");
-    container.addEventListener("mouseleave", () => inner.style.animationPlayState = "running");
-  });
+function nextAlbumSlide() {
+  const carousel = document.getElementById("album-carousel");
+  if (!carousel) return;
+  const slides = carousel.querySelectorAll(".album-slide");
+  const cur  = parseInt(carousel.dataset.current || 0);
+  const next = (cur + 1) % slides.length;
+  slides[cur].classList.remove("active");
+  slides[next].classList.add("active");
+  carousel.dataset.current = next;
+  const counter = document.getElementById("album-carousel-counter");
+  if (counter) counter.textContent = (next + 1) + " / " + slides.length;
+}
+function prevAlbumSlide() {
+  const carousel = document.getElementById("album-carousel");
+  if (!carousel) return;
+  const slides = carousel.querySelectorAll(".album-slide");
+  const cur  = parseInt(carousel.dataset.current || 0);
+  const prev = (cur - 1 + slides.length) % slides.length;
+  slides[cur].classList.remove("active");
+  slides[prev].classList.add("active");
+  carousel.dataset.current = prev;
+  const counter = document.getElementById("album-carousel-counter");
+  if (counter) counter.textContent = (prev + 1) + " / " + slides.length;
 }
 
 // ── ALBUM COVER PIXEL CACHE ───────────────────────────────────────────────────
@@ -1143,16 +900,32 @@ document.getElementById("search").addEventListener("input", e => {
   searchQ = e.target.value;
   render();
 });
-document.getElementById("sort-dir").addEventListener("change", e => {
-  sortDir = parseInt(e.target.value);
+function setSortDir(dir) {
+  sortDir = dir;
+  document.getElementById("sort-btn-old").classList.toggle("active", dir === 1);
+  document.getElementById("sort-btn-new").classList.toggle("active", dir === -1);
   mergePosts();
   render();
-});
-document.getElementById("filter-type").addEventListener("change", e => {
-  filterType = e.target.value;
-  render();
-});
+}
 
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+  if (!sidebar) return;
+  const isOpen = sidebar.classList.toggle("open");
+  overlay.classList.toggle("active", isOpen);
+  document.body.classList.toggle("sidebar-open", isOpen);
+}
+
+function jumpToSection(id) {
+  const searchEl = document.getElementById("search");
+  if (searchEl && searchEl.value) { searchEl.value = ""; searchQ = ""; render(); }
+  if (document.getElementById("sidebar")?.classList.contains("open")) toggleSidebar();
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 120);
+}
 // ── DATE FORMAT ───────────────────────────────────────────────────────────────
 function formatDate(iso) {
   if (!iso) return "";
@@ -1332,7 +1105,7 @@ async function pushToGithub(newEntry, currentData, path, ps) {
     if (!shaRes.ok) throw new Error(`${shaRes.status} - token/repo falsch?`);
     const { sha } = await shaRes.json();
     const updatedData = [...currentData, newEntry];
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(updatedData, null, 2))));
+    const content = btoa([...new TextEncoder().encode(JSON.stringify(updatedData, null, 2))].map(b => String.fromCharCode(b)).join(""));
     ps.textContent = "schreibe...";
     const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
       method: "PUT",
@@ -1631,13 +1404,6 @@ document.addEventListener("click", e => {
   document.querySelectorAll(".srf-tooltip.tip-open").forEach(t => t.classList.remove("tip-open"));
 });
 
-// ── RESIZE: Spalten neu angleichen ───────────────────────────────────────────
-let _eqTimer;
-window.addEventListener("resize", () => {
-  clearTimeout(_eqTimer);
-  _eqTimer = setTimeout(equalizeColumnPairs, 120);
-}, { passive: true });
-
 // ── BACK TO TOP ───────────────────────────────────────────────────────────────
 const backTopBtn = document.getElementById("btn-back-top");
 window.addEventListener("scroll", () => {
@@ -1668,7 +1434,7 @@ document.getElementById("img-upload-input").addEventListener("change", async fun
   for (const file of files) {
     try {
       st.textContent = `konvertiere ${file.name}...`;
-      const { url, filename } = await uploadImageToRepo(file, token, repo, branch);
+      const { url } = await uploadImageToRepo(file, token, repo, branch);
 
       const list = document.getElementById("photo-url-list");
       const emptyInput = [...list.querySelectorAll("input[type=url]")].find(i => !i.value);
@@ -1890,42 +1656,6 @@ function editorInsert(id) {
   ta.selectionStart = ta.selectionEnd = pos + insert.length;
 }
 
-// ── SHARE BAR ─────────────────────────────────────────────────────────────────
-function shareBarHTML(pid, title) {
-  const encoded = encodeURIComponent(title || "");
-  return `<div class="share-bar">
-    <button class="share-btn" onclick="togglePost('${pid}')">↑ einklappen</button>
-    <button class="share-btn" onclick="copyPostLink('${pid}', this)" title="Link kopieren">🔗 link</button>
-    <button class="share-btn" onclick="shareWhatsApp(decodeURIComponent('${encoded}'))" title="Per WhatsApp teilen">↗ whatsapp</button>
-  </div>`;
-}
-
-function copyPostLink(pid, btn) {
-  const url = window.location.origin + window.location.pathname + "#" + pid;
-  navigator.clipboard.writeText(url).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = "✓ kopiert";
-    setTimeout(() => btn.textContent = orig, 2000);
-  }).catch(() => {
-    // Fallback für ältere Browser
-    const ta = document.createElement("textarea");
-    ta.value = window.location.origin + window.location.pathname + "#" + pid;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
-    const orig = btn.textContent;
-    btn.textContent = "✓ kopiert";
-    setTimeout(() => btn.textContent = orig, 2000);
-  });
-}
-
-function shareWhatsApp(title) {
-  const url  = window.location.origin + window.location.pathname;
-  const text = `Sieh dir den Blogpost von rotehaare an: "${title}" ${url}`;
-  window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
-}
-
 // ── ALBUM GRID MODE ───────────────────────────────────────────────────────────
 let albumMode = false;
 let albumGridSearch = "";
@@ -1935,16 +1665,8 @@ function switchToAlbumMode() {
   document.body.classList.add("album-mode");
   document.getElementById("btn-mode-switch").classList.add("active");
   document.getElementById("btn-mode-switch").textContent = "◑ blog";
-  document.getElementById("feed-grid").style.display = "none";
-  document.getElementById("feed-below").style.display = "none";
+  document.getElementById("feed-flow").style.display = "none";
   document.getElementById("album-grid").style.display = "block";
-  document.getElementById("controls-filters").style.display = "none";
-  // Header-Figur tauschen
-  document.getElementById("header-me").style.display = "none";
-  const me2 = document.getElementById("header-me-album");
-  if (me2) me2.style.display = "block";
-  // Subtext
-  document.querySelector("p.sub").textContent = "→ plattensammlung";
   renderAlbumGrid();
 }
 
@@ -1953,15 +1675,8 @@ function switchToBlogMode() {
   document.body.classList.remove("album-mode");
   document.getElementById("btn-mode-switch").classList.remove("active");
   document.getElementById("btn-mode-switch").textContent = "◑ platten";
-  document.getElementById("feed-grid").style.display = "";
-  document.getElementById("feed-below").style.display = "";
+  document.getElementById("feed-flow").style.display = "";
   document.getElementById("album-grid").style.display = "none";
-  document.getElementById("controls-filters").style.display = "";
-  // Header-Figur zurück
-  document.getElementById("header-me").style.display = "block";
-  const me2 = document.getElementById("header-me-album");
-  if (me2) me2.style.display = "none";
-  document.querySelector("p.sub").textContent = "→ ein ganz persönlicher blog";
 }
 
 document.getElementById("btn-mode-switch").addEventListener("click", () => {
@@ -2105,266 +1820,38 @@ document.getElementById("btn-show-hidden").addEventListener("click", () => {
   render();
 });
 
-// ── SIDEBAR ALBUM LIST ────────────────────────────────────────────────────────
-let desktopSortMode = "rating";
-const desktopSortCycle = [
-  { mode: "rating", label: "Wert" },
-  { mode: "alpha",  label: "A–Z" },
-  { mode: "year",   label: "Jahr" }
-];
-
-function cycleDesktopSort() {
-  const idx = desktopSortCycle.findIndex(e => e.mode === desktopSortMode);
-  const next = desktopSortCycle[(idx + 1) % desktopSortCycle.length];
-  desktopSortMode = next.mode;
-  const pill = document.getElementById("desktop-sort-pill");
-  if (pill) pill.textContent = next.label;
-  renderSidebarAlbums();
-}
-
-function renderSidebarAlbums() {
-  const container = document.getElementById("sidebar-albums");
-  if (!container || !albums.length) return;
-
-  let sorted, getGroupKey;
-  if (desktopSortMode === "alpha") {
-    sorted = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
-    getGroupKey = a => a.artist[0].toUpperCase();
-  } else if (desktopSortMode === "year") {
-    sorted = [...albums].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
-    getGroupKey = a => String(a.year || "?");
-  } else {
-    sorted = [...albums].sort((a, b) => b.rating - a.rating);
-    getGroupKey = a => String(Math.floor(Number(a.rating)));
-  }
-
-  const groups = [];
-  let lastKey = null;
-  sorted.forEach(a => {
-    const k = getGroupKey(a);
-    if (k !== lastKey) { groups.push({ key: k, albums: [] }); lastKey = k; }
-    groups[groups.length - 1].albums.push(a);
-  });
-
-  container.innerHTML = groups.map(g => {
-    const rows = g.albums.map(a => {
-      const cid = "sav-" + safeid(a.artist + a.album);
-      const key = safeid(a.artist + a.album);
-      return `<div class="sidebar-album-row" data-akey="${key}">
-        <canvas class="sidebar-album-cover" id="${cid}" width="4" height="4"></canvas>
-        <div class="sidebar-album-info">
-          <div class="sidebar-album-name">${escapeHtml(a.album)}</div>
-          <div class="sidebar-album-artist">${escapeHtml(a.artist)}</div>
-        </div>
-        <div class="sidebar-album-rating">${Number(a.rating)}</div>
-      </div>`;
-    }).join("");
-    return `<div class="sidebar-album-group">
-      <div class="sidebar-album-group-label">${escapeHtml(g.key)}</div>
-      ${rows}
-    </div>`;
-  }).join("");
-
-  container.querySelectorAll(".sidebar-album-row").forEach(row => {
-    row.addEventListener("click", () => {
-      const a = sorted.find(x => safeid(x.artist + x.album) === row.dataset.akey);
-      if (a) openAlbumDirect(a);
-    });
-  });
-
-  requestAnimationFrame(() => {
-    sorted.forEach(a => {
-      const cid = "sav-" + safeid(a.artist + a.album);
-      if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
-    });
-  });
-}
-
 // ── FEATURED REISE ────────────────────────────────────────────────────────────
 function renderFeaturedReise() {
   const reisePosts = posts.filter(p => p.type === "photo" && p.tag === "reise" && !p.draft);
   reisePosts.sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
 
-  ["featured-reise", "featured-reise-mobile"].forEach(id => {
-    const container = document.getElementById(id);
-    if (!container) return;
-    if (!reisePosts.length) { container.innerHTML = ""; container.style.display = "none"; return; }
-    container.style.display = "";
-    const p = reisePosts[0];
-    const pid = stablePid(p);
-    const firstImg = (p.images && p.images.length) ? p.images[0] : "";
-    const dateStr = formatDate(p.posted_at);
-    container.innerHTML = `
-      <div class="featured-reise-wrap">
-        <div class="featured-reise-label">Aktuelle Reise</div>
-        <div class="featured-reise-card">
-          ${firstImg ? `<div class="featured-reise-img-wrap"><img class="featured-reise-img" src="${firstImg}" alt=""></div>` : ""}
-          <div class="featured-reise-body">
-            <div class="featured-reise-meta">${dateStr}</div>
-            <div class="featured-reise-title">${p.title || ""}</div>
-          </div>
-        </div>
-      </div>
-    `;
-    container.querySelector(".featured-reise-card").addEventListener("click", () => {
-      const allBtn = document.querySelector(".nav-btn[data-filter=\"all\"]");
-      if (allBtn && !allBtn.classList.contains("active")) setNavFilter(allBtn, "all");
-      setTimeout(() => {
-        const el = document.getElementById(pid);
-        if (!el) return;
-        if (!el.classList.contains("expanded")) togglePost(pid);
+  // Rechte Spalte im angepinnten BDM-Block
+  const pinnedRight = document.getElementById("bdm-pinned-right");
+  if (pinnedRight) {
+    if (!reisePosts.length) {
+      pinnedRight.innerHTML = "";
+      pinnedRight.style.display = "none";
+    } else {
+      const p = reisePosts[0];
+      const pid  = stablePid(p);
+      const fpid = pid + "-f";
+      const firstImg = (p.images && p.images.length) ? p.images[0] : "";
+      pinnedRight.style.display = "";
+      pinnedRight.innerHTML =
+        `<div class="bdm-pinned-header">🗺 Aktuelle Reise</div>` +
+        (firstImg ? `<img class="bdm-pinned-reise-img" src="${escapeHtml(firstImg)}" alt="">` : "") +
+        `<div class="bdm-pinned-reise-title">${escapeHtml(p.title || "")}</div>`;
+      pinnedRight.addEventListener("click", () => {
         setTimeout(() => {
+          const el = document.getElementById(fpid);
+          if (!el) return;
           el.scrollIntoView({ behavior: "smooth", block: "center" });
           el.classList.add("post-highlight");
           setTimeout(() => el.classList.remove("post-highlight"), 2000);
-        }, 100);
-      }, 80);
-    });
-  });
-}
-
-// ── MOBILE ALBUM STRIP ────────────────────────────────────────────────────────
-function ratingBadgeColor(rating) {
-  // hsl(50, 100%, 69%) = #ffe063 bei Rating 5 (Mitte)
-  // Richtung 10: heller, Richtung 0: dunkler — sehr sanfte Abstufung
-  const L = Math.round(55 + (rating / 10) * 27); // 55% bei 0, ~69% bei 5, 82% bei 10
-  const S = Math.round(100 - (rating / 10) * 15); // leicht entsättigt nach oben
-  return `hsl(50,${S}%,${L}%)`;
-}
-
-let mobileSortMode = "rating";
-const mobileSortCycle = [
-  { mode: "rating", label: "Wert" },
-  { mode: "alpha",  label: "A–Z" },
-  { mode: "year",   label: "Jahr" }
-];
-
-function setMobileSort(mode) {
-  mobileSortMode = mode;
-  const pill = document.getElementById("mobile-sort-pill");
-  if (pill) {
-    const entry = mobileSortCycle.find(e => e.mode === mode);
-    if (entry) pill.textContent = entry.label;
+        }, 80);
+      });
+    }
   }
-  renderAlbumStrip();
-}
-
-function cycleMobileSort() {
-  const idx = mobileSortCycle.findIndex(e => e.mode === mobileSortMode);
-  const next = mobileSortCycle[(idx + 1) % mobileSortCycle.length];
-  setMobileSort(next.mode);
-}
-
-function toggleMobileAlbums() {
-  const wrap = document.getElementById("mobile-platten");
-  if (!wrap) return;
-  wrap.classList.toggle("expanded");
-}
-
-function renderAlbumStrip() {
-  const container = document.getElementById("album-strip-mobile");
-  if (!container || !albums.length) return;
-  let sorted, getGroupKey;
-  if (mobileSortMode === "alpha") {
-    sorted = [...albums].sort((a, b) => a.artist.localeCompare(b.artist));
-    getGroupKey = a => a.artist[0].toUpperCase();
-  } else if (mobileSortMode === "year") {
-    sorted = [...albums].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
-    getGroupKey = a => String(a.year || "?");
-  } else {
-    sorted = [...albums].sort((a, b) => b.rating - a.rating);
-    getGroupKey = a => String(Math.floor(Number(a.rating)));
-  }
-
-  // Alben in Gruppen aufteilen
-  const groups = [];
-  let lastKey = null;
-  sorted.forEach(a => {
-    const k = getGroupKey(a);
-    if (k !== lastKey) { groups.push({ key: k, albums: [] }); lastKey = k; }
-    groups[groups.length - 1].albums.push(a);
-  });
-
-  container.innerHTML = groups.map((g, gi) => {
-    const isLast = gi === groups.length - 1;
-    const items = g.albums.map(a => {
-      const cid = "asv-" + safeid(a.artist + a.album);
-      const key = safeid(a.artist + a.album);
-      const badgeColor = ratingBadgeColor(Number(a.rating));
-      return `<div class="album-strip-item" data-akey="${key}" title="${a.album} – ${a.artist}">
-        <div class="album-strip-cover-wrap">
-          <canvas class="album-strip-cover" id="${cid}" width="4" height="4"></canvas>
-          <div class="album-strip-badge-outer"><div class="album-strip-badge" style="background:${badgeColor}">${Number(a.rating)}</div></div>
-        </div>
-      </div>`;
-    }).join("");
-    return `<div class="album-strip-group${isLast ? " last" : ""}">
-      <div class="album-strip-group-items">${items}</div>
-      <div class="album-strip-group-label">${escapeHtml(g.key)}</div>
-    </div>`;
-  }).join("");
-
-  container.querySelectorAll(".album-strip-item").forEach(item => {
-    item.addEventListener("click", () => {
-      const a = sorted.find(x => safeid(x.artist + x.album) === item.dataset.akey);
-      if (a) openAlbumDirect(a);
-    });
-  });
-  requestAnimationFrame(() => {
-    sorted.forEach(a => {
-      const cid = "asv-" + safeid(a.artist + a.album);
-      if (a.cover_url) loadCover(cid, a.cover_url, a.artist + "|" + a.album);
-    });
-  });
-}
-
-function openBdmPhoto(p) {
-  const overlay = document.getElementById("album-popup-overlay");
-  const content = document.getElementById("album-popup-content");
-  if (!overlay || !content) return;
-  content.innerHTML = `<div style="text-align:center">
-    <img src="${escapeHtml(p.url)}" style="max-width:100%;max-height:70vh;display:block;margin:0 auto;border-radius:4px" alt="${escapeHtml(p.caption || "")}">
-    ${p.caption ? `<p style="margin-top:10px;font-family:'Caveat',cursive;font-size:16px;color:var(--muted)">${escapeHtml(p.caption)}</p>` : ""}
-  </div>`;
-  overlay.style.display = "flex";
-}
-
-// ── TOP 100 SONGS ─────────────────────────────────────────────────────────────
-
-function renderTop100() {
-  const wrap = document.getElementById("sidebar-top100");
-  const list = document.getElementById("top100-list");
-  const mobileList = document.getElementById("mobile-top100-list");
-  if (!wrap || !list) return;
-  if (!top100.length) { wrap.style.display = "none"; return; }
-  wrap.style.display = "";
-
-  const makeRow = (s, i, prefix) => `<div class="top100-item">
-    <span class="top100-rank">${i + 1}</span>
-    <canvas class="top100-cover" id="${prefix}${i}" width="4" height="4"></canvas>
-    <div class="top100-info">
-      <div class="top100-title">${escapeHtml(s.title)}</div>
-      <div class="top100-artist">${escapeHtml(s.artist)}</div>
-    </div>
-  </div>`;
-
-  list.innerHTML = top100.map((s, i) => makeRow(s, i, "t100-")).join("");
-  if (mobileList) mobileList.innerHTML = top100.map((s, i) => makeRow(s, i, "mt100-")).join("");
-
-  requestAnimationFrame(() => {
-    top100.forEach((s, i) => {
-      if (s.cover) {
-        loadCover("t100-" + i, s.cover, "t100|" + s.title + "|" + s.artist);
-        if (mobileList) loadCover("mt100-" + i, s.cover, "t100|" + s.title + "|" + s.artist);
-      }
-    });
-  });
-}
-
-function toggleMobileTop100() {
-  const wrap = document.getElementById("mobile-top100");
-  if (!wrap) return;
-  wrap.classList.toggle("expanded");
 }
 
 // ── TOP 100 ADMIN EDITOR ──────────────────────────────────────────────────────
@@ -2484,7 +1971,8 @@ document.getElementById("btn-top100-save").addEventListener("click", async () =>
 document.getElementById("btn-bdm-toggle").addEventListener("click", () => {
   const ed = document.getElementById("bdm-editor");
   if (ed.style.display !== "none") { ed.style.display = "none"; return; }
-  document.getElementById("bdm-month").value = bilderDesMonats.month || "";
+  const autoMonth = new Date().toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+  document.getElementById("bdm-month").value = bilderDesMonats.month || autoMonth;
   const list = document.getElementById("bdm-photo-list");
   list.innerHTML = "";
   (bilderDesMonats.photos || []).forEach(p => addBdmPhotoSlot(p.url, p.caption || ""));
@@ -2550,23 +2038,6 @@ async function saveBdm() {
 
   st.textContent = "speichere...";
   try {
-    // Aktuellen Monat ins Archiv schieben wenn er Fotos hat und noch nicht drin ist
-    const cur = bilderDesMonats;
-    if (cur.photos && cur.photos.length > 0 && !bdmArchiv.some(m => m.month === cur.month)) {
-      const newArchiv = [cur, ...bdmArchiv];
-      let archivSha = null;
-      const archivRes = await fetch(`https://api.github.com/repos/${repo}/contents/bdm_archiv.json?ref=${branch}`,
-        { headers });
-      if (archivRes.ok) archivSha = (await archivRes.json()).sha;
-      const archivBody = { message: "bdm: Monat archivieren", content: toB64(newArchiv), branch };
-      if (archivSha) archivBody.sha = archivSha;
-      const archivPut = await fetch(`https://api.github.com/repos/${repo}/contents/bdm_archiv.json`, {
-        method: "PUT", headers, body: JSON.stringify(archivBody)
-      });
-      if (!archivPut.ok) { const e = await archivPut.json(); throw new Error("Archiv: " + (e.message || archivPut.status)); }
-      bdmArchiv = newArchiv;
-    }
-
     // Neuen Monat speichern
     let sha = null;
     const shaRes = await fetch(`https://api.github.com/repos/${repo}/contents/bilder_des_monats.json?ref=${branch}`,
@@ -2580,161 +2051,40 @@ async function saveBdm() {
     if (!putRes.ok) { const e = await putRes.json(); throw new Error(e.message || putRes.status); }
     bilderDesMonats = data;
     render();
-    renderMobileBdmStickers();
-    renderSidebarBdmArchiv();
     st.textContent = "✓ gespeichert. ~30 sek bis live.";
   } catch(e) { st.textContent = "fehler: " + e.message; }
 }
 
 document.getElementById("btn-bdm-save").addEventListener("click", saveBdm);
 
-function renderMobileBdmStickers() {
-  document.querySelectorAll(".bdm-mobile-sticker").forEach(el => el.remove());
-  const photos = bilderDesMonats.photos || [];
-  if (!photos.length) return;
-
-  const rotations = [-4, 2, -2, 5, -3];
-
-  // Berechne die Durchhängung pro Foto entsprechend der Leinenkurve (Bezier M 0,5 Q 50,23 100,8)
-  const ropeY = t => (1-t)*(1-t)*5 + 2*t*(1-t)*23 + t*t*8;
-  const positions = photos.map((_, i) => (2*i+1) / (2*photos.length));
-  const ys = positions.map(t => ropeY(t));
-  const minY = Math.min(...ys);
-  const sagOffsets = ys.map(y => Math.round(y - minY));
-
-  const photosHTML = photos.map((p, i) =>
-    `<div class="bdm-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg);margin-top:${sagOffsets[i]}px">
-      <img src="${escapeHtml(p.url)}" alt="${escapeHtml(p.caption || "")}">
-      ${p.caption ? `<div class="bdm-hanging-caption">${escapeHtml(p.caption)}</div>` : ""}
-    </div>`
-  ).join("");
-
-  const wrap = document.createElement("div");
-  wrap.className = "bdm-mobile-sticker bdm-leine-wrap";
-  const ropeSvg = `<svg class="bdm-leine-rope" viewBox="0 0 100 32" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M 0,5 Q 50,23 100,8" stroke="#7a5c38" stroke-width="1.8" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.9"/>
-  </svg>`;
-  wrap.innerHTML = `<div class="bdm-leine-section">${ropeSvg}<div class="bdm-leine-photos">${photosHTML}</div></div>`;
-
-  wrap.querySelectorAll(".bdm-hanging-photo").forEach((el, i) => {
-    el.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });
-  });
-
-  const leineContainer = document.getElementById("mobile-leine");
-  if (leineContainer) leineContainer.appendChild(wrap);
-}
 
 function renderBilderDesMonats() {
   const photos = bilderDesMonats.photos || [];
 
-  // Desktop: Wäscheleine zwischen Nav und Hero-Row
-  const leineEl = document.getElementById("desktop-leine");
-  if (leineEl) {
+  // Angepinnter Beitrag über dem Feed (linke Spalte)
+  const pinnedEl   = document.getElementById("bdm-pinned");
+  const pinnedLeft = document.getElementById("bdm-pinned-left");
+  if (pinnedLeft) {
     if (!photos.length) {
-      leineEl.innerHTML = "";
+      pinnedLeft.innerHTML = "";
+      if (pinnedEl) pinnedEl.style.display = "none";
     } else {
-      const rotations = [-4, 2, -3, 5, -2, 3, -5, 4];
-      // Kurve startet und endet oben (y=2) → Leine hängt an den Nav-Ecken
-      const ropeYfn = t => (1-t)*(1-t)*2 + 2*t*(1-t)*75 + t*t*2;
-      const positions = photos.map((_, i) => (2*i+1) / (2*photos.length));
-      const ys = positions.map(t => ropeYfn(t));
-      const minY = Math.min(...ys);
-      const sagOffsets = ys.map(y => Math.round(y - minY));
-
-      const photosHTML = photos.map((p, i) =>
-        `<div class="desktop-hanging-photo" style="transform:rotate(${rotations[i % rotations.length]}deg);margin-top:${sagOffsets[i]}px">
-          <img src="${escapeHtml(p.url)}" alt="${escapeHtml(p.caption || "")}">
-          ${p.caption ? `<div class="desktop-hanging-caption">${escapeHtml(p.caption)}</div>` : ""}
-        </div>`
+      const monthLabel = bilderDesMonats.month ? ` — ${escapeHtml(bilderDesMonats.month)}` : "";
+      const photosHTML = photos.slice(0, 3).map((p, i) =>
+        `<div class="bdm-pinned-photo">` +
+        `<img src="${escapeHtml(p.url)}" alt="${escapeHtml(p.caption || "")}" data-idx="${i}">` +
+        (p.caption ? `<div class="bdm-pinned-caption">${escapeHtml(p.caption)}</div>` : "") +
+        `</div>`
       ).join("");
-
-      const ropeSvg = `<svg class="desktop-leine-rope" viewBox="0 0 100 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 0,2 Q 50,75 100,2" stroke="#7a5c38" stroke-width="1.5" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.85"/>
-      </svg>`;
-
-      const monthLabel = bilderDesMonats.month
-        ? `<div class="desktop-leine-label-month">${escapeHtml(bilderDesMonats.month)}</div>` : "";
-      const labelHTML = `<div class="desktop-leine-label">
-        <div class="desktop-leine-label-title">Bilder<br>des Monats</div>
-        ${monthLabel}
-      </div>`;
-
-      leineEl.innerHTML = `<div class="desktop-leine-section">${ropeSvg}${labelHTML}<div class="desktop-leine-photos">${photosHTML}</div></div>`;
-
-      leineEl.querySelectorAll(".desktop-hanging-photo").forEach((el, i) => {
-        el.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });
+      pinnedLeft.innerHTML =
+        `<div class="bdm-pinned-header">📌 Bilder des Monats${monthLabel}</div>` +
+        `<div class="bdm-pinned-photos">${photosHTML}</div>`;
+      if (pinnedEl) pinnedEl.style.display = "";
+      pinnedLeft.querySelectorAll(".bdm-pinned-photo img").forEach((img, i) => {
+        img.addEventListener("click", () => { if (photos[i]) openBdmPhoto(photos[i]); });
       });
     }
   }
 
-  renderMobileBdmStickers();
 }
 
-let bdmArchivTimer = null;
-let bdmArchivIdx   = 0;
-
-function renderSidebarBdmArchiv() {
-  const wrap = document.getElementById("sidebar-bdm-archiv");
-  if (!wrap) return;
-
-  const allMonths = [...(bilderDesMonats.photos?.length ? [bilderDesMonats] : []), ...bdmArchiv];
-  const allPhotos = allMonths.flatMap(m => (m.photos || []).map(p => ({ ...p, month: m.month })));
-  if (allPhotos.length === 0) { wrap.style.display = "none"; return; }
-
-  wrap.style.display = "";
-  const slideEl = wrap.querySelector(".sidebar-archiv-slide");
-
-  slideEl.innerHTML = allPhotos.map((p, i) =>
-    `<div class="sidebar-archiv-item${i === 0 ? " active" : ""}">
-      <img class="sidebar-archiv-img" src="${escapeHtml(p.url)}" alt="${escapeHtml(p.caption || "")}">
-      <div class="sidebar-archiv-info">
-        ${p.caption ? `<div class="sidebar-archiv-caption">${escapeHtml(p.caption)}</div>` : ""}
-        <div class="sidebar-archiv-month">${escapeHtml(p.month)}</div>
-      </div>
-    </div>`
-  ).join("");
-
-  if (bdmArchivTimer) clearInterval(bdmArchivTimer);
-  bdmArchivIdx = 0;
-  if (allPhotos.length > 1) {
-    bdmArchivTimer = setInterval(() => {
-      const items = wrap.querySelectorAll(".sidebar-archiv-item");
-      items[bdmArchivIdx].classList.remove("active");
-      bdmArchivIdx = (bdmArchivIdx + 1) % allPhotos.length;
-      items[bdmArchivIdx].classList.add("active");
-    }, 4000);
-  }
-}
-
-function openAlbumDirect(a) {
-  const genres = (a.genre || "").split(",").map(g => g.trim()).filter(Boolean).join(" · ");
-  const cid    = "ap-cover-canvas";
-  const q      = encodeURIComponent(a.artist + " " + a.album);
-  const songsHTML = (a.songs || []).map(s =>
-    s === a.favorite_song ? `<span class="fav">${escapeHtml(s)}</span>` : escapeHtml(s)
-  ).join("  ·  ");
-
-  document.getElementById("album-popup-content").innerHTML = `
-    <div class="ap-header">
-      <canvas class="ap-cover" id="${cid}" width="64" height="64"></canvas>
-      <div class="ap-info">
-        <div class="ap-album">${escapeHtml(a.album)}</div>
-        <div class="ap-artist">${escapeHtml(a.artist)}</div>
-        <div class="ap-meta">${escapeHtml(a.year || "")}${genres ? " · " + escapeHtml(genres) : ""}</div>
-        <div class="ap-rating">${Number(a.rating)}<span>/10</span></div>
-      </div>
-    </div>
-    <div class="ap-links">
-      <a class="ap-link" href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener">↗ spotify</a>
-      <a class="ap-link" href="https://music.apple.com/search?term=${q}" target="_blank" rel="noopener">↗ apple music</a>
-    </div>
-    ${songsHTML ? `<div class="ap-songs">${songsHTML}</div>` : ""}
-    ${a.review ? `<div class="ap-review">${escapeHtml(a.review).replace(/\n/g, "<br>")}</div>` : ""}
-    ${a.reviewed_at ? `<div style="font-size:10px;color:#aaa;margin-top:8px;text-align:right;font-family:var(--font-mono)">${formatDate(a.reviewed_at)}</div>` : ""}
-  `;
-
-  document.getElementById("album-popup-overlay").style.display = "flex";
-  requestAnimationFrame(() => {
-    if (a.cover_url) loadCoverFull(cid, a.cover_url, a.artist + "|" + a.album);
-  });
-}
