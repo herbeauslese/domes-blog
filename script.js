@@ -123,6 +123,7 @@ function render() {
 
   if (!showHidden) filtered = filtered.filter(p => !hiddenPosts.has(stablePid(p)));
 
+  updatePostCount(filtered.filter(p => p.type !== "album").length);
   buildFlow(filtered);
 
   // BDM Archiv als Fliesstext-Eintrag (aktueller + vergangene Monate)
@@ -373,7 +374,7 @@ function buildFlow(filtered) {
     const fpid = pid + "-f";
 
     const flowDate = p.posted_at
-      ? new Date(p.posted_at).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })
+      ? new Date(p.posted_at).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "short", year: "numeric" }).replace(/\.(?=,)/, "")
       : "";
 
     let mediaHTML = "";
@@ -432,9 +433,9 @@ function buildFlow(filtered) {
     article.dataset.tag   = p.tag   || "";
     if (p.type === "photo") article.dataset.images = JSON.stringify(p.images || []);
     article.innerHTML =
-      (flowDate ? `<div class="flow-date">${flowDate}</div>` : "") +
+      (flowDate ? `<div class="flow-date-row"><span class="flow-date">${flowDate}</span><span class="flow-type-label">${p.type === "photo" && p.tag === "reise" ? "reise" : p.type || ""}</span></div>` : "") +
       adminHTML +
-      `<h2 class="flow-title">${postEmoji(p) ? postEmoji(p) + " " : ""}${escapeHtml(p.title) || "(ohne titel)"}</h2>` +
+      `<h2 class="flow-title">${escapeHtml(p.title) || "(ohne titel)"}</h2>` +
       mediaHTML +
       (fullText ? `<div class="flow-text">${fullText}</div>` : "") +
       `<div class="post-edit-form" id="edit-form-${fpid}" style="display:none"></div>`;
@@ -448,6 +449,34 @@ function buildFlow(filtered) {
     flow.appendChild(el);
     if (postRender) postRender();
   });
+
+  initCarouselSwipe();
+}
+
+function initCarouselSwipe() {
+  const carousel = document.getElementById("album-carousel");
+  if (!carousel) return;
+  let startX = 0, startY = 0, locked = null;
+  carousel.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    locked = null;
+  }, { passive: true });
+  carousel.addEventListener("touchmove", e => {
+    if (locked === null) {
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      locked = dx > dy ? "h" : "v";
+    }
+    if (locked === "h") e.preventDefault();
+  }, { passive: false });
+  carousel.addEventListener("touchend", e => {
+    if (locked !== "h") return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) < 40) return;
+    dx < 0 ? nextAlbumSlide() : prevAlbumSlide();
+    renderAlbumIndex();
+  }, { passive: true });
 }
 
 // ── TEXT PARSER: bold, italic, heading, links, bildverweise ──────────────────
@@ -937,14 +966,35 @@ function loadCoverFull(canvasId, url, cacheKeyStr) {
 }
 document.getElementById("search").addEventListener("input", e => {
   searchQ = e.target.value;
+  document.getElementById("search-clear").style.display = searchQ ? "block" : "none";
   render();
 });
+function clearSearch() {
+  document.getElementById("search").value = "";
+  searchQ = "";
+  document.getElementById("search-clear").style.display = "none";
+  render();
+}
 function setSortDir(dir) {
   sortDir = dir;
-  document.getElementById("sort-btn-old").classList.toggle("active", dir === 1);
-  document.getElementById("sort-btn-new").classList.toggle("active", dir === -1);
+  const sel = document.getElementById("sort-select");
+  if (sel) sel.value = String(dir);
   mergePosts();
   render();
+}
+function toggleSortDir() {
+  setSortDir(sortDir === -1 ? 1 : -1);
+}
+function setSortDirSelect(val) {
+  setSortDir(Number(val));
+}
+function setFilterSelect(val) {
+  filterType = val;
+  render();
+}
+function updatePostCount(n) {
+  const el = document.getElementById("post-count");
+  if (el) el.textContent = n + " beiträge";
 }
 
 function toggleToc() {
@@ -985,7 +1035,9 @@ function formatDate(iso) {
 let darkMode = localStorage.getItem("lz_dark") === "1";
 function applyDark() {
   document.body.classList.toggle("dark", darkMode);
-  document.getElementById("btn-darkmode").classList.toggle("active", darkMode);
+  const btn = document.getElementById("btn-darkmode");
+  btn.classList.toggle("active", darkMode);
+  btn.textContent = darkMode ? "◐" : "◑";
 }
 applyDark();
 document.getElementById("btn-darkmode").addEventListener("click", () => {

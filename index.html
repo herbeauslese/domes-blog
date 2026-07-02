@@ -13,7 +13,7 @@
 <title>rotehaare</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@400&family=Inter:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@400&family=Inter:ital,wght@0,400;0,500;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -59,25 +59,34 @@
   <div id="site-header-brand">
     <div id="site-header-title">
       <h1><span>rote</span>haare</h1>
-      <p class="sub">— ein ganz persönlicher blog</p>
+      <p class="sub">ein ganz persönlicher blog</p>
     </div>
     <div id="site-header-controls">
-      <button id="btn-darkmode" title="Dark Mode">[dark]</button>
+      <button id="btn-darkmode" title="Dark Mode">◑</button>
+      <button id="btn-admin-header" onclick="document.getElementById('btn-admin').click()" title="Admin">⚙</button>
       <button id="btn-mode-switch" style="display:none">[platten]</button>
     </div>
   </div>
-  <nav id="header-nav">
-    <input type="text" id="search" placeholder="suchen …">
-    <button id="sort-btn-old" class="sort-btn nav-item" onclick="setSortDir(1)">↑ alt</button>
-    <button id="sort-btn-new" class="sort-btn active nav-item" onclick="setSortDir(-1)">↓ neu</button>
-    <span class="nav-dot">·</span>
-    <button class="nav-item" onclick="jumpToSection('flow-albums-carousel')">Alben</button>
-    <button class="nav-item" onclick="jumpToSection('flow-bdm-archiv')">BDM Archiv</button>
-    <button class="nav-item" onclick="jumpToSection('flow-top100')">Top 100</button>
-    <span class="nav-dot">·</span>
-    <button id="toc-toggle-btn" onclick="toggleToc()">Beiträge ▾</button>
-  </nav>
 </header>
+
+<nav id="header-nav">
+  <div class="nav-row-search">
+    <div id="search-wrap">
+      <input type="text" id="search" placeholder="suche...">
+      <button id="search-clear" onclick="clearSearch()" title="löschen">✕</button>
+    </div>
+    <select id="sort-select" onchange="setSortDirSelect(this.value)">
+      <option value="-1">↓ neu</option>
+      <option value="1">↑ alt</option>
+    </select>
+    <button id="toc-toggle-btn" onclick="toggleToc()">Beiträge ▾</button>
+  </div>
+  <div class="nav-jump-links">
+    <button class="nav-item" onclick="jumpToSection('flow-albums-carousel')">Alben</button>
+    <button class="nav-item" onclick="jumpToSection('flow-bdm-archiv')">BDM</button>
+    <button class="nav-item" onclick="jumpToSection('flow-top100')">Top 100</button>
+  </div>
+</nav>
 
 <div id="toc-panel">
   <div id="sidebar-toc-list"></div>
@@ -135,6 +144,8 @@
 <!-- Feed -->
 <div id="feed-flow"></div>
 <div id="album-grid" style="display:none"></div>
+
+<button id="btn-back-top" title="Nach oben">↑</button>
 
 <div id="footer">
   <button id="btn-admin">[admin]</button>
