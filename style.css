@@ -387,17 +387,12 @@ body.dark .bdm-archiv-thumb { border-color: #555; }
 #feed-flow {
   display: block;
   margin: 8px 0 0;
-  padding: 14px 16px 4px;
-  background: var(--card);
-  border: 1px solid #ccc;
   font-family: 'Times New Roman', Times, Georgia, serif;
   font-size: 13.5px;
   line-height: 1.55;
   color: #000;
 }
 body.dark #feed-flow {
-  background: var(--card);
-  border-color: #2a2a1a;
   color: var(--fg);
 }
 
