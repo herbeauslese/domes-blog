@@ -432,12 +432,12 @@ body.dark .flow-admin .del-btn:hover { border-color: #aaa; color: #aaa; }
   padding: 0 0 14px;
 }
 .flow-post + .flow-post {
-  border-top: 1px solid #bbb;
-  margin-top: 20px;
-  padding-top: 13px;
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 2px solid #000;
 }
 body.dark .flow-post + .flow-post {
-  border-color: #333;
+  border-color: #444;
 }
 
 .flow-date {
