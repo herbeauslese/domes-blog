@@ -12,9 +12,9 @@ html { overflow-x: hidden; }
   --border: 2px solid #000;
   --shadow: 4px 4px 0 #000;
   --radius: 10px;
-  --font-head: 'Anton', Impact, 'Arial Black', sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Courier New', Courier, monospace;
+  --font-head: 'Courier Prime', 'Courier New', monospace;
+  --font-body: 'Courier Prime', 'Courier New', monospace;
+  --font-mono: 'Courier Prime', 'Courier New', monospace;
   --img-max: 100%;
   --transition: 0.15s ease;
   --post-slot: 180px;  /* 1 Platz im Feed-Raster */
@@ -56,7 +56,7 @@ body.dark #site-header { border-color: #e8e8ee; }
   letter-spacing: 1px;
   color: #000;
   text-transform: lowercase;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-weight: normal;
   margin: 0;
 }
@@ -69,7 +69,7 @@ body.dark #site-header-title h1 { color: #e8e8ee; }
 }
 body.dark #site-header-title h1 span { background: #e8e8ee; color: #141412; }
 #site-header-title .sub {
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 11px;
   letter-spacing: 0.5px;
   color: #555;
@@ -237,7 +237,7 @@ body.dark #toc-panel { background: var(--card); border-bottom-color: #333; }
 .sidebar-toc-item {
   display: block;
   width: 100%;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 12px;
   color: #444;
   background: none;
@@ -258,7 +258,7 @@ body.dark .sidebar-toc-item:hover { color: #fff; }
 
 .sidebar-link {
   display: block;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 12.5px;
   color: #444;
   text-decoration: underline;
@@ -305,7 +305,7 @@ a:hover { opacity: 0.7; }
 #search {
   border: 1px solid #999;
   background: #fff;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 12px;
   padding: 2px 5px;
   width: 130px;
@@ -358,7 +358,7 @@ body.dark #bdm-pinned-left { border-right-color: #333; }
 }
 #bdm-pinned-right:hover .bdm-pinned-reise-title { text-decoration: underline; }
 .bdm-pinned-header {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 11.5px;
   font-weight: bold;
   color: #333;
@@ -383,7 +383,7 @@ body.dark .bdm-pinned-header { color: #ccc; }
 }
 body.dark .bdm-pinned-photo img { border-color: #555; }
 .bdm-pinned-caption {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 10px;
   color: #777;
   margin-top: 2px;
@@ -401,7 +401,7 @@ body.dark .bdm-pinned-caption { color: #888; }
 }
 body.dark .bdm-pinned-reise-img { border-color: #555; }
 .bdm-pinned-reise-title {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 12px;
   font-weight: bold;
   color: #0000cc;
@@ -417,7 +417,7 @@ body.dark .bdm-pinned-reise-title { color: #ccc; }
 }
 .bdm-archiv-month:first-of-type { margin-top: 4px; }
 .bdm-archiv-month-label {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 11px;
   color: #666;
   white-space: nowrap;
@@ -440,7 +440,7 @@ body.dark .bdm-archiv-thumb { border-color: #555; }
 #feed-flow {
   display: block;
   margin: 8px 0 0;
-  font-family: 'Times New Roman', Times, Georgia, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 13.5px;
   line-height: 1.55;
   color: #000;
@@ -548,7 +548,7 @@ body.dark .flow-post .slide-track { background: #111; border-color: #555; }
   align-items: center;
   gap: 0;
   margin: 3px 0 8px;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 12px;
 }
 .retro-slide-nav button {
@@ -1004,7 +1004,7 @@ body.dark #pw-overlay { background: #111116; }
   padding: 28px 32px;
   font-size: 14px; width: 310px; text-align: center;
   box-shadow: 4px 4px 0 #999;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
 }
 body.dark #pw-box { background: #111116; border-color: #555; box-shadow: 4px 4px 0 #333; }
 #pw-box b {
@@ -1019,7 +1019,7 @@ body.dark #pw-box b { color: #ccc; }
 .pw-hint {
   font-size: 12.5px; font-style: italic;
   margin-bottom: 14px; color: #555;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
 }
 body.dark .pw-hint { color: #888; }
 #pw-input {
@@ -1036,7 +1036,7 @@ body.dark #pw-input { background: #1e1e1c; color: #e8e8d8; border-color: #555; }
   font-size: 12px;
   border: 1px solid #000; border-radius: 0;
   background: #1c1c78; color: #fff;
-  font-family: 'Times New Roman', Times, serif; cursor: pointer;
+  font-family: 'Courier Prime', 'Courier New', monospace; cursor: pointer;
   transition: background var(--transition);
 }
 #pw-ok:hover { background: #0000a0; }
@@ -1060,7 +1060,7 @@ body.dark #pw-ok { background: #2a3d32; border-color: #3d5e48; }
   background: #fff; border: 1px solid #999;
   border-radius: 0;
   padding: 18px 20px; font-size: 13px; width: 280px;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   box-shadow: 4px 4px 0 #999;
 }
 body.dark #admin-pw-box { background: #111116; border-color: #555; box-shadow: 4px 4px 0 #333; }
@@ -1147,7 +1147,7 @@ textarea { width: 100%; margin-top: 2px; }
   object-fit: contain; display: block;
 }
 #bdm-photo-overlay-caption {
-  color: #ccc; font-family: 'Times New Roman', Times, serif;
+  color: #ccc; font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 13px; font-style: italic; margin-top: 12px;
   text-align: center;
 }
@@ -1189,7 +1189,7 @@ body.dark .ap-links { border-color: #222; }
 body.dark .ap-songs { border-color: #333; }
 .ap-songs .fav { font-weight: bold; }
 .ap-songs .fav::before { content: "★ "; }
-.ap-review { font-size: 14px; line-height: 1.7; border-top: 1px solid #f0f0f0; padding-top: 10px; font-family: 'Times New Roman', Times, serif; }
+.ap-review { font-size: 14px; line-height: 1.7; border-top: 1px solid #f0f0f0; padding-top: 10px; font-family: 'Courier Prime', 'Courier New', monospace; }
 body.dark .ap-review { border-color: #222; }
 
 /* ── ALBUM GRID (hidden, kept for JS compat) ── */
@@ -1323,3 +1323,9 @@ body.dark #btn-back-top:hover { background: #e8e8ee; color: #111116; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
 body.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
 body.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
+
+/* TEMP: Lora-Vergleich zweite Hälfte Aalborg-Post */
+#post-photoaalborg-von-eisbaden-guinnes-und-gu-f .flow-text p:nth-child(n+10),
+#post-photoaalborg-von-eisbaden-guinnes-und-gu-f .flow-text h4:nth-child(n+10) {
+  font-family: 'Lora', Georgia, serif;
+}
