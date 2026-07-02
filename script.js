@@ -168,7 +168,7 @@ function render() {
           `${s.cover ? `<img class="flow-top100-cover" src="${escapeHtml(s.cover)}" alt="" loading="lazy">` : ''}` +
           `<span class="flow-top100-info"><em>${escapeHtml(s.artist)}</em> — ${escapeHtml(s.title)}</span>` +
           `</li>`
-        ).join("")}</ol>`;
+        ).join("")}${top100.length < 100 ? `<li class="flow-top100-wip"><span class="flow-top100-rank">${top100.length + 1}–100.</span><span class="flow-top100-info">in Arbeit …</span></li>` : ""}</ol>`;
       flow.appendChild(t100);
     }
   }

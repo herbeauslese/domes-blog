@@ -656,6 +656,7 @@ body.dark .flow-top100-cover { border-color: #333; }
 }
 .flow-top100-info em { font-style: normal; color: #555; }
 body.dark .flow-top100-info em { color: #aaa; }
+.flow-top100-wip { opacity: 0.4; font-style: italic; }
 
 .flow-text {
   font-size: 13px;
