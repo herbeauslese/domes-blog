@@ -25,7 +25,7 @@ let bilderDesMonats = { month: "", photos: [] };
 let top100  = [];  // from top100.json
 let allPosts = []; // merged + sorted feed
 
-let sortDir    = 1; // 1 = oldest first, -1 = newest first
+let sortDir    = -1; // 1 = oldest first, -1 = newest first
 let filterType = "all";
 let searchQ    = "";
 
