@@ -333,5 +333,37 @@
 
 <script src="config.js"></script>
 <script src="script.js"></script>
+<script>
+(function(){
+  function wrapMedia(root) {
+    root.querySelectorAll('.slideshow:not([data-tw]),.post-embed:not([data-tw])').forEach(function(el) {
+      el.setAttribute('data-tw', '1');
+      var isEmbed = el.classList.contains('post-embed');
+      var n = el.querySelectorAll('img').length || 1;
+      var btn = document.createElement('span');
+      btn.className = 'media-toggle' + (isEmbed ? ' is-embed' : '');
+      function lbl() {
+        var open = el.classList.contains('expanded');
+        btn.classList.toggle('is-open', open);
+        if (isEmbed) {
+          btn.textContent = open ? '[ausblenden ▲]' : '[anzeigen ▶]';
+        } else {
+          btn.textContent = open
+            ? '[' + n + (n === 1 ? ' Foto ausblenden ▲]' : ' Fotos ausblenden ▲]')
+            : '[' + n + (n === 1 ? ' Foto ▶]' : ' Fotos ▶]');
+        }
+      }
+      lbl();
+      btn.onclick = function() { el.classList.toggle('expanded'); lbl(); };
+      el.parentNode.insertBefore(btn, el);
+    });
+  }
+  new MutationObserver(function(ms) {
+    ms.forEach(function(m) {
+      m.addedNodes.forEach(function(n) { if (n.nodeType === 1) wrapMedia(n); });
+    });
+  }).observe(document.body, { childList: true, subtree: true });
+})();
+</script>
 </body>
 </html>
