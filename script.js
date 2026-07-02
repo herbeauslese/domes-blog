@@ -186,13 +186,26 @@ function render() {
 function buildSidebarToc(filtered) {
   const list = document.getElementById("sidebar-toc-list");
   if (!list) return;
-  const nonAlbum = filtered.filter(p => p.type !== "album");
-  list.innerHTML = nonAlbum.map(p => {
-    const fpid = stablePid(p) + "-f";
-    const label = p.title || "(ohne titel)";
-    const emoji = postEmoji(p);
-    return `<button class="sidebar-toc-item" onclick="document.getElementById('${fpid}')?.scrollIntoView({behavior:'smooth',block:'start'});closeToc()">${emoji ? emoji + " " : ""}${escapeHtml(label)}</button>`;
-  }).join("");
+
+  const allEntries = filtered.filter(p => p.type !== "album").map(p => ({
+    ts: new Date(p.posted_at || 0).getTime(),
+    html: (() => {
+      const fpid = stablePid(p) + "-f";
+      const emoji = postEmoji(p);
+      const label = escapeHtml(p.title || "(ohne titel)");
+      return `<button class="sidebar-toc-item" onclick="document.getElementById('${fpid}')?.scrollIntoView({behavior:'smooth',block:'start'});closeToc()">${emoji ? emoji + " " : ""}${label}</button>`;
+    })(),
+  }));
+
+  if (filtered.some(p => p.type === "album")) {
+    allEntries.push({
+      ts: new Date(ALBUM_DATE).getTime(),
+      html: `<button class="sidebar-toc-item" onclick="document.getElementById('flow-albums-carousel')?.scrollIntoView({behavior:'smooth',block:'start'});closeToc()">💿 Albenbewertungen</button>`,
+    });
+  }
+
+  allEntries.sort((a, b) => (b.ts - a.ts) * sortDir * -1);
+  list.innerHTML = allEntries.map(e => e.html).join("");
 }
 
 function safeid(s) { return s.replace(/[^a-zA-Z0-9]/g, ""); }
@@ -273,12 +286,15 @@ function renderAlbumIndex() {
   ).join("");
 }
 
+const ALBUM_DATE = "2026-04-02";
+
 function buildFlow(filtered) {
   const flow = document.getElementById("feed-flow");
   if (!flow) return;
   flow.innerHTML = "";
 
-  // Alben als einzelnen Karussell-Beitrag ganz oben
+  const entries = []; // {ts: number, el: HTMLElement, postRenderFn?: fn}
+
   const albums = filtered.filter(p => p.type === "album");
   if (albums.length > 0) {
     const slidesHTML = albums.map((p, i) => {
@@ -335,18 +351,20 @@ function buildFlow(filtered) {
         `</div>`
       : "";
 
+    const albumDateFmt = new Date(ALBUM_DATE).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
     const carouselEl = document.createElement("article");
     carouselEl.className = "flow-post flow-post--albums";
     carouselEl.id = "flow-albums-carousel";
     carouselEl.innerHTML =
+      `<div class="flow-date">${albumDateFmt}</div>` +
+      `<h2 class="flow-title">💿 Albenbewertungen</h2>` +
       sortPills +
       `<div class="album-index" id="album-index"></div>` +
       `<div class="album-carousel-section">` +
       `<div class="album-carousel" id="album-carousel" data-current="0">${slidesHTML}</div>` +
       nav +
       `</div>`;
-    flow.appendChild(carouselEl);
-    renderAlbumIndex();
+    entries.push({ ts: new Date(ALBUM_DATE).getTime(), el: carouselEl, postRender: renderAlbumIndex });
   }
 
   // Alle anderen Beiträge
@@ -421,7 +439,14 @@ function buildFlow(filtered) {
       (fullText ? `<div class="flow-text">${fullText}</div>` : "") +
       `<div class="post-edit-form" id="edit-form-${fpid}" style="display:none"></div>`;
 
-    flow.appendChild(article);
+    entries.push({ ts: new Date(p.posted_at || 0).getTime(), el: article });
+  });
+
+  // Sortiert einhängen (sortDir: 1 = alt zuerst, -1 = neu zuerst)
+  entries.sort((a, b) => (b.ts - a.ts) * sortDir * -1);
+  entries.forEach(({ el, postRender }) => {
+    flow.appendChild(el);
+    if (postRender) postRender();
   });
 }
 
