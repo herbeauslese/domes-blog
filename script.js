@@ -1870,11 +1870,11 @@ function openAlbumPopup(groupIdx, albumIdx) {
   const appleUrl    = `https://music.apple.com/search?term=${q2}`;
 
   // Songs
-  const songsHTML = (a.songs||[]).map(s =>
-    s === a.favorite_song
-      ? `<span class="fav">${escapeHtml(s)}</span>`
-      : escapeHtml(s)
-  ).join("  ·  ");
+  const songsHTML = (a.songs||[]).length
+    ? `<ol>${(a.songs||[]).map(s =>
+        `<li>${s === a.favorite_song ? `<span class="fav">${escapeHtml(s)}</span>` : escapeHtml(s)}</li>`
+      ).join("")}</ol>`
+    : "";
 
   document.getElementById("album-popup-content").innerHTML = `
     <div class="ap-header">
@@ -1891,6 +1891,7 @@ function openAlbumPopup(groupIdx, albumIdx) {
       <a class="ap-link apple"   href="${appleUrl}"   target="_blank" rel="noopener">↗ apple music</a>
     </div>
     ${songsHTML ? `<div class="ap-songs">${songsHTML}</div>` : ""}
+
     ${a.review ? `<div class="ap-review">${escapeHtml(a.review).replace(/\n/g,"<br>")}</div>` : ""}
     ${a.reviewed_at ? `<div style="font-size:10px;color:#bbb;margin-top:8px;text-align:right">${formatDate(a.reviewed_at)}</div>` : ""}
   `;
