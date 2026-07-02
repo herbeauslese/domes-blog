@@ -1197,9 +1197,9 @@ body.sidebar-open #sidebar-open-btn { display: none !important; }
   #site-header-controls { top: 50%; }
   #sidebar-brand { display: flex; }
 
-  #main-content { padding-top: 12px; }
-
-  body { padding: 0 8px 60px; font-size: 14px; }
+  body { padding: 0; font-size: 14px; }
+  #site-header { padding-left: 8px; padding-right: 8px; }
+  #main-content { padding: 8px 8px 60px; }
   h1 { font-size: 54px; }
 
   /* Nav: kein Sort, kein Search */
