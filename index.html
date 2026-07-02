@@ -56,10 +56,7 @@
 
 <!-- site header -->
 <header id="site-header">
-  <div id="site-header-sidebar-col">
-    <button id="sidebar-open-btn" onclick="toggleSidebar()">☰</button>
-  </div>
-  <div id="site-header-main-col">
+  <div id="site-header-brand">
     <div id="site-header-title">
       <h1><span>rote</span>haare</h1>
       <p class="sub">— ein ganz persönlicher blog</p>
@@ -69,38 +66,23 @@
       <button id="btn-mode-switch" style="display:none">[platten]</button>
     </div>
   </div>
-</header>
-
-<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-<!-- page layout: sidebar + content -->
-<div id="page-layout">
-
-<!-- sidebar -->
-<aside id="sidebar">
-  <div id="sidebar-brand">
-    <button id="sidebar-close-btn" onclick="toggleSidebar()">✕</button>
-  </div>
-  <div id="sidebar-search">
+  <nav id="header-nav">
     <input type="text" id="search" placeholder="suchen...">
-    <div class="sidebar-sort">
+    <div id="header-nav-sort">
       <button id="sort-btn-old" class="sort-btn active" onclick="setSortDir(1)">↑ alt</button>
       <button id="sort-btn-new" class="sort-btn" onclick="setSortDir(-1)">↓ neu</button>
     </div>
-  </div>
-  <hr class="sidebar-hr">
-  <div id="sidebar-quick">
-    <div class="sidebar-section-label">Springen zu</div>
+    <div id="header-nav-divider"></div>
     <button class="sidebar-link" onclick="jumpToSection('flow-albums-carousel')">Alben</button>
     <button class="sidebar-link" onclick="jumpToSection('flow-bdm-archiv')">BDM Archiv</button>
     <button class="sidebar-link" onclick="jumpToSection('flow-top100')">Top 100</button>
-  </div>
-  <hr class="sidebar-hr">
-  <div id="sidebar-toc">
-    <div class="sidebar-section-label">Beiträge</div>
+    <div id="header-nav-divider2"></div>
     <div id="sidebar-toc-list"></div>
-  </div>
-</aside>
+  </nav>
+</header>
+
+<!-- page layout: just main content -->
+<div id="page-layout">
 
 <!-- main content -->
 <div id="main-content">

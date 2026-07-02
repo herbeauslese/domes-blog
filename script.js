@@ -191,7 +191,7 @@ function buildSidebarToc(filtered) {
     const fpid = stablePid(p) + "-f";
     const label = p.title || "(ohne titel)";
     const emoji = postEmoji(p);
-    return `<button class="sidebar-toc-item" onclick="document.getElementById('${fpid}')?.scrollIntoView({behavior:'smooth',block:'start'});if(document.getElementById('sidebar')?.classList.contains('open'))toggleSidebar()">${emoji ? emoji + " " : ""}${escapeHtml(label)}</button>`;
+    return `<button class="sidebar-toc-item" onclick="document.getElementById('${fpid}')?.scrollIntoView({behavior:'smooth',block:'start'})">${emoji ? emoji + " " : ""}${escapeHtml(label)}</button>`;
   }).join("");
 }
 
@@ -922,19 +922,9 @@ function setSortDir(dir) {
   render();
 }
 
-function toggleSidebar() {
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("sidebar-overlay");
-  if (!sidebar) return;
-  const isOpen = sidebar.classList.toggle("open");
-  overlay.classList.toggle("active", isOpen);
-  document.body.classList.toggle("sidebar-open", isOpen);
-}
-
 function jumpToSection(id) {
   const searchEl = document.getElementById("search");
   if (searchEl && searchEl.value) { searchEl.value = ""; searchQ = ""; render(); }
-  if (document.getElementById("sidebar")?.classList.contains("open")) toggleSidebar();
   setTimeout(() => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
