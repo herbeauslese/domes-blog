@@ -374,9 +374,28 @@
       });
     });
   }
+  function wrapPosts(root) {
+    root.querySelectorAll('.flow-post:not([data-pt])').forEach(function(post) {
+      post.setAttribute('data-pt', '1');
+      var title = post.querySelector('.flow-title');
+      if (!title) return;
+      var ind = document.createElement('span');
+      ind.className = 'post-indicator';
+      ind.textContent = ' ▶';
+      title.appendChild(ind);
+      title.onclick = function(e) {
+        e.stopPropagation();
+        var open = post.classList.toggle('post-open');
+        ind.textContent = open ? ' ▼' : ' ▶';
+      };
+    });
+  }
+
   new MutationObserver(function(ms) {
     ms.forEach(function(m) {
-      m.addedNodes.forEach(function(n) { if (n.nodeType === 1) wrapMedia(n); });
+      m.addedNodes.forEach(function(n) {
+        if (n.nodeType === 1) { wrapMedia(n); wrapPosts(n); }
+      });
     });
   }).observe(document.body, { childList: true, subtree: true });
 })();

@@ -212,6 +212,37 @@ body.dark .edit-form { border-left-color: #333; }
 .flow-post:hover { box-shadow: none; background: none; }
 body.dark .flow-post { background: none; }
 
+/* ── POST COLLAPSE ── */
+/* collapsed: only date + title visible */
+.flow-post .flow-type-label   { display: none; }
+.flow-post .flow-text         { display: none; }
+.flow-post .flow-admin        { display: none; }
+.flow-post .media-toggle      { display: none; }
+.flow-post .album-sort-pills  { display: none; }
+.flow-post .album-index       { display: none; }
+.flow-post .album-carousel-section { display: none; }
+.flow-post .flow-top100-list  { display: none; }
+.flow-post .bdm-archiv-month  { display: none; }
+.flow-post .flow-album-review { display: none; }
+.flow-post .flow-album-songs  { display: none; }
+
+/* expanded: show everything */
+.flow-post.post-open .flow-type-label   { display: block; }
+.flow-post.post-open .flow-text         { display: block; }
+.flow-post.post-open .flow-admin        { display: flex; }
+.flow-post.post-open .media-toggle      { display: block; }
+.flow-post.post-open .album-sort-pills  { display: flex; }
+.flow-post.post-open .album-index       { display: block; }
+.flow-post.post-open .album-carousel-section { display: block; }
+.flow-post.post-open .flow-top100-list  { display: block; }
+.flow-post.post-open .bdm-archiv-month  { display: block; }
+.flow-post.post-open .flow-album-review { display: block; }
+.flow-post.post-open .flow-album-songs  { display: block; }
+
+/* title as toggle trigger */
+.flow-title { cursor: pointer; }
+.post-indicator { color: var(--muted); font-size: 11px; }
+
 /* ── POST FIELDS ── */
 .flow-date-row { display: block; line-height: 1.65; }
 .flow-date { display: block; font-size: 13px; color: var(--fg); }
