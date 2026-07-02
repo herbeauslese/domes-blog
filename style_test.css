@@ -37,6 +37,24 @@ body {
   padding: 0;
   overflow-x: hidden;
 }
+body::before {
+  content: "{";
+  display: block;
+  padding: 14px 20px 0;
+  color: var(--bracket);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.65;
+}
+body::after {
+  content: "}";
+  display: block;
+  padding: 0 20px 20px;
+  color: var(--bracket);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.65;
+}
 
 body.dark {
   --bg: #1a1a1a;
@@ -182,7 +200,19 @@ body.dark .edit-form { background: none; border-color: #333; }
   margin: 16px 0; background: none; border: none;
   border-top: 1px solid #e8e8e8;
   border-bottom: 1px solid #e8e8e8;
-  display: flex; flex-direction: row; padding: 12px 0; gap: 0;
+  display: flex; flex-direction: row; flex-wrap: wrap; padding: 12px 0; gap: 0;
+}
+#bdm-pinned::before {
+  content: '"pinned": {';
+  flex-basis: 100%; order: -1;
+  color: var(--muted); font-family: var(--font);
+  font-size: 13px; line-height: 1.65; padding-bottom: 6px;
+}
+#bdm-pinned::after {
+  content: '},';
+  flex-basis: 100%; order: 999;
+  color: var(--bracket); font-family: var(--font);
+  font-size: 13px; line-height: 1.65; padding-top: 6px;
 }
 body.dark #bdm-pinned { border-color: #333; }
 #bdm-pinned-left { flex: 70; min-width: 0; padding: 0 12px 0 0; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; }
@@ -213,9 +243,9 @@ body.dark .bdm-archiv-thumb { border-color: #333; }
   padding: 12px 0;
 }
 #feed-flow::before {
-  content: "[";
+  content: '"posts": [';
   display: block;
-  color: var(--bracket);
+  color: var(--muted);
   margin-bottom: 4px;
 }
 #feed-flow::after {
@@ -334,6 +364,11 @@ body.dark .flow-post .post-embed iframe { border-color: #333; }
 .flow-admin button:hover { color: var(--fg); }
 .edit-btn, .hide-btn, .del-btn { font-family: var(--font); font-size: 11px; background: none; border: none; color: var(--muted); cursor: pointer; }
 .post-edit-form { margin-top: 4px; }
+
+/* ── SPECIAL SECTION KEYS ── */
+.flow-post--albums .flow-title::before    { content: '"albums": "'; }
+.flow-post--bdm-archiv .flow-title::before { content: '"bdm": "'; }
+.flow-post--top100 .flow-title::before    { content: '"top100": "'; }
 
 /* ── ALBUMS ── */
 .album-slide { display: none; }
