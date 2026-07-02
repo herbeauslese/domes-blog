@@ -77,9 +77,13 @@
     <button class="sidebar-link" onclick="jumpToSection('flow-bdm-archiv')">BDM Archiv</button>
     <button class="sidebar-link" onclick="jumpToSection('flow-top100')">Top 100</button>
     <div id="header-nav-divider2"></div>
-    <div id="sidebar-toc-list"></div>
+    <button id="toc-toggle-btn" onclick="toggleToc()">Beiträge ▾</button>
   </nav>
 </header>
+
+<div id="toc-panel">
+  <div id="sidebar-toc-list"></div>
+</div>
 
 <!-- page layout: just main content -->
 <div id="page-layout">

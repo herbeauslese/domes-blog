@@ -191,7 +191,7 @@ function buildSidebarToc(filtered) {
     const fpid = stablePid(p) + "-f";
     const label = p.title || "(ohne titel)";
     const emoji = postEmoji(p);
-    return `<button class="sidebar-toc-item" onclick="document.getElementById('${fpid}')?.scrollIntoView({behavior:'smooth',block:'start'})">${emoji ? emoji + " " : ""}${escapeHtml(label)}</button>`;
+    return `<button class="sidebar-toc-item" onclick="document.getElementById('${fpid}')?.scrollIntoView({behavior:'smooth',block:'start'});closeToc()">${emoji ? emoji + " " : ""}${escapeHtml(label)}</button>`;
   }).join("");
 }
 
@@ -922,6 +922,22 @@ function setSortDir(dir) {
   render();
 }
 
+function toggleToc() {
+  const panel = document.getElementById("toc-panel");
+  const btn = document.getElementById("toc-toggle-btn");
+  const open = panel.classList.toggle("open");
+  btn.classList.toggle("open", open);
+  btn.textContent = open ? "Beiträge ▴" : "Beiträge ▾";
+}
+
+function closeToc() {
+  const panel = document.getElementById("toc-panel");
+  const btn = document.getElementById("toc-toggle-btn");
+  panel.classList.remove("open");
+  btn.classList.remove("open");
+  btn.textContent = "Beiträge ▾";
+}
+
 function jumpToSection(id) {
   const searchEl = document.getElementById("search");
   if (searchEl && searchEl.value) { searchEl.value = ""; searchQ = ""; render(); }
@@ -1406,6 +1422,7 @@ document.addEventListener("click", e => {
     return;
   }
   document.querySelectorAll(".srf-tooltip.tip-open").forEach(t => t.classList.remove("tip-open"));
+  if (!e.target.closest("#toc-panel") && !e.target.closest("#toc-toggle-btn")) closeToc();
 });
 
 // ── BACK TO TOP ───────────────────────────────────────────────────────────────
