@@ -67,7 +67,7 @@ body.dark #site-header-title h1 { color: #e8e8ee; }
   padding: 1px 4px;
   letter-spacing: 3px;
 }
-body.dark #site-header-title h1 span { background: #e8e8ee; color: #0a1a0f; }
+body.dark #site-header-title h1 span { background: #e8e8ee; color: #141412; }
 #site-header-title .sub {
   font-family: 'Special Elite', 'Courier New', monospace;
   font-size: 11px;
@@ -253,7 +253,7 @@ body.dark #toc-panel { background: var(--card); border-bottom-color: #333; }
   break-inside: avoid;
 }
 .sidebar-toc-item:hover { color: #000; background: none; text-decoration: underline; }
-body.dark .sidebar-toc-item { color: #aaa; border-bottom-color: #2a2a32; }
+body.dark .sidebar-toc-item { color: #aaa; border-bottom-color: #2a2a28; }
 body.dark .sidebar-toc-item:hover { color: #fff; }
 
 .sidebar-link {
@@ -286,9 +286,9 @@ body.dark .sidebar-link { color: #aaa; }
 }
 
 body.dark {
-  --bg: #0a1a0f;
-  --card: #1b1d1c;
-  --fg: #e8e8ee;
+  --bg: #141412;
+  --card: rgba(30, 29, 27, 0.65);
+  --fg: #e8e8e4;
   --muted: #888;
   background: var(--bg);
   color: var(--fg);
@@ -338,7 +338,7 @@ body.dark #admin-panel { background: #161b18; border-color: #2a3d32; }
   display: flex;
   gap: 0;
 }
-body.dark #bdm-pinned { background: rgba(27, 29, 28, 0.65); border-color: #2a2a32; }
+body.dark #bdm-pinned { background: rgba(30, 29, 27, 0.65); border-color: #2a2a2a; }
 #bdm-pinned-left {
   flex: 70;
   min-width: 0;
@@ -618,7 +618,7 @@ body.dark .flow-album-songs { border-color: #333; }
   border-bottom: 1px solid #e4e0d8;
   counter-increment: song-counter;
 }
-body.dark .flow-album-songs li { border-color: #2a2a32; }
+body.dark .flow-album-songs li { border-color: #2a2a28; }
 .flow-album-songs li::before {
   content: counter(song-counter) ".";
   font-family: var(--font-mono);
@@ -717,7 +717,7 @@ body.dark .album-carousel-section { border-color: #555; }
   border-bottom: 1px dotted #ddd;
   break-inside: avoid;
 }
-body.dark .flow-top100-list li { border-bottom-color: #2a2a32; }
+body.dark .flow-top100-list li { border-bottom-color: #2a2a28; }
 .flow-top100-rank {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -785,7 +785,7 @@ body.dark input[type=password],
 body.dark input[type=date],
 body.dark input[type=url],
 body.dark textarea {
-  background: #1a1a20;
+  background: #1e1e1c;
   color: var(--fg);
   border-color: #333;
 }
@@ -847,7 +847,7 @@ body.dark .post-heading { border-color: #333; }
   border: 1.5px solid #e0e0e0; border-radius: var(--radius);
   font-size: 13px; background: #fafaf8;
 }
-body.dark .edit-form { background: #1a1a20; border-color: #2a2a32; }
+body.dark .edit-form { background: #1e1e1c; border-color: #2a2a28; }
 .edit-form label { display: inline-block; width: 80px; font-size: 11px; font-family: var(--font-mono); }
 .edit-form-btns { margin-top: 6px; display: flex; gap: 6px; }
 .post-edit-form { margin-top: 6px; }
@@ -1029,7 +1029,7 @@ body.dark .pw-hint { color: #888; }
   font-family: var(--font-mono);
   background: #fff; color: #000;
 }
-body.dark #pw-input { background: #1a1a20; color: #e8e8d8; border-color: #555; }
+body.dark #pw-input { background: #1e1e1c; color: #e8e8d8; border-color: #555; }
 #pw-input:focus { border-color: #1c1c78; outline: none; }
 #pw-ok {
   width: 100%; padding: 8px;
@@ -1064,7 +1064,7 @@ body.dark #pw-ok { background: #2a3d32; border-color: #3d5e48; }
   box-shadow: 4px 4px 0 #999;
 }
 body.dark #admin-pw-box { background: #111116; border-color: #555; box-shadow: 4px 4px 0 #333; }
-body.dark #admin-pw-box input { background: #1a1a20; color: var(--fg); border-color: #555; }
+body.dark #admin-pw-box input { background: #1e1e1c; color: var(--fg); border-color: #555; }
 
 /* ── POPUP ── */
 #popup-overlay {
@@ -1079,7 +1079,7 @@ body.dark #admin-pw-box input { background: #1a1a20; color: var(--fg); border-co
   font-size: 13px; position: relative; font-family: var(--font-mono);
   box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 }
-body.dark #popup-box { background: #1c1c22; border-color: #2a2a32; }
+body.dark #popup-box { background: #1e1e1c; border-color: #2a2a28; }
 #popup-close {
   position: absolute; top: 12px; right: 14px; cursor: pointer;
   font-size: 12px; border: 1px solid #ddd; border-radius: 6px;
@@ -1165,7 +1165,7 @@ textarea { width: 100%; margin-top: 2px; }
   position: relative; font-size: 13px;
   box-shadow: var(--shadow);
 }
-body.dark #album-popup-box { background: #1c1c22; border-color: #555; box-shadow: 4px 4px 0 #444; }
+body.dark #album-popup-box { background: #1e1e1c; border-color: #555; box-shadow: 4px 4px 0 #444; }
 #album-popup-close {
   position: absolute; top: 12px; right: 14px; cursor: pointer;
   font-size: 12px; border: var(--border); border-radius: var(--radius);
