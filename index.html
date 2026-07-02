@@ -67,16 +67,14 @@
     </div>
   </div>
   <nav id="header-nav">
-    <input type="text" id="search" placeholder="suchen...">
-    <div id="header-nav-sort">
-      <button id="sort-btn-old" class="sort-btn active" onclick="setSortDir(1)">↑ alt</button>
-      <button id="sort-btn-new" class="sort-btn" onclick="setSortDir(-1)">↓ neu</button>
-    </div>
-    <div id="header-nav-divider"></div>
-    <button class="sidebar-link" onclick="jumpToSection('flow-albums-carousel')">Alben</button>
-    <button class="sidebar-link" onclick="jumpToSection('flow-bdm-archiv')">BDM Archiv</button>
-    <button class="sidebar-link" onclick="jumpToSection('flow-top100')">Top 100</button>
-    <div id="header-nav-divider2"></div>
+    <input type="text" id="search" placeholder="suchen …">
+    <button id="sort-btn-old" class="sort-btn active nav-item" onclick="setSortDir(1)">↑ alt</button>
+    <button id="sort-btn-new" class="sort-btn nav-item" onclick="setSortDir(-1)">↓ neu</button>
+    <span class="nav-dot">·</span>
+    <button class="nav-item" onclick="jumpToSection('flow-albums-carousel')">Alben</button>
+    <button class="nav-item" onclick="jumpToSection('flow-bdm-archiv')">BDM Archiv</button>
+    <button class="nav-item" onclick="jumpToSection('flow-top100')">Top 100</button>
+    <span class="nav-dot">·</span>
     <button id="toc-toggle-btn" onclick="toggleToc()">Beiträge ▾</button>
   </nav>
 </header>
