@@ -40,6 +40,11 @@
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFa-NeniW7BUavP9kz2Fhg9TXD-Q3UCylmKE7__mLsC7KJw8FeZK3gkfk&s=10"
   },
   {
+    "title": "Koffer",
+    "artist": "Apsilon",
+    "cover": "https://www1.wdr.de/radio/cosmo/musik/album-der-woche/apsilon-haut-wie-pelz-102~_v-gseagaleriexl.jpg"
+  },
+  {
     "title": "This Charming Man",
     "artist": "The Smiths",
     "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/1/13/The_Smiths_The_Smiths.jpg/250px-The_Smiths_The_Smiths.jpg"
@@ -80,9 +85,9 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/1/14/Dire_Straits_Communique.jpg"
   },
   {
-    "title": "Whole Lotta Love",
-    "artist": "Led Zeppelin",
-    "cover": "https://upload.wikimedia.org/wikipedia/en/6/66/Wllsingle.jpg"
+    "title": "Heroin (Live)",
+    "artist": "Lou Reed",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/9/90/RocknRollAnimal.jpg/250px-RocknRollAnimal.jpg"
   },
   {
     "title": "Rock the Cashabn",
@@ -95,6 +100,16 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Oasis_-_%28What%27s_The_Story%29_Morning_Glory_album_cover.jpg"
   },
   {
+    "title": "Wolf Like Me",
+    "artist": "TV On The Radio",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/0/07/WolfLikeMe.jpg"
+  },
+  {
+    "title": "Creep",
+    "artist": "Radiohead",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/9/9b/Creep_by_radiohead_reissue.png"
+  },
+  {
     "title": "Can't You Hear Me Knocking",
     "artist": "The Rolling Stones",
     "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/5/57/The_Rolling_Stones_-_Sticky_Fingers.png/250px-The_Rolling_Stones_-_Sticky_Fingers.png"
@@ -105,19 +120,29 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/f/ff/Stoneroses.jpg"
   },
   {
-    "title": "Black Lucia",
-    "artist": "Aztec Camera",
-    "cover": "https://upload.wikimedia.org/wikipedia/en/f/f1/AC_Dreamland.jpg"
-  },
-  {
     "title": "Slide Away",
     "artist": "Oasis",
     "cover": "https://upload.wikimedia.org/wikipedia/en/d/d4/OasisDefinitelyMaybealbumcover.jpg"
   },
   {
-    "title": "One of These Nights",
-    "artist": "Eagles",
-    "cover": "https://upload.wikimedia.org/wikipedia/en/3/30/The_Eagles_-_One_of_These_Nights.jpg"
+    "title": "Black Lucia",
+    "artist": "Aztec Camera",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/f/f1/AC_Dreamland.jpg"
+  },
+  {
+    "title": "Whole Lotta Love",
+    "artist": "Led Zeppelin",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/6/66/Wllsingle.jpg"
+  },
+  {
+    "title": "Parklife",
+    "artist": "Blur",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/7/7d/BlurParklife.jpg"
+  },
+  {
+    "title": "Ask",
+    "artist": "The Smiths",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a0/Asksmiths.gif/250px-Asksmiths.gif"
   },
   {
     "title": "Come As You Are",
@@ -130,14 +155,24 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Delbgwh.jpg/250px-Delbgwh.jpg"
   },
   {
+    "title": "Wild Horses",
+    "artist": "The Rolling Stones",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/5/57/The_Rolling_Stones_-_Sticky_Fingers.png/250px-The_Rolling_Stones_-_Sticky_Fingers.png"
+  },
+  {
+    "title": "Breaking Into Heaven",
+    "artist": "The Stone Roses",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bc/Secondcomingroses.jpg/250px-Secondcomingroses.jpg"
+  },
+  {
     "title": "Disorder",
     "artist": "Joy Division",
     "cover": "https://upload.wikimedia.org/wikipedia/en/5/5a/UnknownPleasuresVinyl.jpg"
   },
   {
-    "title": "Wild Horses",
-    "artist": "The Rolling Stones",
-    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/5/57/The_Rolling_Stones_-_Sticky_Fingers.png/250px-The_Rolling_Stones_-_Sticky_Fingers.png"
+    "title": "Jackie Down the Line",
+    "artist": "Fontains D.C.",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/4/42/Jackie_Down_the_Line.jpg"
   },
   {
     "title": "Wonderwall",
@@ -145,9 +180,29 @@
     "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Oasis_-_%28What%27s_The_Story%29_Morning_Glory_album_cover.jpg"
   },
   {
+    "title": "One of These Nights",
+    "artist": "Eagles",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/3/30/The_Eagles_-_One_of_These_Nights.jpg"
+  },
+  {
     "title": "Get Out Of London",
     "artist": "Aztec Camera",
     "cover": "https://upload.wikimedia.org/wikipedia/en/0/08/Aztecstray.jpg"
+  },
+  {
+    "title": "Beast Of Burden",
+    "artist": "The Rolling Stones",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/Some_Girls.png/250px-Some_Girls.png"
+  },
+  {
+    "title": "i hate this tune",
+    "artist": "Royel Otis",
+    "cover": "https://upload.wikimedia.org/wikipedia/en/thumb/e/ed/Hickey_by_Royel_Otis.png/250px-Hickey_by_Royel_Otis.png"
+  },
+  {
+    "title": "Sinking Ship",
+    "artist": "The Backseat Lovers",
+    "cover": "https://i0.wp.com/provomusicmagazine.com/wp-content/uploads/2020/10/backseat-lovers-when-we-were-friends-album-art.jpg?fit=700%2C700&ssl=1"
   },
   {
     "title": "Stairway to Heaven",
