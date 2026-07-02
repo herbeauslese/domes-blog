@@ -1323,9 +1323,3 @@ body.dark #btn-back-top:hover { background: #e8e8ee; color: #111116; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
 body.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
 body.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
-
-/* TEMP: Lora-Vergleich zweite Hälfte Aalborg-Post */
-#post-photoaalborg-von-eisbaden-guinnes-und-gu-f .flow-text p:nth-child(n+10),
-#post-photoaalborg-von-eisbaden-guinnes-und-gu-f .flow-text h4:nth-child(n+10) {
-  font-family: 'Lora', Georgia, serif;
-}
