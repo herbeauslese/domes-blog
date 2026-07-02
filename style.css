@@ -116,11 +116,14 @@ body.dark #site-header-controls button:hover { border-color: #aaa; color: #aaa; 
   font-size: 11px;
   border: none;
   border-bottom: 1px solid #ccc;
+  border-radius: 0;
   background: none;
   color: var(--fg);
   padding: 1px 4px;
   width: 100px;
   outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 #header-nav #search:focus { border-bottom-color: #000; }
 body.dark #header-nav #search { border-bottom-color: #444; color: var(--fg); }
