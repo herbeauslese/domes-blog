@@ -50,22 +50,32 @@ a:hover { text-decoration: underline; }
   max-width: none; margin: 0; padding: 16px 20px 0;
   position: relative;
 }
+#site-header::before {
+  content: "---";
+  display: block; font-family: var(--font); font-size: 13px;
+  color: var(--muted); line-height: 1.65;
+}
+#site-header::after {
+  content: "---";
+  display: block; font-family: var(--font); font-size: 13px;
+  color: var(--muted); line-height: 1.65; padding-bottom: 4px;
+}
 #site-header-brand { display: block; }
 #site-header-title { display: block; }
 
 #site-header-title h1 {
   font-family: var(--font); font-size: 13px; font-weight: normal;
-  letter-spacing: 0; text-transform: none; line-height: 1.65; color: var(--muted);
+  letter-spacing: 0; text-transform: none; line-height: 1.65; color: var(--fg);
 }
-#site-header-title h1::before { content: "# "; }
-#site-header-title h1 span { background: none; color: var(--muted); padding: 0; }
-body.dark #site-header-title h1 { color: var(--muted); }
+#site-header-title h1::before { content: "site:    "; color: var(--key); white-space: pre; }
+#site-header-title h1 span { background: none; color: var(--fg); padding: 0; }
+body.dark #site-header-title h1 { color: var(--fg); }
 
 #site-header-title .sub {
-  font-family: var(--font); font-size: 13px; color: var(--muted);
+  font-family: var(--font); font-size: 13px; color: var(--fg);
   margin: 0; padding: 0; border: none;
 }
-#site-header-title .sub::before { content: "# "; }
+#site-header-title .sub::before { content: "über:    "; color: var(--key); white-space: pre; }
 
 #site-header-controls {
   position: absolute; right: 20px; top: 16px;
@@ -93,7 +103,7 @@ body.dark #site-header-title h1 { color: var(--muted); }
 }
 #header-nav #search::placeholder { color: var(--muted); }
 #header-nav #search:focus { color: var(--fg); }
-#search-wrap::before { content: "# filter: "; color: var(--muted); font-family: var(--font); font-size: 12px; white-space: nowrap; }
+#search-wrap::before { content: "filter:  "; color: var(--key); font-family: var(--font); font-size: 12px; white-space: pre; }
 #search-clear {
   display: none; position: static; background: none; border: none;
   font-size: 11px; color: var(--muted); cursor: pointer; padding: 0 0 0 4px; line-height: 1;
@@ -161,12 +171,14 @@ body.dark .edit-form { border-left-color: #333; }
 #bdm-pinned-right { display: block; padding: 0 0 0 var(--indent); cursor: pointer; width: 100%; flex: none; margin-top: 2px; }
 .bdm-pinned-header { font-family: var(--font); font-size: 12px; font-weight: normal; color: var(--key); margin-bottom: 2px; }
 .bdm-pinned-header::before { content: "month: "; }
-.bdm-pinned-photos { display: flex; gap: 4px; }
+.bdm-pinned-photos { display: none; gap: 4px; }
+.bdm-pinned-photos.expanded { display: flex; }
 .bdm-pinned-photo { flex: 1 1 0; min-width: 0; overflow: hidden; }
 .bdm-pinned-photo img { width: 100%; height: 55px; object-fit: cover; display: block; border: none; }
 .bdm-pinned-caption { display: none; }
-.bdm-pinned-reise-img { width: 100%; max-width: 180px; aspect-ratio: 4/3; object-fit: cover; border: none; }
-.bdm-pinned-reise-title { font-size: 12px; color: var(--key); margin-top: 2px; }
+.bdm-pinned-reise-img { display: none; width: 100%; max-width: 200px; aspect-ratio: 4/3; object-fit: cover; border: none; margin-top: 2px; }
+.bdm-pinned-reise-img.expanded { display: block; }
+.bdm-pinned-reise-title { font-size: 13px; color: var(--key); margin-top: 0; }
 .bdm-pinned-reise-title::before { content: "current: "; }
 .bdm-archiv-month { margin-bottom: 2px; padding-left: var(--indent); }
 .bdm-archiv-month-label { font-family: var(--font); font-size: 12px; color: var(--key); margin-bottom: 2px; position: relative; padding-left: var(--indent); }
@@ -268,6 +280,8 @@ body.dark .flow-post { background: none; }
 .media-toggle:hover { color: var(--fg); }
 .media-toggle::before { content: "images:  "; color: var(--key); white-space: pre; }
 .media-toggle.is-embed::before { content: "embed:   "; color: var(--key); white-space: pre; }
+.media-toggle.is-bdm-photos::before { content: "fotos:   "; color: var(--key); white-space: pre; }
+.media-toggle.is-bdm-reise::before  { content: "foto:    "; color: var(--key); white-space: pre; }
 .media-toggle.is-open { color: var(--fg); }
 
 .flow-admin { display: flex; gap: 8px; margin-top: 2px; }
