@@ -661,28 +661,30 @@ body.dark .album-sort-pill.active { box-shadow: 0 2px 0 0 var(--accent); color: 
 /* album index list */
 .album-index {
   margin-bottom: 0;
-  max-height: 200px;
+  max-height: 220px;
   overflow-y: auto;
 }
 .album-index-item {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   text-align: left;
   background: none;
   border: none;
-  padding: 3px 4px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 6px 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 12.5px;
   color: #333;
-  border-radius: 2px;
+  border-radius: 0;
 }
-.album-index-item:hover { background: rgba(0,0,0,0.05); }
-.album-index-item.active { background: var(--accent); color: #fff; }
-body.dark .album-index-item { color: #ccc; }
-body.dark .album-index-item:hover { background: rgba(255,255,255,0.06); }
-body.dark .album-index-item.active { background: var(--accent); color: #fff; }
+.album-index-item:last-child { border-bottom: none; }
+.album-index-item:hover { background: rgba(0,0,0,0.04); }
+.album-index-item.active { background: #000; color: #fff; }
+body.dark .album-index-item { color: #ccc; border-bottom-color: rgba(255,255,255,0.07); }
+body.dark .album-index-item:hover { background: rgba(255,255,255,0.05); }
+body.dark .album-index-item.active { background: #e8e8e4; color: #141412; }
 .album-index-rating {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -690,9 +692,11 @@ body.dark .album-index-item.active { background: var(--accent); color: #fff; }
   flex-shrink: 0;
   width: 22px;
   text-align: right;
+  color: var(--muted);
 }
+.album-index-item.active .album-index-rating { color: inherit; }
 .album-index-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.album-index-year { font-size: 10px; opacity: 0.6; }
+.album-index-year { font-size: 10px; opacity: 0.5; }
 
 /* Trenner zwischen Liste und aktuellem Album */
 .album-carousel-section {
