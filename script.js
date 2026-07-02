@@ -1867,6 +1867,23 @@ document.getElementById("btn-show-hidden").addEventListener("click", () => {
 });
 
 // ── FEATURED REISE ────────────────────────────────────────────────────────────
+function openBdmPhoto(photo) {
+  const overlay = document.getElementById("bdm-photo-overlay");
+  const img = document.getElementById("bdm-photo-overlay-img");
+  const cap = document.getElementById("bdm-photo-overlay-caption");
+  img.src = photo.url || "";
+  cap.textContent = photo.caption || "";
+  overlay.style.display = "flex";
+  document.addEventListener("keydown", closeBdmPhotoOnEsc);
+}
+
+function closeBdmPhoto() {
+  document.getElementById("bdm-photo-overlay").style.display = "none";
+  document.removeEventListener("keydown", closeBdmPhotoOnEsc);
+}
+
+function closeBdmPhotoOnEsc(e) { if (e.key === "Escape") closeBdmPhoto(); }
+
 function renderFeaturedReise() {
   const reisePosts = posts.filter(p => p.type === "photo" && p.tag === "reise" && !p.draft);
   reisePosts.sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
