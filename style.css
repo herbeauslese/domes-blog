@@ -156,7 +156,7 @@ body.dark #site-header-controls button:hover { border-color: #aaa; color: #aaa; 
 body.dark .sidebar-hr { border-top-color: #2a2a1a; }
 
 #sidebar-search {
-  padding: 0 14px;
+  padding: 10px 14px 0;
   flex-shrink: 0;
 }
 #sidebar-search #search {
